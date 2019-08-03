@@ -1,8 +1,9 @@
 export default {
   colorsMap: {
-    red: '#F56565',
-    blue: '#4299E1',
+    red: '#E53E3E',
+    blue: '#3182CE',
     green: '#48BB78',
-    purple: '#9F7AEA'
+    purple: '#9F7AEA',
+    yellow: '#F6E05E'
   }
 }

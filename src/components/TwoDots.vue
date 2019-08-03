@@ -1,27 +1,31 @@
 <template>
   <div class="TwoDots">
-    <div class="bg-white">
-      moves left: {{ movesLeft }}
-
-      <div>
-        <div v-for="(goal, $index) in goals" :key="$index">
-          {{ goal.color }} {{ goal.current }}/{{ goal.target }}
+    <div class="flex align-center text-gray-700 mb-12">
+      <div class="TwoDots__panel px-0 w-16 mr-5">
+        <div class="text-center">
+          <div class="text-2xl leading-tight">{{ movesLeft }}</div>
+          <div class="uppercase text-xs font-semibold">Moves</div>
         </div>
       </div>
 
-      {{ hasFullfilledGoals }}
+      <div class="TwoDots__panel px-5">
+        <div v-for="(goal, $index) in goals" :key="$index">
+          <GoalStatus :goal="goal" />
+        </div>
+      </div>
     </div>
 
     <svg
       :width="realSize.width"
       :height="realSize.height"
       :viewBox="`0 0 ${size.width} ${size.height}`"
+      class="mx-auto"
       ref="tileCanvas"
     >
       <g>
         <svg v-for="tile in nonEmptyTiles" :key="tile.id" :x="tile.x" :y="tile.y">
           <g v-if="tile.type === 'dot'">
-            <DotTile @mousedown.native="startSelection(tile, $event)" :dot="tile" :is-selected="selectionById[tile.id]" :ref="`tile.${tile.id}`" />
+            <DotTile @mousedown.native="hasMovesLeft && startSelection(tile, $event)" :dot="tile" :is-selected="selectionById[tile.id]" :ref="`tile.${tile.id}`" />
           </g>
         </svg>
       </g>
@@ -44,13 +48,11 @@
     </svg>
 
     <!-- frame -->
-  <SelectionProgressFrame
+    <SelectionProgressFrame
       :length="selection.length"
       :color="mappedSelectionColor"
       :is-closed="isSelectionClosed"
     />
-
-    <button @click="restart" class="mx-auto mt-10">restart</button>
   </div>
 </template>
 
@@ -59,6 +61,8 @@ import config from 'config'
 
 import DotTile from 'components/tiles/DotTile.vue'
 import SelectionProgressFrame from 'components/SelectionProgressFrame.vue'
+import GoalStatus from 'components/GoalStatus.vue'
+import { setInterval, clearInterval } from 'timers';
 
 const TILE_SIZE = 50;
 const DOT_COLORS = ["red", "blue", "purple"];
@@ -85,9 +89,10 @@ function generateDotTile(position, color = DOT_COLORS) {
 
 function buildLevel(level) {
   const symbolToTileMap = {
-    '*': position => generateDotTile(position, level.allowedColors),
+    '*': position => generateDotTile(position, level.colors),
     'r': position => generateDotTile(position, 'red'),
-    'b': position => generateDotTile(position, 'blue')
+    'b': position => generateDotTile(position, 'blue'),
+    'y': position => generateDotTile(position, 'yellow')
   };
 
   const tilesMatrix = level.map
@@ -96,8 +101,6 @@ function buildLevel(level) {
           return symbolToTileMap[symbol] && symbolToTileMap[symbol]({ x, y });
         });
     });
-
-  // todo: check rows integrity
 
   const size = {
     width: tilesMatrix.length,
@@ -108,6 +111,14 @@ function buildLevel(level) {
     tiles: tilesMatrix.flatMap(row => row),
     size
   };
+}
+
+function initLevelState(level) {
+  return {
+    ...buildLevel(level),
+    movesLeft: level.moves,
+    goals: level.goals.map(goal => ({ ...goal, current: 0 }))
+  }
 }
 
 function getNextPossibleTiles(tilesMatrix, tile, lastSelected = undefined) {
@@ -139,7 +150,8 @@ export default {
 
   components: {
     DotTile,
-    SelectionProgressFrame
+    SelectionProgressFrame,
+    GoalStatus
   },
 
   props: {
@@ -153,7 +165,7 @@ export default {
           r r * * *
           r r * * *
         `,
-        allowedColors: ['blue', 'red', 'green', 'purple'],
+        colors: ['blue', 'red', 'green', 'purple'],
         moves: 12,
         goals: [
           {color: 'red', target: 20},
@@ -166,14 +178,11 @@ export default {
 
   data() {
     return {
-      size: { width: 0, height: 0 },
-      tiles: [],
-      isMakingSelection: false,
+      ...initLevelState(this.level),
       selection: [],
+      isMakingSelection: false,
       nextPossibleTiles: [],
       mouseRelativePosition: undefined,
-      movesLeft: 0,
-      goals: []
     };
   },
 
@@ -207,7 +216,7 @@ export default {
         points.push(`${this.mouseRelativePosition.x},${this.mouseRelativePosition.y}`)
       }
 
-      return points.join(" ");
+      return points.join(' ');
     },
 
     selectionById() {
@@ -235,6 +244,25 @@ export default {
 
     secondLastSelected() {
       return this.selection[this.selection.length - 2];
+    },
+
+    availableDotSquares() {
+      const squareCoordinates = [
+        [0,0], [1,0],
+        [0,1], [1,1]
+      ]
+
+      return this.tiles
+        .reduce((squares, tile) => {
+          const squareTiles = squareCoordinates.map(([ x, y ]) => this.tilesMatrix[tile.y + y] && this.tilesMatrix[tile.y + y][tile.x + x])
+          const hasSameColor = squareTiles.every(tileInSquare => tileInSquare && tileInSquare.color === tile.color)
+
+          if (hasSameColor) {
+            squares.push(squareTiles)
+          }
+
+          return squares
+        }, [])
     },
 
     hasAnyHorizontalMove() {
@@ -273,12 +301,23 @@ export default {
 
   methods: {
     restart() {
-      const { tiles, size } = buildLevel(this.level);
+      const { tiles, size, movesLeft, goals } = initLevelState(this.level);
 
       this.tiles = tiles;
       this.size = size;
-      this.movesLeft = this.level.moves
-      this.goals = this.level.goals.map(goal => ({ ...goal, current: 0 }))
+      this.movesLeft = movesLeft
+      this.goals = goals
+
+      this.cancelSquaresHighlighting()
+      this.initSquaresHighlighting()
+    },
+
+    initSquaresHighlighting() {
+      this.squaresHighlightingInterval = setInterval(() => this.highlightRandomSquare(), 10000)
+    },
+
+    cancelSquaresHighlighting() {
+      this.squaresHighlightingInterval && clearInterval(this.squaresHighlightingInterval)
     },
 
     startSelection(tile, event) {
@@ -288,8 +327,8 @@ export default {
       this.trackSelectionCursor(event);
       this.addToSelection(tile)
 
-      window.addEventListener("mouseup", this.endSelection);
-      window.addEventListener("mousemove", this.trackSelectionCursor);
+      window.addEventListener('mouseup', this.endSelection);
+      window.addEventListener('mousemove', this.trackSelectionCursor);
     },
 
     addToSelection(tile) {
@@ -330,35 +369,43 @@ export default {
       );
     },
 
-    async endSelection() {
-      window.removeEventListener("mouseup", this.endSelection);
-      window.removeEventListener("mousemove", this.trackSelectionCursor);
+    endSelection() {
+      window.removeEventListener('mouseup', this.endSelection);
+      window.removeEventListener('mousemove', this.trackSelectionCursor);
 
       this.isMakingSelection = false;
       this.mouseRelativePosition = undefined;
       this.nextPossibleTiles = [];
 
       if (this.selection.length > 1) {
-        const allowedColors = this.level.allowedColors;
+        const colors = this.level.colors;
 
         const tilesToPop = this.isSelectionClosed
           ? this.getAllDotTilesOfColor(this.selectionColor)
           : this.selection;
 
-        const colors = this.isSelectionClosed
-          ? allowedColors.filter(color => color !== this.selectionColor)
-          : allowedColors;
+        const availableColors = this.isSelectionClosed
+          ? colors.filter(color => color !== this.selectionColor)
+          : colors;
 
-        this.selection = []
+        (async () => {
+          this.cancelSquaresHighlighting()
 
-        await this.popTiles(tilesToPop);
-        await this.fallDown();
-        await this.fillWithDots(colors);
+          await this.popTiles(tilesToPop);
+          await this.fallDown();
+          await this.fillWithDots(availableColors);
+
+          this.initSquaresHighlighting()
+        })()
 
         this.accountTiles(tilesToPop)
+        this.decrementMoves()
       }
 
       this.selection = []
+    },
+
+    decrementMoves() {
       this.movesLeft = this.movesLeft - 1
     },
 
@@ -456,6 +503,16 @@ export default {
       })
     },
 
+    highlightRandomSquare() {
+      if (!this.availableDotSquares.length) {
+        return
+      }
+
+      getRandomItem(this.availableDotSquares)
+        .map(this.getTileComponent)
+        .forEach(dot => dot.animateBeacon())
+    },
+
     accountTiles(tiles) {
       this.goals = this.goals.map(goal => {
         const numberOfTiles = tiles.filter(tile => {
@@ -487,5 +544,11 @@ export default {
 .TwoDots svg {
   overflow: visible;
   user-select: none;
+}
+
+.TwoDots__panel {
+  @apply flex items-center justify-center h-16 bg-white rounded-lg pb-2;
+
+  box-shadow: inset 0 -6px 0 0 #e3e3e3;
 }
 </style>
