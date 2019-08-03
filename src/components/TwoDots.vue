@@ -44,11 +44,10 @@
     </svg>
 
     <!-- frame -->
-    <SelectionProgressFrame
+  <SelectionProgressFrame
       :length="selection.length"
       :color="mappedSelectionColor"
-      :is-closed="isSelectionSquare"
-      v-if="isMakingSelection"
+      :is-closed="isSelectionClosed"
     />
 
     <button @click="restart" class="mx-auto mt-10">restart</button>
@@ -204,7 +203,7 @@ export default {
       const points = this.selection
         .map(tile => `${tile.x + 0.5},${tile.y + 0.5}`)
 
-      if (!this.isSelectionSquare) {
+      if (!this.isSelectionClosed) {
         points.push(`${this.mouseRelativePosition.x},${this.mouseRelativePosition.y}`)
       }
 
@@ -223,7 +222,7 @@ export default {
       return config.colorsMap[this.selectionColor]
     },
 
-    isSelectionSquare() {
+    isSelectionClosed() {
       return (
         this.selection.findIndex(tile => tile.id === this.lastSelected.id) <
         this.selection.length - 2
@@ -289,7 +288,7 @@ export default {
       this.trackSelectionCursor(event);
       this.addToSelection(tile)
 
-      window.addEventListener("mouseup", this.finishSelection);
+      window.addEventListener("mouseup", this.endSelection);
       window.addEventListener("mousemove", this.trackSelectionCursor);
     },
 
@@ -302,6 +301,10 @@ export default {
         0,
         this.selection.length - 2
       );
+
+      if (this.isSelectionClosed) {
+        this.getAllDotTilesOfColor(this.selectionColor).map(this.getTileComponent).forEach(dot => dot.animateBeacon())
+      }
 
       if (selectedWithoutLast.some(({ id }) => id === this.lastSelected.id)) {
         this.nextPossibleTiles = [];
@@ -327,8 +330,8 @@ export default {
       );
     },
 
-    async finishSelection() {
-      window.removeEventListener("mouseup", this.finishSelection);
+    async endSelection() {
+      window.removeEventListener("mouseup", this.endSelection);
       window.removeEventListener("mousemove", this.trackSelectionCursor);
 
       this.isMakingSelection = false;
@@ -338,13 +341,15 @@ export default {
       if (this.selection.length > 1) {
         const allowedColors = this.level.allowedColors;
 
-        const tilesToPop = this.isSelectionSquare
+        const tilesToPop = this.isSelectionClosed
           ? this.getAllDotTilesOfColor(this.selectionColor)
           : this.selection;
 
-        const colors = this.isSelectionSquare
+        const colors = this.isSelectionClosed
           ? allowedColors.filter(color => color !== this.selectionColor)
           : allowedColors;
+
+        this.selection = []
 
         await this.popTiles(tilesToPop);
         await this.fallDown();

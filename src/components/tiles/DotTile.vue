@@ -42,10 +42,10 @@ export default {
     animateBeacon() {
       return anime({
         targets: this.$refs.beacon,
-        scale: [1, 2],
+        scale: [1, 2.5],
         opacity: [1, 0],
         easing: 'linear',
-        duration: 250
+        duration: 350
       }).finished
     },
 
