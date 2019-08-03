@@ -2,7 +2,7 @@
   <svg class="absolute top-0 left-0 w-screen h-screen pointer-events-none">
     <g v-for="(corner, $index) in corners" :key="$index" :style="`transform-origin: 25% 25%; transform: ${corner}`">
       <polyline
-        stroke-width="40"
+        stroke-width="30"
         style="transition: stroke-dasharray .15s"
         :points="points" height="100" fill="none" :stroke="visibleColor"
         :style="style"
@@ -51,12 +51,16 @@ export default {
         return
       }
 
+      if (this.color) {
+          this.visibleColor = this.color
+        }
+
       const { clientWidth, clientHeight } = this.$el
 
       this.points = `${clientWidth / 2},0 0,0 0,${clientHeight / 2}`
 
       const fullLength = (clientWidth + clientHeight) / 2
-      const progress = Math.min(1, this.isClosed ? 1 : (this.length / 20))
+      const progress = Math.min(1, this.isClosed ? 1 : ((this.length - 1) / 20))
       const line = progress * fullLength
       const gap = Math.max(0, fullLength - line)
 

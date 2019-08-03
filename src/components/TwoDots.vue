@@ -9,7 +9,7 @@
       <g>
         <svg v-for="tile in nonEmptyTiles" :key="tile.id" :x="tile.x" :y="tile.y">
           <g v-if="tile.type === 'dot'">
-            <DotTile @mousedown.native="startSelection(tile, $event)" :dot="tile" :is-selected="selectionById[tile.id]" />
+            <DotTile @mousedown.native="startSelection(tile, $event)" :dot="tile" :is-selected="selectionById[tile.id]" :ref="`tile.${tile.id}`" />
           </g>
         </svg>
       </g>
@@ -22,7 +22,7 @@
       <!-- selection zones -->
       <g v-if="isMakingSelection" style="position: relative; z-index: 1; opacity: 0">
         <svg v-for="tile in nextPossibleTiles" :key="tile.id" :x="tile.x" :y="tile.y">
-          <circle cx="0.5" cy="0.5" r="0.32" @mouseenter="addToSelection(tile)" />
+          <circle cx="0.5" cy="0.5" r="0.35" @mouseenter="addToSelection(tile)" />
         </svg>
 
         <svg v-if="secondLastSelected" :x="secondLastSelected.x" :y="secondLastSelected.y">
@@ -32,7 +32,12 @@
     </svg>
 
     <!-- frame -->
-    <SelectionProgressFrame :length="selection.length" :color="mappedSelectionColor" :is-closed="isSelectionSquare" />
+    <SelectionProgressFrame
+      :length="selection.length"
+      :color="mappedSelectionColor"
+      :is-closed="isSelectionSquare"
+      v-if="isMakingSelection"
+    />
 
     <button @click="restart" class="mx-auto mt-10">restart</button>
   </div>
@@ -290,30 +295,31 @@ export default {
       );
     },
 
-    finishSelection() {
+    async finishSelection() {
       window.removeEventListener("mouseup", this.finishSelection);
       window.removeEventListener("mousemove", this.trackSelectionCursor);
 
+      this.isMakingSelection = false;
+      this.mouseRelativePosition = undefined;
+      this.nextPossibleTiles = [];
+
       if (this.selection.length > 1) {
-        const allowedColors = this.level.allowedColors;
+        // const allowedColors = this.level.allowedColors;
 
         const tilesToPop = this.isSelectionSquare
           ? this.getAllDotTilesOfColor(this.selectionColor)
           : this.selection;
 
-        const colors = this.isSelectionSquare
-          ? allowedColors.filter(color => color !== this.selectionColor)
-          : allowedColors;
+        this.selection = [];
 
-        this.popTiles(tilesToPop);
+        // const colors = this.isSelectionSquare
+        //   ? allowedColors.filter(color => color !== this.selectionColor)
+        //   : allowedColors;
+
+        await this.popTiles(tilesToPop);
         this.fallDown();
-        this.fillWithDots(colors);
+        // this.fillWithDots(colors);
       }
-
-      this.isMakingSelection = false;
-      this.nextPossibleTiles = [];
-      this.selection = [];
-      this.mouseRelativePosition = undefined;
     },
 
     trackSelectionCursor(e) {
@@ -327,7 +333,11 @@ export default {
       this.mouseRelativePosition = relativePosition;
     },
 
-    popTiles(tiles) {
+    async popTiles(tiles) {
+      const promises = this.getTileElements(tiles).map(component => component.destroy())
+
+      await Promise.all(promises)
+
       this.tiles = this.nonEmptyTiles.map(tile => {
         return tiles.some(({ id }) => id === tile.id) ? undefined : tile;
       });
@@ -388,6 +398,16 @@ export default {
       return this.nonEmptyTiles.filter(
         tile => tile.type === TILE_TYPES.DOT && tile.color === color
       );
+    },
+
+    getTileElements(tiles) {
+      console.log(2, this)
+      return tiles.map(({ id }) => {
+        console.log(3, this)
+        console.log(this.$refs)
+        console.log(`tile.${id}`, this.$refs[`tile.${id}`])
+        return this.$refs[`tile.${id}`][0]
+      })
     }
   },
 

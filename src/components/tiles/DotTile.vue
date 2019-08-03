@@ -1,11 +1,12 @@
 <template>
-  <g>
+  <g transform-origin="0.5 0.5">
     <circle class="DotTile" cx="0.5" cy="0.5" r="0.32" :fill="color" />
     <circle class="DotTile__selectionHaze" :class="{ isSelected }" cx="0.5" cy="0.5" r="0.32" :fill="color" transform-origin="0.5 0.5" />
   </g>
 </template>
 
 <script>
+import anime from 'animejs'
 import config from 'config'
 
 export default {
@@ -26,6 +27,23 @@ export default {
     color() {
       return config.colorsMap[this.dot.color]
     }
+  },
+
+  methods: {
+    destroy() {
+      this.destructionAnimation.restart()
+      return this.destructionAnimation.finished
+    }
+  },
+
+  mounted() {
+    this.destructionAnimation = anime({
+      targets: this.$el,
+      scale: 0,
+      autoplay: false,
+      easing: 'linear',
+      duration: 150
+    })
   }
 }
 </script>
