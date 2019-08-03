@@ -9,14 +9,14 @@
       <g>
         <svg v-for="tile in nonEmptyTiles" :key="tile.id" :x="tile.x" :y="tile.y">
           <g v-if="tile.type === 'dot'">
-            <circle cx="0.5" cy="0.5" r="0.32" :fill="colorMap[tile.color]" @mousedown="startSelection(tile, $event)" />
+            <DotTile @mousedown.native="startSelection(tile, $event)" :dot="tile" :is-selected="selectionById[tile.id]" />
           </g>
         </svg>
       </g>
 
       <!-- selection line -->
       <g v-if="isMakingSelection">
-        <polyline :points="selectionPoints" :stroke="colorMap[selectionColor]" stroke-width=".15" fill="none" stroke-linecap="round" />
+        <polyline :points="selectionPoints" :stroke="mappedSelectionColor" stroke-width=".15" fill="none" stroke-linecap="round" />
       </g>
 
       <!-- selection zones -->
@@ -31,11 +31,19 @@
       </g>
     </svg>
 
+    <!-- frame -->
+    <SelectionProgressFrame :length="selection.length" :color="mappedSelectionColor" :is-closed="isSelectionSquare" />
+
     <button @click="restart" class="mx-auto mt-10">restart</button>
   </div>
 </template>
 
 <script>
+import config from 'config'
+
+import DotTile from 'components/tiles/DotTile.vue'
+import SelectionProgressFrame from 'components/SelectionProgressFrame.vue'
+
 const TILE_SIZE = 50;
 const DOT_COLORS = ["red", "blue", "purple"];
 
@@ -113,18 +121,21 @@ function getNextPossibleTiles(tilesMatrix, tile, lastSelected = undefined) {
 export default {
   name: "TwoDots",
 
-  components: {},
+  components: {
+    DotTile,
+    SelectionProgressFrame
+  },
 
   props: {
     level: {
       type: Object,
       default: () => ({
         map: `
-          * * * * *
-          * * * * *
-          * * * * *
-          * * * * *
-          * * * * *
+          r * * * *
+          r * * * *
+          r * * * *
+          r r * * *
+          r r * * *
         `,
         allowedColors: ["blue", "red", "green"],
       })
@@ -139,12 +150,6 @@ export default {
       selection: [],
       nextPossibleTiles: [],
       mouseRelativePosition: undefined,
-      colorMap: {
-        red: '#F56565',
-        blue: '#4299E1',
-        green: '#48BB78',
-        purple: '#9F7AEA'
-      }
     };
   },
 
@@ -171,16 +176,26 @@ export default {
     },
 
     selectionPoints() {
-      return this.selection
+      const points = this.selection
         .map(tile => `${tile.x + 0.5},${tile.y + 0.5}`)
-        .concat(
-          `${this.mouseRelativePosition.x},${this.mouseRelativePosition.y}`
-        )
-        .join(" ");
+
+      if (!this.isSelectionSquare) {
+        points.push(`${this.mouseRelativePosition.x},${this.mouseRelativePosition.y}`)
+      }
+
+      return points.join(" ");
+    },
+
+    selectionById() {
+      return this.selection.reduce((acc, tile) => ({ ...acc, [tile.id]: true }), {})
     },
 
     selectionColor() {
       return this.selection.length && this.selection[0].color;
+    },
+
+    mappedSelectionColor() {
+      return config.colorsMap[this.selectionColor]
     },
 
     isSelectionSquare() {
@@ -382,7 +397,7 @@ export default {
 };
 </script>
 
-<style>
+<style lang="postcss">
 .TwoDots svg {
   overflow: visible;
   user-select: none;
