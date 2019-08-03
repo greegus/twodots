@@ -1,5 +1,17 @@
 <template>
   <div class="TwoDots">
+    <div class="bg-white">
+      moves left: {{ movesLeft }}
+
+      <div>
+        <div v-for="(goal, $index) in goals" :key="$index">
+          {{ goal.color }} {{ goal.current }}/{{ goal.target }}
+        </div>
+      </div>
+
+      {{ hasFullfilledGoals }}
+    </div>
+
     <svg
       :width="realSize.width"
       :height="realSize.height"
@@ -22,11 +34,11 @@
       <!-- selection zones -->
       <g v-if="isMakingSelection" style="position: relative; z-index: 1; opacity: 0">
         <svg v-for="tile in nextPossibleTiles" :key="tile.id" :x="tile.x" :y="tile.y">
-          <circle cx="0.5" cy="0.5" r="0.5" @mouseenter="addToSelection(tile)" />
+          <rect width="1" height="1" @mouseenter="addToSelection(tile)" />
         </svg>
 
         <svg v-if="secondLastSelected" :x="secondLastSelected.x" :y="secondLastSelected.y">
-          <rect width="1" height="1" @mouseenter="removeLastFromSelection()" style="transform: scale(1.2);" transform-origin="0.5 0.5" />
+          <rect width="1" height="1" @mouseenter="removeLastFromSelection()" />
         </svg>
       </g>
     </svg>
@@ -124,7 +136,7 @@ function getNextPossibleTiles(tilesMatrix, tile, lastSelected = undefined) {
 }
 
 export default {
-  name: "TwoDots",
+  name: 'TwoDots',
 
   components: {
     DotTile,
@@ -136,13 +148,19 @@ export default {
       type: Object,
       default: () => ({
         map: `
-          r * * * *
-          r * * * *
-          r * * * *
+          * * * * *
+          * * * * *
+          * * * * *
           r r * * *
           r r * * *
         `,
-        allowedColors: ["blue", "red", "green"],
+        allowedColors: ['blue', 'red', 'green', 'purple'],
+        moves: 12,
+        goals: [
+          {color: 'red', target: 20},
+          {color: 'blue', target: 20},
+          {color: 'green', target: 20},
+        ]
       })
     }
   },
@@ -155,6 +173,8 @@ export default {
       selection: [],
       nextPossibleTiles: [],
       mouseRelativePosition: undefined,
+      movesLeft: 0,
+      goals: []
     };
   },
 
@@ -239,6 +259,16 @@ export default {
 
     hasAnyMoveAvailable() {
       return this.hasAnyHorizontalMove || this.hasAnyVerticalMove;
+    },
+
+    hasFullfilledGoals() {
+      return this.goals.every(goal => {
+        return goal.current >= goal.target
+      })
+    },
+
+    hasMovesLeft() {
+      return this.movesLeft > 0
     }
   },
 
@@ -248,6 +278,8 @@ export default {
 
       this.tiles = tiles;
       this.size = size;
+      this.movesLeft = this.level.moves
+      this.goals = this.level.goals.map(goal => ({ ...goal, current: 0 }))
     },
 
     startSelection(tile, event) {
@@ -314,14 +346,15 @@ export default {
           ? allowedColors.filter(color => color !== this.selectionColor)
           : allowedColors;
 
-        this.selection = []
-
         await this.popTiles(tilesToPop);
         await this.fallDown();
-        this.fillWithDots(colors);
+        await this.fillWithDots(colors);
+
+        this.accountTiles(tilesToPop)
       }
 
       this.selection = []
+      this.movesLeft = this.movesLeft - 1
     },
 
     trackSelectionCursor(e) {
@@ -415,6 +448,16 @@ export default {
         newTiles.forEach((tile) => {
           return this.getTileComponent(tile).animateFall(tile.initialDepth)
         })
+      })
+    },
+
+    accountTiles(tiles) {
+      this.goals = this.goals.map(goal => {
+        const numberOfTiles = tiles.filter(tile => {
+          return tile.color === goal.color
+        }).length
+
+        return { ...goal, current: Math.min(goal.target, goal.current + numberOfTiles) }
       })
     },
 
