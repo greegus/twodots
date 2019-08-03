@@ -1,7 +1,7 @@
 <template>
   <g transform-origin="0.5 0.5">
     <circle class="DotTile" cx="0.5" cy="0.5" r="0.32" :fill="color" />
-    <circle class="DotTile__selectionHaze" :class="{ isSelected }" cx="0.5" cy="0.5" r="0.32" :fill="color" transform-origin="0.5 0.5" />
+    <circle ref="beacon" cx="0.5" cy="0.5" r="0.32" :fill="color" transform-origin="0.5 0.5" />
   </g>
 </template>
 
@@ -30,37 +30,50 @@ export default {
   },
 
   methods: {
-    destroy() {
-      this.destructionAnimation.restart()
-      return this.destructionAnimation.finished
-    }
+    animateDestruction() {
+      return anime({
+        targets: this.$el,
+        scale: 0,
+        easing: 'linear',
+        duration: 150
+      }).finished
+    },
+
+    animateBeacon() {
+      return anime({
+        targets: this.$refs.beacon,
+        scale: 2,
+        opacity: 0,
+        easing: 'linear',
+        duration: 250
+      }).finished
+    },
+
+    async animateFall(depth) {
+      await anime({
+        targets: this.$el,
+        easing: 'linear',
+        translateY: [-1 * depth, 0],
+        duration: 50 * depth
+      }).finished
+
+      return anime({
+        targets: this.$el,
+        easing: 'easeInQuad',
+        direction: 'alternate',
+        translateY: -0.125,
+        duration: 50
+      }).finished
+    },
   },
 
   mounted() {
-    this.destructionAnimation = anime({
+    anime({
       targets: this.$el,
-      scale: 0,
-      autoplay: false,
+      opacity: [0, 1],
       easing: 'linear',
-      duration: 150
+      duration: 50
     })
   }
 }
 </script>
-
-<style lang="postcss">
-  .DotTile__selectionHaze {
-    opacity: 0;
-
-    &.isSelected {
-      animation: DotTile__selectionHaze .5s;
-      /* transform-origin: 0.5 0.5; */
-    }
-  }
-
-  @keyframes DotTile__selectionHaze {
-    0% {opacity: 1}
-    100% {opacity: 0; transform: scale(2)}
-  }
-</style>
-

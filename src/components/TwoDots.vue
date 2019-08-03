@@ -22,7 +22,7 @@
       <!-- selection zones -->
       <g v-if="isMakingSelection" style="position: relative; z-index: 1; opacity: 0">
         <svg v-for="tile in nextPossibleTiles" :key="tile.id" :x="tile.x" :y="tile.y">
-          <circle cx="0.5" cy="0.5" r="0.35" @mouseenter="addToSelection(tile)" />
+          <circle cx="0.5" cy="0.5" r="0.5" @mouseenter="addToSelection(tile)" />
         </svg>
 
         <svg v-if="secondLastSelected" :x="secondLastSelected.x" :y="secondLastSelected.y">
@@ -251,13 +251,11 @@ export default {
     },
 
     startSelection(tile, event) {
-      const nextPossibleTiles = getNextPossibleTiles(this.tilesMatrix, tile);
+      this.isMakingSelection = true;
+      this.selection = []
 
       this.trackSelectionCursor(event);
-
-      this.isMakingSelection = true;
-      this.nextPossibleTiles = nextPossibleTiles;
-      this.selection = [tile];
+      this.addToSelection(tile)
 
       window.addEventListener("mouseup", this.finishSelection);
       window.addEventListener("mousemove", this.trackSelectionCursor);
@@ -265,6 +263,8 @@ export default {
 
     addToSelection(tile) {
       this.selection.push(tile);
+
+      this.getTileComponent(tile).animateBeacon()
 
       const selectedWithoutLast = this.selection.slice(
         0,
@@ -304,22 +304,24 @@ export default {
       this.nextPossibleTiles = [];
 
       if (this.selection.length > 1) {
-        // const allowedColors = this.level.allowedColors;
+        const allowedColors = this.level.allowedColors;
 
         const tilesToPop = this.isSelectionSquare
           ? this.getAllDotTilesOfColor(this.selectionColor)
           : this.selection;
 
-        this.selection = [];
+        const colors = this.isSelectionSquare
+          ? allowedColors.filter(color => color !== this.selectionColor)
+          : allowedColors;
 
-        // const colors = this.isSelectionSquare
-        //   ? allowedColors.filter(color => color !== this.selectionColor)
-        //   : allowedColors;
+        this.selection = []
 
         await this.popTiles(tilesToPop);
-        this.fallDown();
-        // this.fillWithDots(colors);
+        await this.fallDown();
+        this.fillWithDots(colors);
       }
+
+      this.selection = []
     },
 
     trackSelectionCursor(e) {
@@ -334,18 +336,20 @@ export default {
     },
 
     async popTiles(tiles) {
-      const promises = this.getTileElements(tiles).map(component => component.destroy())
+      const animations = tiles
+        .map(this.getTileComponent)
+        .map(component => component.animateDestruction())
 
-      await Promise.all(promises)
+      await Promise.all(animations)
 
       this.tiles = this.nonEmptyTiles.map(tile => {
         return tiles.some(({ id }) => id === tile.id) ? undefined : tile;
       });
     },
 
-    fallDown() {
+    async fallDown() {
       const { width, height } = this.size;
-      const tileToDrop = {};
+      const tilesToFall = {};
 
       for (let column = 0; column < width; column++) {
         let depth = 0;
@@ -359,22 +363,30 @@ export default {
           }
 
           if (tile.type === TILE_TYPES.DOT && depth > 0) {
-            tileToDrop[tile.id] = depth;
+            tilesToFall[tile.id] = depth;
           }
         }
       }
 
       this.tiles = this.nonEmptyTiles.map(tile => ({
         ...tile,
-        y: tile.y + (tileToDrop[tile.id] || 0)
+        y: tile.y + (tilesToFall[tile.id] || 0)
       }));
+
+      this.$nextTick(() => {
+        Object.entries(tilesToFall).forEach(([id, depth]) => {
+          return this.getTileComponent({ id }).animateFall(depth)
+        })
+      })
     },
 
     fillWithDots(colors) {
       const { width, height } = this.size;
-      const newDotTiles = [];
+      let newTiles = [];
 
       for (let column = 0; column < width; column++) {
+        let newTilesInThisColumn = []
+
         for (let row = 0; row < height; row++) {
           const tile = this.tilesMatrix[row][column];
 
@@ -387,11 +399,23 @@ export default {
             y: row
           };
 
-          newDotTiles.push(generateDotTile(position, colors));
+          newTilesInThisColumn.push(generateDotTile(position, colors));
         }
+
+        newTilesInThisColumn = newTilesInThisColumn.map((tile) => {
+          return { ...tile, initialDepth: newTilesInThisColumn.length }
+        })
+
+        newTiles = newTiles.concat(newTilesInThisColumn)
       }
 
-      this.tiles = this.tiles.concat(newDotTiles);
+      this.tiles = this.tiles.concat(newTiles);
+
+      this.$nextTick(() => {
+        newTiles.forEach((tile) => {
+          return this.getTileComponent(tile).animateFall(tile.initialDepth)
+        })
+      })
     },
 
     getAllDotTilesOfColor(color) {
@@ -400,14 +424,8 @@ export default {
       );
     },
 
-    getTileElements(tiles) {
-      console.log(2, this)
-      return tiles.map(({ id }) => {
-        console.log(3, this)
-        console.log(this.$refs)
-        console.log(`tile.${id}`, this.$refs[`tile.${id}`])
-        return this.$refs[`tile.${id}`][0]
-      })
+    getTileComponent(tile) {
+      return this.$refs[`tile.${tile.id}`][0]
     }
   },
 
