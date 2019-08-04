@@ -9,7 +9,7 @@
       />
     </g>
 
-    <rect x="0" y="0" width="100%" height="100%" :fill="visibleColor" :style="`opacity: ${isClosed ? .15 : 0}; transition: opacity .15s;`" />
+    <rect x="0" y="0" width="100%" height="100%" :fill="visibleColor" :style="`opacity: ${length && isClosed ? .15 : 0}; transition: opacity .15s;`" />
   </svg>
 </template>
 
@@ -61,7 +61,7 @@ export default {
       this.points = `${clientWidth / 2},0 0,0 0,${clientHeight / 2}`
 
       const fullLength = (clientWidth + clientHeight) / 2
-      const progress = Math.min(1, this.isClosed ? 1 : (length / 20))
+      const progress = Math.min(1, length && this.isClosed ? 1 : (length / 20))
       const line = progress * fullLength
       const gap = Math.max(0, fullLength - line)
 

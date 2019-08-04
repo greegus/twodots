@@ -2,9 +2,9 @@
   <div class="LevelView flex flex-col items-center justify-center">
     <div class="absolute top-0 flex align-center text-gray-700 mt-12">
       <div class="LevelView__panel px-0 w-16 mr-5">
-        <div class="text-center">
-          <div class="text-2xl leading-tight">{{ movesLeft }}</div>
-          <div class="uppercase text-xs font-semibold">Moves</div>
+        <div class="text-center leading-none">
+          <div class="text-2xl mb-1">{{ movesLeft }}</div>
+          <div class="uppercase text-xs font-normal">Moves</div>
         </div>
       </div>
 
@@ -53,7 +53,7 @@
 
     <!-- frame -->
     <SelectionProgressFrame
-      :length="selection.length"
+      :length="isMakingSelection ? selection.length : 0"
       :color="mappedSelectionColor"
       :is-closed="isSelectionClosed"
     />
@@ -68,6 +68,9 @@ import GoalStatus from 'components/GoalStatus.vue'
 import Icon from 'components/Icon.vue'
 
 import DotTile from 'components/tiles/DotTile.vue'
+
+import SuccessModal from 'modals/SuccessModal.vue';
+import OutOfMovesModal from 'modals/OutOfMovesModal.vue';
 
 const TILE_SIZE = 50;
 const DOT_COLORS = ["red", "blue", "purple"];
@@ -150,6 +153,10 @@ function getNextPossibleTiles(tilesMatrix, tile, lastSelected = undefined) {
     .filter(({ id }) => (lastSelected ? lastSelected.id !== id : true));
 }
 
+async function sleep(time) {
+  await new Promise(resolve => setTimeout(resolve, time))
+}
+
 export default {
   name: 'LevelView',
 
@@ -174,7 +181,7 @@ export default {
       selection: [],
       isMakingSelection: false,
       nextPossibleTiles: [],
-      mouseRelativePosition: undefined,
+      relativeMousePosition: undefined,
       tileToComponentMap: {
         'dot': DotTile
       }
@@ -208,7 +215,7 @@ export default {
         .map(tile => `${tile.x + 0.5},${tile.y + 0.5}`)
 
       if (!this.isSelectionClosed) {
-        points.push(`${this.mouseRelativePosition.x},${this.mouseRelativePosition.y}`)
+        points.push(`${this.relativeMousePosition.x},${this.relativeMousePosition.y}`)
       }
 
       return points.join(' ');
@@ -279,7 +286,7 @@ export default {
       return this.hasAnyHorizontalMove || this.hasAnyVerticalMove;
     },
 
-    hasFullfilledGoals() {
+    hasMetGoals() {
       return this.goals.every(goal => {
         return goal.current >= goal.target
       })
@@ -364,56 +371,50 @@ export default {
       );
     },
 
-    endSelection() {
+    async endSelection() {
       window.removeEventListener('mouseup', this.endSelection);
       window.removeEventListener('mousemove', this.trackSelectionCursor);
 
       this.isMakingSelection = false;
-      this.mouseRelativePosition = undefined;
+      this.relativeMousePosition = undefined;
       this.nextPossibleTiles = [];
 
       if (this.selection.length > 1) {
-        const colors = this.level.colors;
-
         const tilesToPop = this.isSelectionClosed
           ? this.getAllDotTilesOfColor(this.selectionColor)
           : this.selection;
 
-        const availableColors = this.isSelectionClosed
-          ? colors.filter(color => color !== this.selectionColor)
-          : colors;
+        this.cancelSquaresHighlighting()
 
-        (async () => {
-          this.cancelSquaresHighlighting()
+        await this.poppingRoutine(tilesToPop, this.isSelectionClosed && this.selectionColor)
 
-          await this.popTiles(tilesToPop);
-          await this.fallDown();
-          await this.fillWithDots(availableColors);
-
-          // todo move ^ this to a separate routine
-
-          this.initSquaresHighlighting()
-
-          if (this.hasFullfilledGoals) {
-            this.$store.dispatch('completeLevel', {
-              level: this.level.id,
-              score: 0
-            })
-
-            this.$confirm('Success!')
-              .then(() => this.$router.push({ name: 'home' }))
-          }
-        })()
-
-        this.accountTiles(tilesToPop)
+        this.initSquaresHighlighting()
         this.decrementMoves()
       }
 
       this.selection = []
+
+      if (this.hasMetGoals) {
+        return this.completeLevel()
+      }
+    },
+
+    async poppingRoutine(tilesToPop, restrictedColor = undefined) {
+        const availableColors = restrictedColor
+          ? this.level.colors.filter(color => color !== restrictedColor)
+          : this.level.colors;
+
+        await this.popTiles(tilesToPop);
+        await this.fallDown();
+        await this.fillWithDots(availableColors);
     },
 
     decrementMoves() {
       this.movesLeft = this.movesLeft - 1
+
+      if (!this.hasMovesLeft) {
+        this.outOfMoves()
+      }
     },
 
     trackSelectionCursor(e) {
@@ -424,10 +425,12 @@ export default {
         y: (e.clientY - top) / TILE_SIZE
       };
 
-      this.mouseRelativePosition = relativePosition;
+      this.relativeMousePosition = relativePosition;
     },
 
     async popTiles(tiles) {
+      this.accountTiles(tiles)
+
       const animations = tiles
         .map(this.getTileComponent)
         .map(component => component.animateDestruction())
@@ -437,6 +440,7 @@ export default {
       this.tiles = this.nonEmptyTiles.map(tile => {
         return tiles.some(({ id }) => id === tile.id) ? undefined : tile;
       });
+
     },
 
     async fallDown() {
@@ -467,7 +471,7 @@ export default {
 
       this.$nextTick(() => {
         Object.entries(tilesToFall).forEach(([id, depth]) => {
-          return this.getTileComponent({ id }).animateFall(depth)
+          this.getTileComponent({ id }).animateFall(depth)
         })
       })
     },
@@ -503,9 +507,13 @@ export default {
 
       this.tiles = this.tiles.concat(newTiles);
 
-      this.$nextTick(() => {
-        newTiles.forEach((tile) => {
-          return this.getTileComponent(tile).animateFall(tile.initialDepth)
+      return new Promise(resolve => {
+        this.$nextTick(() => {
+          const animations = newTiles.map((tile) => {
+            return this.getTileComponent(tile).animateFall(tile.initialDepth)
+          })
+
+          Promise.all(animations).then(resolve)
         })
       })
     },
@@ -542,6 +550,25 @@ export default {
 
     getTileComponent(tile) {
       return this.$refs[`tile.${tile.id}`][0]
+    },
+
+    async completeLevel() {
+      await sleep(150)
+
+      this.$store.dispatch('completeLevel', {
+        level: this.level.id,
+        score: 0
+      })
+
+      this.$modal(SuccessModal)
+        .then(() => this.$router.push({ name: 'home' }))
+    },
+
+    async outOfMoves() {
+      await sleep(150)
+
+      this.$modal(OutOfMovesModal)
+        .then(() => this.$router.push({ name: 'home' }))
     },
 
     quitLevel() {

@@ -4,11 +4,11 @@ import App from './App.vue'
 import store from 'store'
 import router from 'router'
 
-import './registerServiceWorker'
-import './assets/styles/styles.css'
-
 import VueLastModal from 'vue-last-modal'
 Vue.use(VueLastModal)
+
+import './assets/styles/styles.css'
+import './registerServiceWorker'
 
 Vue.config.productionTip = false
 
