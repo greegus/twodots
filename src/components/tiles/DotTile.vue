@@ -13,19 +13,15 @@ export default {
   name: 'DotTile',
 
   props: {
-    dot: {
+    tile: {
       type: Object,
       required: true
-    },
-
-    isSelected: {
-      type: Boolean
     }
   },
 
   computed: {
     color() {
-      return config.colorsMap[this.dot.color]
+      return config.colorsMap[this.tile.color]
     }
   },
 

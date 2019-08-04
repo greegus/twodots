@@ -25,7 +25,7 @@
       <g>
         <svg v-for="tile in nonEmptyTiles" :key="tile.id" :x="tile.x" :y="tile.y">
           <g v-if="tile.type === 'dot'">
-            <DotTile @mousedown.native="hasMovesLeft && startSelection(tile, $event)" :dot="tile" :is-selected="selectionById[tile.id]" :ref="`tile.${tile.id}`" />
+            <component :is="tileToComponentMap[tile.type]" @mousedown.native="startSelection(tile, $event)" :tile="tile" :ref="`tile.${tile.id}`" />
           </g>
         </svg>
       </g>
@@ -168,9 +168,9 @@ export default {
         colors: ['blue', 'red', 'green', 'purple'],
         moves: 12,
         goals: [
-          {color: 'red', target: 20},
-          {color: 'blue', target: 20},
-          {color: 'green', target: 20},
+          { tile: { type: 'dot', color: 'red' }, target: 1 },
+          { tile: { type: 'dot', color: 'blue' }, target: 1 },
+          { tile: { type: 'dot', color: 'green' }, target: 1 }
         ]
       })
     }
@@ -183,6 +183,9 @@ export default {
       isMakingSelection: false,
       nextPossibleTiles: [],
       mouseRelativePosition: undefined,
+      tileToComponentMap: {
+        'dot': DotTile
+      }
     };
   },
 
@@ -217,10 +220,6 @@ export default {
       }
 
       return points.join(' ');
-    },
-
-    selectionById() {
-      return this.selection.reduce((acc, tile) => ({ ...acc, [tile.id]: true }), {})
     },
 
     selectionColor() {
@@ -321,6 +320,10 @@ export default {
     },
 
     startSelection(tile, event) {
+      if (tile.type !== 'dot' || !this.hasMovesLeft) {
+        return
+      }
+
       this.isMakingSelection = true;
       this.selection = []
 
@@ -510,13 +513,17 @@ export default {
 
       getRandomItem(this.availableDotSquares)
         .map(this.getTileComponent)
-        .forEach(dot => dot.animateBeacon())
+        .forEach(dotTile => dotTile.animateBeacon())
     },
 
     accountTiles(tiles) {
       this.goals = this.goals.map(goal => {
         const numberOfTiles = tiles.filter(tile => {
-          return tile.color === goal.color
+          if (goal.tile.type === 'dot') {
+            return goal.tile.color === tile.color
+          }
+
+          return goal.tile.type === tile.type
         }).length
 
         return { ...goal, current: Math.min(goal.target, goal.current + numberOfTiles) }
@@ -547,7 +554,7 @@ export default {
 }
 
 .TwoDots__panel {
-  @apply flex items-center justify-center h-16 bg-white rounded-lg pb-2;
+  @apply flex items-center justify-center h-16 bg-white rounded-lg pb-2 z-1;
 
   box-shadow: inset 0 -6px 0 0 #e3e3e3;
 }

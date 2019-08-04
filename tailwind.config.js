@@ -1,7 +1,22 @@
 module.exports = {
+  important: true,
   theme: {
-    extend: {}
+    extend: {
+      zIndex: {
+        '1': 1
+      }
+    }
   },
   variants: {},
-  plugins: []
+  plugins: [
+    function({ addUtilities }) {
+      const newUtilities = ({
+        '.grayscale': {
+          filter: 'grayscale(100)'
+        }
+      })
+
+      addUtilities(newUtilities)
+    }
+  ]
 }
