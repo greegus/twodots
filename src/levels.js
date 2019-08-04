@@ -6,16 +6,16 @@ export default [
   {
     id: 0,
     colors: ['blue', 'red', 'green', 'pink'],
-    moves: 1,
+    moves: 99,
     goals: [
-      { tile: { type: DOT, color: 'red' }, target: 1 },
-      { tile: { type: DOT, color: 'blue' }, target: 1 },
-      { tile: { type: DOT, color: 'green' }, target: 1 }
+      { tile: { type: DOT, color: 'red' }, target: 99 },
+      { tile: { type: DOT, color: 'blue' }, target: 99 },
+      { tile: { type: DOT, color: 'green' }, target: 99 }
     ],
     blueprint: `
-      * * * * *
-      * * * * *
-      * * * * *
+      E * * * *
+      E * * * *
+      X X X X X
       r r * * *
       r r * * *
     `,
@@ -96,6 +96,66 @@ export default [
       g y r r
       p g p y
       p p y g
+    `,
+  },
+
+  {
+    id: 5,
+    colors: ['pink', 'blue', 'green', 'yellow'],
+    moves: 26,
+    goals: [
+      { tile: { type: DOT, color: 'pink' }, target: 20 },
+      { tile: { type: DOT, color: 'blue' }, target: 20 },
+      { tile: { type: DOT, color: 'green' }, target: 20 },
+      { tile: { type: DOT, color: 'yellow' }, target: 20 },
+    ],
+    blueprint: `
+      * * X * * X * *
+      * * X * * X * *
+      * * X * * X * *
+      * * X p * X * *
+      * * X p * X * *
+      * * X y p X * *
+      * * X y p X * *
+      * * X * * X * *
+    `,
+  },
+
+  {
+    id: 6,
+    colors: ['pink', 'blue', 'green', 'yellow', 'red'],
+    moves: 26,
+    goals: [
+      { tile: { type: DOT, color: 'red' }, target: 20 },
+      { tile: { type: DOT, color: 'yellow' }, target: 20 },
+    ],
+    blueprint: `
+      g g y p p
+      p y g g b
+      p y y g b
+      r r y r g
+      p b b r g
+    `,
+  },
+
+  {
+    id: 7,
+    colors: ['pink', 'green', 'yellow', 'red'],
+    moves: 30,
+    goals: [
+      { tile: { type: DOT, color: 'ping' }, target: 50 },
+      { tile: { type: DOT, color: 'red' }, target: 50 },
+      { tile: { type: DOT, color: 'green' }, target: 50 },
+      { tile: { type: DOT, color: 'yellow' }, target: 50 },
+    ],
+    blueprint: `
+      p r g y p p p
+      p r g y p r p
+      p r g y p p p
+      p r g y y y y
+      p r g g g g g
+      p r r r r r r
+      p p p p p p p
     `,
   }
 ]

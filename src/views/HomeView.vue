@@ -1,6 +1,6 @@
 <template>
-  <div class="HomeView">
-    <div class="py-16 text-center">
+  <div class="HomeView py-16">
+    <div class="mb-16 text-center">
       <div class="text-5xl">
         DOTS
       </div>

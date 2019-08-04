@@ -36,8 +36,17 @@
       class="mx-auto"
       ref="tileCanvas"
     >
+      <defs>
+        <filter id="inner-shadow">
+          <!-- <feFlood flood-color="red"/> -->
+          <feComposite in2="SourceAlpha" operator="out"/>
+          <feGaussianBlur stdDeviation="2" result="blur"/>
+          <feComposite operator="atop" in2="SourceGraphic"/>
+        </filter>
+      </defs>
+
       <g>
-        <svg v-for="tile in nonEmptyTiles" :key="tile.id" :x="tile.x" :y="tile.y">
+        <svg v-for="tile in tiles" :key="tile.id" :x="tile.x" :y="tile.y">
           <component :is="tileToComponentMap[tile.type]" @mousedown.native="startSelection(tile, $event)" :tile="tile" :ref="`tile.${tile.id}`" />
         </svg>
       </g>
@@ -76,16 +85,20 @@ import GoalItem from 'components/GoalItem'
 import Icon from 'components/Icon'
 
 import DotTile from 'components/tiles/DotTile'
+import WallTile from 'components/tiles/WallTile'
 
 import SuccessModal from 'modals/SuccessModal';
 import OutOfMovesModal from 'modals/OutOfMovesModal';
 
-console.log(config)
-
 let tileId = 1;
 
-function getRandomItem(array) {
-  return array[Math.floor(Math.random() * array.length)];
+function generateWallTile(position) {
+  return {
+    ...position,
+    id: tileId++,
+    type: config.tileTypes.WALL,
+    fixed: true
+  };
 }
 
 function generateDotTile(position, color = config.dotColors) {
@@ -99,12 +112,14 @@ function generateDotTile(position, color = config.dotColors) {
 
 function generateMap(level) {
   const symbolToTileMap = {
+    'E': undefined,
     '*': position => generateDotTile(position, level.colors),
     'r': position => generateDotTile(position, 'red'),
     'b': position => generateDotTile(position, 'blue'),
     'y': position => generateDotTile(position, 'yellow'),
     'g': position => generateDotTile(position, 'green'),
-    'p': position => generateDotTile(position, 'pink')
+    'p': position => generateDotTile(position, 'pink'),
+    'X': position => generateWallTile(position)
   };
 
   const tilesMatrix = level.blueprint
@@ -120,7 +135,7 @@ function generateMap(level) {
   };
 
   return {
-    tiles: tilesMatrix.flatMap(row => row),
+    tiles: tilesMatrix.flatMap(row => row).filter(Boolean),
     size
   };
 }
@@ -165,6 +180,23 @@ function sumTilesScorePoinst(tiles) {
   }, 0)
 }
 
+function getRandomItem(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+function getMatrixColumn(matrix, columnIndex) {
+  return matrix.map(row => row[columnIndex])
+}
+
+function walkMatrix(matrix, callback) {
+  matrix.forEach((row, x) => {
+    row.forEach((item, y) => {
+      const column = matrix.map(row => row[x])
+      callback({ item, x, y, row, column })
+    })
+  })
+}
+
 async function sleep(time) {
   await new Promise(resolve => setTimeout(resolve, time))
 }
@@ -178,6 +210,7 @@ export default {
     Icon,
 
     DotTile,
+    WallTile,
   },
 
   props: {
@@ -201,7 +234,8 @@ export default {
       nextPossibleTiles: [],
       relativeMousePosition: undefined,
       tileToComponentMap: {
-        [config.tileTypes.DOT]: DotTile
+        [config.tileTypes.DOT]: DotTile,
+        [config.tileTypes.WALL]: WallTile
       }
     };
   },
@@ -214,18 +248,14 @@ export default {
       };
     },
 
-    nonEmptyTiles() {
-      return this.tiles.filter(Boolean);
-    },
-
     tilesMatrix() {
-      let matrix = Array.from({ length: this.size.height }).map(() =>
-        Array.from({ length: this.size.width })
-      );
+      const matrix = Array.from({ length: this.size.height }).map(() => {
+        return Array.from({ from: this.size.width })
+      })
 
-      this.nonEmptyTiles.forEach(tile => (matrix[tile.y][tile.x] = tile));
+      this.tiles.forEach(tile => matrix[tile.y][tile.x] = tile)
 
-      return matrix;
+      return matrix
     },
 
     selectionPoints() {
@@ -269,6 +299,7 @@ export default {
       ]
 
       return this.tiles
+        .filter(tile => tile.type === config.tileTypes.DOT)
         .reduce((squares, tile) => {
           const squareTiles = squareCoordinates.map(([ x, y ]) => this.tilesMatrix[tile.y + y] && this.tilesMatrix[tile.y + y][tile.x + x])
           const hasSameColor = squareTiles.every(tileInSquare => tileInSquare && tileInSquare.color === tile.color)
@@ -326,7 +357,7 @@ export default {
     },
 
     initSquaresHighlighting() {
-      this.squaresHighlightingInterval = setInterval(() => this.highlightRandomSquare(), 10000)
+      // this.squaresHighlightingInterval = setInterval(() => this.highlightRandomSquare(), 10000)
     },
 
     cancelSquaresHighlighting() {
@@ -451,40 +482,44 @@ export default {
 
       await Promise.all(animations)
 
-      this.tiles = this.nonEmptyTiles.map(tile => {
-        return tiles.some(({ id }) => id === tile.id) ? undefined : tile;
-      });
+      this.tiles = this.tiles.filter(tile => !tiles.some(({ id }) => id === tile.id));
 
     },
 
     async fallDown() {
       const { width, height } = this.size;
-      const tilesToFall = {};
+      const falls = {};
 
-      for (let column = 0; column < width; column++) {
-        let depth = 0;
+      for (let x = 0; x < width; x++) {
+        const emptyTiles = []
 
-        for (let row = height - 1; row >= 0; row--) {
-          const tile = this.tilesMatrix[row][column];
+        const column = this.tilesMatrix.map(row => row[x])
+
+        for (let y = height - 1; y >= 0; y--) {
+          const tile = column[y]
 
           if (!tile) {
-            depth++;
-            continue;
+            emptyTiles.push({ x, y })
+            continue
           }
 
-          if (tile.type === config.tileTypes.DOT && depth > 0) {
-            tilesToFall[tile.id] = depth;
+          if (tile.type !== config.tileTypes.WALL && emptyTiles.length) {
+            const newPosition = emptyTiles.shift()
+            const depth = newPosition.y - tile.y
+
+            falls[tile.id] = depth
+            emptyTiles.push({ y: tile.y, x: tile.x })
           }
         }
       }
 
-      this.tiles = this.nonEmptyTiles.map(tile => ({
+      this.tiles = this.tiles.map(tile => ({
         ...tile,
-        y: tile.y + (tilesToFall[tile.id] || 0)
+        y: tile.y + (falls[tile.id] || 0)
       }));
 
       this.$nextTick(() => {
-        Object.entries(tilesToFall).forEach(([id, depth]) => {
+        Object.entries(falls).forEach(([id, depth]) => {
           this.getTileComponent({ id }).animateFall(depth)
         })
       })
@@ -492,39 +527,33 @@ export default {
 
     fillWithDots(colors) {
       const { width, height } = this.size;
+      const falls = {}
       let newTiles = [];
 
-      for (let column = 0; column < width; column++) {
-        let newTilesInThisColumn = []
+      for (let x = 0; x < width; x++) {
+        let newTilesInColumn = []
 
-        for (let row = 0; row < height; row++) {
-          const tile = this.tilesMatrix[row][column];
+        for (let y = 0; y < height; y++) {
+          const tile = this.tilesMatrix[y][x]
 
-          if (tile) {
-            break;
+          if (!tile) {
+            newTilesInColumn.push(generateDotTile({x, y}, colors))
           }
-
-          const position = {
-            x: column,
-            y: row
-          };
-
-          newTilesInThisColumn.push(generateDotTile(position, colors));
         }
 
-        newTilesInThisColumn = newTilesInThisColumn.map((tile) => {
-          return { ...tile, initialDepth: newTilesInThisColumn.length }
-        })
+        newTiles = newTiles.concat(newTilesInColumn)
 
-        newTiles = newTiles.concat(newTilesInThisColumn)
+        newTilesInColumn.reverse().forEach((tile, index) => {
+          falls[tile.id] = tile.y + index + 1
+        })
       }
 
-      this.tiles = this.tiles.concat(newTiles);
+      this.tiles = this.tiles.concat(newTiles)
 
       return new Promise(resolve => {
         this.$nextTick(() => {
           const animations = newTiles.map((tile) => {
-            return this.getTileComponent(tile).animateFall(tile.initialDepth)
+            return this.getTileComponent(tile).animateFall(falls[tile.id])
           })
 
           Promise.all(animations).then(resolve)
@@ -563,7 +592,7 @@ export default {
     },
 
     getAllDotTilesOfColor(color) {
-      return this.nonEmptyTiles.filter(
+      return this.tiles.filter(
         tile => tile.type === config.tileTypes.DOT && tile.color === color
       );
     },
@@ -597,7 +626,7 @@ export default {
   },
 
   created() {
-    this.restart();
+    this.restart()
   },
 
   beforeDestroy() {

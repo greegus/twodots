@@ -15,6 +15,7 @@ export default {
     .reduce((acc, [key, { hex }]) => ({ ...acc, [key]: hex }), {}),
 
   tileTypes: {
-    DOT: 'dot'
+    DOT: 'dot',
+    WALL: 'wall'
   }
 }
