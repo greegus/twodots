@@ -1,6 +1,10 @@
 module.exports = {
   important: true,
   theme: {
+    fontFamily: {
+      'sans': ['Open Sans']
+    },
+
     extend: {
       zIndex: {
         '1': 1

@@ -1,5 +1,5 @@
 <template>
-  <svg class="absolute top-0 left-0 w-screen h-screen pointer-events-none">
+  <svg class="absolute top-0 left-0 w-screen h-screen pointer-events-none z-10">
     <g v-for="(corner, $index) in corners" :key="$index" :style="`transform-origin: 25% 25%; transform: ${corner}`">
       <polyline
         stroke-width="30"

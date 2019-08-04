@@ -1,17 +1,11 @@
 <template>
-  <div class="bg-gray-100 h-screen flex items-center justify-center">
-    <TwoDots/>
+  <div class="bg-gray-100 select-none font-sans font-light">
+    <router-view class="h-screen" />
   </div>
 </template>
 
 <script>
-import TwoDots from "./components/TwoDots";
-
 export default {
-  name: "App",
-
-  components: {
-    TwoDots
-  }
+  name: "App"
 };
 </script>

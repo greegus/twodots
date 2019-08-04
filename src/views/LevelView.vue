@@ -1,17 +1,21 @@
 <template>
-  <div class="TwoDots">
-    <div class="flex align-center text-gray-700 mb-12">
-      <div class="TwoDots__panel px-0 w-16 mr-5">
+  <div class="LevelView flex flex-col items-center justify-center">
+    <div class="absolute top-0 flex align-center text-gray-700 mt-12">
+      <div class="LevelView__panel px-0 w-16 mr-5">
         <div class="text-center">
           <div class="text-2xl leading-tight">{{ movesLeft }}</div>
           <div class="uppercase text-xs font-semibold">Moves</div>
         </div>
       </div>
 
-      <div class="TwoDots__panel px-5">
+      <div class="LevelView__panel px-5">
         <div v-for="(goal, $index) in goals" :key="$index">
           <GoalStatus :goal="goal" />
         </div>
+      </div>
+
+      <div class="LevelView__panel px-0 w-16 ml-5 cursor-pointer" @click="quitLevel()">
+        <Icon name="map" size="lg" />
       </div>
     </div>
 
@@ -19,7 +23,7 @@
       :width="realSize.width"
       :height="realSize.height"
       :viewBox="`0 0 ${size.width} ${size.height}`"
-      class="mx-auto"
+      class="mx-auto mt-16"
       ref="tileCanvas"
     >
       <g>
@@ -59,10 +63,11 @@
 <script>
 import config from 'config'
 
-import DotTile from 'components/tiles/DotTile.vue'
 import SelectionProgressFrame from 'components/SelectionProgressFrame.vue'
 import GoalStatus from 'components/GoalStatus.vue'
-import { setInterval, clearInterval } from 'timers';
+import Icon from 'components/Icon.vue'
+
+import DotTile from 'components/tiles/DotTile.vue'
 
 const TILE_SIZE = 50;
 const DOT_COLORS = ["red", "blue", "purple"];
@@ -95,7 +100,7 @@ function buildLevel(level) {
     'y': position => generateDotTile(position, 'yellow')
   };
 
-  const tilesMatrix = level.map
+  const tilesMatrix = level.blueprint
     .trim().split("\n").map((row, y) => {
       return row.trim().split(/\s+/).map((symbol, x) => {
           return symbolToTileMap[symbol] && symbolToTileMap[symbol]({ x, y });
@@ -103,8 +108,8 @@ function buildLevel(level) {
     });
 
   const size = {
-    width: tilesMatrix.length,
-    height: tilesMatrix[0].length
+    height: tilesMatrix.length,
+    width: tilesMatrix[0].length
   };
 
   return {
@@ -146,33 +151,20 @@ function getNextPossibleTiles(tilesMatrix, tile, lastSelected = undefined) {
 }
 
 export default {
-  name: 'TwoDots',
+  name: 'LevelView',
 
   components: {
-    DotTile,
     SelectionProgressFrame,
-    GoalStatus
+    GoalStatus,
+    Icon,
+
+    DotTile,
   },
 
   props: {
     level: {
       type: Object,
-      default: () => ({
-        map: `
-          * * * * *
-          * * * * *
-          * * * * *
-          r r * * *
-          r r * * *
-        `,
-        colors: ['blue', 'red', 'green', 'purple'],
-        moves: 12,
-        goals: [
-          { tile: { type: 'dot', color: 'red' }, target: 1 },
-          { tile: { type: 'dot', color: 'blue' }, target: 1 },
-          { tile: { type: 'dot', color: 'green' }, target: 1 }
-        ]
-      })
+      required: true
     }
   },
 
@@ -398,7 +390,19 @@ export default {
           await this.fallDown();
           await this.fillWithDots(availableColors);
 
+          // todo move ^ this to a separate routine
+
           this.initSquaresHighlighting()
+
+          if (this.hasFullfilledGoals) {
+            this.$store.dispatch('completeLevel', {
+              level: this.level.id,
+              score: 0
+            })
+
+            this.$confirm('Success!')
+              .then(() => this.$router.push({ name: 'home' }))
+          }
         })()
 
         this.accountTiles(tilesToPop)
@@ -538,22 +542,29 @@ export default {
 
     getTileComponent(tile) {
       return this.$refs[`tile.${tile.id}`][0]
+    },
+
+    quitLevel() {
+      this.$router.push({ name: 'home' })
     }
   },
 
   created() {
     this.restart();
+  },
+
+  beforeDestroy() {
+    this.cancelSquaresHighlighting()
   }
 };
 </script>
 
 <style lang="postcss">
-.TwoDots svg {
+.LevelView svg {
   overflow: visible;
-  user-select: none;
 }
 
-.TwoDots__panel {
+.LevelView__panel {
   @apply flex items-center justify-center h-16 bg-white rounded-lg pb-2 z-1;
 
   box-shadow: inset 0 -6px 0 0 #e3e3e3;
