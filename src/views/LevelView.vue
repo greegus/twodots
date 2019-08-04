@@ -10,7 +10,7 @@
 
       <div class="LevelView__panel px-5">
         <div v-for="(goal, $index) in goals" :key="$index">
-          <GoalStatus :goal="goal" />
+          <GoalItem :goal="goal" show-current small />
         </div>
       </div>
 
@@ -19,24 +19,32 @@
       </div>
     </div>
 
+    <div class="absolute bottom-0 text-gray-700 mb-12">
+      <div class="LevelView__panel w-32">
+        <div class="text-center leading-none">
+          <div class="uppercase text-xs font-normal mb-1">Score</div>
+          <div class="text-2xl">{{ score }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- canvas -->
     <svg
       :width="realSize.width"
       :height="realSize.height"
       :viewBox="`0 0 ${size.width} ${size.height}`"
-      class="mx-auto mt-16"
+      class="mx-auto"
       ref="tileCanvas"
     >
       <g>
         <svg v-for="tile in nonEmptyTiles" :key="tile.id" :x="tile.x" :y="tile.y">
-          <g v-if="tile.type === 'dot'">
-            <component :is="tileToComponentMap[tile.type]" @mousedown.native="startSelection(tile, $event)" :tile="tile" :ref="`tile.${tile.id}`" />
-          </g>
+          <component :is="tileToComponentMap[tile.type]" @mousedown.native="startSelection(tile, $event)" :tile="tile" :ref="`tile.${tile.id}`" />
         </svg>
       </g>
 
       <!-- selection line -->
       <g v-if="isMakingSelection">
-        <polyline :points="selectionPoints" :stroke="mappedSelectionColor" stroke-width=".15" fill="none" stroke-linecap="round" />
+        <polyline :points="selectionPoints" :stroke="mappedSelectionColor" stroke-width=".12" fill="none" stroke-linecap="round" />
       </g>
 
       <!-- selection zones -->
@@ -63,22 +71,16 @@
 <script>
 import config from 'config'
 
-import SelectionProgressFrame from 'components/SelectionProgressFrame.vue'
-import GoalStatus from 'components/GoalStatus.vue'
-import Icon from 'components/Icon.vue'
+import SelectionProgressFrame from 'components/SelectionProgressFrame'
+import GoalItem from 'components/GoalItem'
+import Icon from 'components/Icon'
 
-import DotTile from 'components/tiles/DotTile.vue'
+import DotTile from 'components/tiles/DotTile'
 
-import SuccessModal from 'modals/SuccessModal.vue';
-import OutOfMovesModal from 'modals/OutOfMovesModal.vue';
+import SuccessModal from 'modals/SuccessModal';
+import OutOfMovesModal from 'modals/OutOfMovesModal';
 
-const TILE_SIZE = 50;
-const DOT_COLORS = ["red", "blue", "purple"];
-
-const TILE_TYPES = {
-  EMPTY: "empty",
-  DOT: "dot"
-};
+console.log(config)
 
 let tileId = 1;
 
@@ -86,21 +88,23 @@ function getRandomItem(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
 
-function generateDotTile(position, color = DOT_COLORS) {
+function generateDotTile(position, color = config.dotColors) {
   return {
     ...position,
     id: tileId++,
     color: getRandomItem([].concat(color)),
-    type: TILE_TYPES.DOT
+    type: config.tileTypes.DOT
   };
 }
 
-function buildLevel(level) {
+function generateMap(level) {
   const symbolToTileMap = {
     '*': position => generateDotTile(position, level.colors),
     'r': position => generateDotTile(position, 'red'),
     'b': position => generateDotTile(position, 'blue'),
-    'y': position => generateDotTile(position, 'yellow')
+    'y': position => generateDotTile(position, 'yellow'),
+    'g': position => generateDotTile(position, 'green'),
+    'p': position => generateDotTile(position, 'pink')
   };
 
   const tilesMatrix = level.blueprint
@@ -121,11 +125,13 @@ function buildLevel(level) {
   };
 }
 
-function initLevelState(level) {
+function getInitialState(level) {
   return {
-    ...buildLevel(level),
+    ...generateMap(level),
     movesLeft: level.moves,
-    goals: level.goals.map(goal => ({ ...goal, current: 0 }))
+    goals: level.goals.map(goal => ({ ...goal, current: 0 })),
+    score: 0,
+    isSelectionAllowed: true
   }
 }
 
@@ -153,6 +159,12 @@ function getNextPossibleTiles(tilesMatrix, tile, lastSelected = undefined) {
     .filter(({ id }) => (lastSelected ? lastSelected.id !== id : true));
 }
 
+function sumTilesScorePoinst(tiles) {
+  return tiles.reduce((sum, tile) => {
+    return sum + (tile.value || 1)
+  }, 0)
+}
+
 async function sleep(time) {
   await new Promise(resolve => setTimeout(resolve, time))
 }
@@ -162,7 +174,7 @@ export default {
 
   components: {
     SelectionProgressFrame,
-    GoalStatus,
+    GoalItem,
     Icon,
 
     DotTile,
@@ -177,13 +189,19 @@ export default {
 
   data() {
     return {
-      ...initLevelState(this.level),
+      size: { width: 0, height: 0 },
+      tiles: [],
+      movesLeft: 0,
+      goals: [],
+      score: 0,
+      isSelectionAllowed: true,
+
       selection: [],
       isMakingSelection: false,
       nextPossibleTiles: [],
       relativeMousePosition: undefined,
       tileToComponentMap: {
-        'dot': DotTile
+        [config.tileTypes.DOT]: DotTile
       }
     };
   },
@@ -191,8 +209,8 @@ export default {
   computed: {
     realSize() {
       return {
-        width: this.size.width * TILE_SIZE,
-        height: this.size.height * TILE_SIZE
+        width: this.size.width * config.tileSize,
+        height: this.size.height * config.tileSize
       };
     },
 
@@ -299,12 +317,9 @@ export default {
 
   methods: {
     restart() {
-      const { tiles, size, movesLeft, goals } = initLevelState(this.level);
-
-      this.tiles = tiles;
-      this.size = size;
-      this.movesLeft = movesLeft
-      this.goals = goals
+      Object.entries(getInitialState(this.level)).forEach(([ key, value ]) => {
+        this.$set(this, key, value)
+      })
 
       this.cancelSquaresHighlighting()
       this.initSquaresHighlighting()
@@ -319,13 +334,14 @@ export default {
     },
 
     startSelection(tile, event) {
-      if (tile.type !== 'dot' || !this.hasMovesLeft) {
+      if (!this.isSelectionAllowed || tile.type !== config.tileTypes.DOT) {
         return
       }
 
       this.isMakingSelection = true;
       this.selection = []
 
+      this.cancelSquaresHighlighting()
       this.trackSelectionCursor(event);
       this.addToSelection(tile)
 
@@ -376,20 +392,18 @@ export default {
       window.removeEventListener('mousemove', this.trackSelectionCursor);
 
       this.isMakingSelection = false;
+      this.isSelectionAllowed = false;
       this.relativeMousePosition = undefined;
       this.nextPossibleTiles = [];
 
       if (this.selection.length > 1) {
+        this.movesLeft = this.movesLeft - 1
+
         const tilesToPop = this.isSelectionClosed
           ? this.getAllDotTilesOfColor(this.selectionColor)
           : this.selection;
 
-        this.cancelSquaresHighlighting()
-
         await this.poppingRoutine(tilesToPop, this.isSelectionClosed && this.selectionColor)
-
-        this.initSquaresHighlighting()
-        this.decrementMoves()
       }
 
       this.selection = []
@@ -397,6 +411,14 @@ export default {
       if (this.hasMetGoals) {
         return this.completeLevel()
       }
+
+      if (!this.hasMovesLeft) {
+        return this.outOfMoves()
+      }
+
+      this.initSquaresHighlighting()
+
+      this.isSelectionAllowed = true
     },
 
     async poppingRoutine(tilesToPop, restrictedColor = undefined) {
@@ -409,20 +431,12 @@ export default {
         await this.fillWithDots(availableColors);
     },
 
-    decrementMoves() {
-      this.movesLeft = this.movesLeft - 1
-
-      if (!this.hasMovesLeft) {
-        this.outOfMoves()
-      }
-    },
-
     trackSelectionCursor(e) {
       const { top, left } = this.$refs.tileCanvas.getBoundingClientRect()
 
       const relativePosition = {
-        x: (e.clientX - left) / TILE_SIZE,
-        y: (e.clientY - top) / TILE_SIZE
+        x: (e.clientX - left) / config.tileSize,
+        y: (e.clientY - top) / config.tileSize
       };
 
       this.relativeMousePosition = relativePosition;
@@ -458,7 +472,7 @@ export default {
             continue;
           }
 
-          if (tile.type === TILE_TYPES.DOT && depth > 0) {
+          if (tile.type === config.tileTypes.DOT && depth > 0) {
             tilesToFall[tile.id] = depth;
           }
         }
@@ -529,9 +543,11 @@ export default {
     },
 
     accountTiles(tiles) {
+      this.gainScore(sumTilesScorePoinst(tiles))
+
       this.goals = this.goals.map(goal => {
         const numberOfTiles = tiles.filter(tile => {
-          if (goal.tile.type === 'dot') {
+          if (goal.tile.type === config.tileTypes.DOT) {
             return goal.tile.color === tile.color
           }
 
@@ -542,9 +558,13 @@ export default {
       })
     },
 
+    gainScore(points) {
+      this.score = this.score + points
+    },
+
     getAllDotTilesOfColor(color) {
       return this.nonEmptyTiles.filter(
-        tile => tile.type === TILE_TYPES.DOT && tile.color === color
+        tile => tile.type === config.tileTypes.DOT && tile.color === color
       );
     },
 
@@ -557,7 +577,7 @@ export default {
 
       this.$store.dispatch('completeLevel', {
         level: this.level.id,
-        score: 0
+        score: this.score
       })
 
       this.$modal(SuccessModal)

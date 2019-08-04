@@ -5,6 +5,8 @@
 </template>
 
 <script>
+import config from 'config'
+
 import DotTile from 'components/tiles/DotTile'
 
 export default {
@@ -22,7 +24,7 @@ export default {
   computed: {
     component() {
       const tileToComponentMap = {
-        'dot': DotTile
+        [config.tileTypes.DOT]: DotTile
       }
 
       return tileToComponentMap[this.tile.type]

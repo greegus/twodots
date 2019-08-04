@@ -1,7 +1,8 @@
 <template>
   <g transform-origin="0.5 0.5">
-    <circle class="DotTile" cx="0.5" cy="0.5" r="0.32" :fill="color" />
-    <circle ref="beacon" cx="0.5" cy="0.5" r="0.32" :fill="color" transform-origin="0.5 0.5" class="pointer-events-none" />
+    <circle cx="0.5" cy="0.5" r="0.28" :fill="color" />
+    <circle class="opacity-0" cx="0.5" cy="0.5" r="0.4" fill="black" />
+    <circle ref="beacon" cx="0.5" cy="0.5" r="0.28" :fill="color" transform-origin="0.5 0.5" class="pointer-events-none" />
   </g>
 </template>
 
@@ -41,7 +42,7 @@ export default {
         scale: [1, 2.5],
         opacity: [1, 0],
         easing: 'linear',
-        duration: 350
+        duration: 400
       }).finished
     },
 

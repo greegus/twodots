@@ -24,7 +24,7 @@ const routes = [
     beforeEnter(to, from, next) {
       const level = Number(to.params.level)
       const levelExists = levels.some(({ id }) => id === level)
-      const userCanAccessLevel = store.getters.currentLevel >= level
+      const userCanAccessLevel = store.getters.user.level >= level
 
       levelExists && userCanAccessLevel
         ? next()

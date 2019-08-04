@@ -45,15 +45,10 @@ const mutations = {
 
 const getters = {
   user(state) {
-    return state.user
-  },
-
-  totalScore(state) {
-    return Object.values(state.user.scoreByLevel).reduce((sum, score) => sum + score, 0)
-  },
-
-  currentLevel(state) {
-    return state.user.level
+    return {
+      ...state.user,
+      totalScore: Object.values(state.user.scoreByLevel).reduce((sum, score) => sum + score, 0)
+    }
   }
 }
 

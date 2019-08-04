@@ -30,14 +30,19 @@ module.exports = {
           backgroundColor: theme('colors.green.500'),
           padding: '.5rem 1rem .65rem',
           borderRadius: '999px',
-          boxShadow: `inset 0 -.25rem 0 0 ${theme('colors.green.600')}`,
+          boxShadow: `0 0.35rem 0 0 ${theme('colors.green.600')}`,
           fontWeight: '300',
           transition: 'filter .15s',
           outline: 'none',
+          transform: 'translateY(-.15rem)',
 
           '&.btn-lg': {
-            padding: '.5rem 2rem .65rem',
-            fontSize: theme('fontSize.2xl')
+            padding: '.5rem 2rem',
+            fontSize: theme('fontSize.2xl'),
+
+            '&:active': {
+              // padding: '.5rem 2rem .5rem',
+            }
           },
 
           '&:hover': {
@@ -46,6 +51,11 @@ module.exports = {
 
           '&:focus': {
             outline: 'none',
+          },
+
+          '&:active': {
+            boxShadow: `0 0.2rem 0 0 ${theme('colors.green.600')}`,
+            transform: 'translateY(0)',
           }
         }
       })

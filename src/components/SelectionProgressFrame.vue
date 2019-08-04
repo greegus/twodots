@@ -55,13 +55,13 @@ export default {
         this.visibleColor = this.color
       }
 
-      const length = Math.max(0, this.length - 2)
+      const length = Math.max(0, this.length - 1)
       const { clientWidth, clientHeight } = this.$el
 
       this.points = `${clientWidth / 2},0 0,0 0,${clientHeight / 2}`
 
       const fullLength = (clientWidth + clientHeight) / 2
-      const progress = Math.min(1, length && this.isClosed ? 1 : (length / 20))
+      const progress = length && this.isClosed ? 1 : Math.min(.95, length / 10)
       const line = progress * fullLength
       const gap = Math.max(0, fullLength - line)
 
