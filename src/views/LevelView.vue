@@ -52,9 +52,10 @@
       </g>
 
       <!-- selection line -->
-      <g v-if="isMakingSelection">
-        <polyline :points="selectionPoints" :stroke="mappedSelectionColor" stroke-width=".12" fill="none" stroke-linecap="round" />
-      </g>
+      <SelectionLine
+        :selection="selection"
+        :is-active="isMakingSelection"
+      />
 
       <!-- selection zones -->
       <g v-if="isMakingSelection" style="position: relative; z-index: 1; opacity: 0">
@@ -80,7 +81,10 @@
 <script>
 import config from 'config'
 
+import { isSelectionClosed } from 'utils/selection'
+
 import SelectionProgressFrame from 'components/SelectionProgressFrame'
+import SelectionLine from 'components/SelectionLine'
 import GoalItem from 'components/GoalItem'
 import Icon from 'components/Icon'
 import MapTile from 'components/tiles/MapTile'
@@ -233,6 +237,7 @@ export default {
 
   components: {
     SelectionProgressFrame,
+    SelectionLine,
     GoalItem,
     Icon,
     MapTile
@@ -257,7 +262,6 @@ export default {
       selection: [],
       isMakingSelection: false,
       nextPossibleTiles: [],
-      relativeMousePosition: undefined
     };
   },
 
@@ -279,17 +283,6 @@ export default {
       return matrix
     },
 
-    selectionPoints() {
-      const points = this.selection
-        .map(tile => `${tile.x + 0.5},${tile.y + 0.5}`)
-
-      if (!this.isSelectionClosed) {
-        points.push(`${this.relativeMousePosition.x},${this.relativeMousePosition.y}`)
-      }
-
-      return points.join(' ');
-    },
-
     selectionColor() {
       return this.selection.length && this.selection[0].color || undefined;
     },
@@ -299,10 +292,7 @@ export default {
     },
 
     isSelectionClosed() {
-      return (
-        this.selection.findIndex(tile => tile.id === this.lastSelected.id) <
-        this.selection.length - 2
-      );
+      return isSelectionClosed(this.selection)
     },
 
     lastSelected() {
@@ -394,11 +384,9 @@ export default {
       this.selection = []
 
       this.cancelSquaresHighlighting()
-      this.trackSelectionCursor(event);
       this.addToSelection(tile)
 
       window.addEventListener('mouseup', this.endSelection);
-      window.addEventListener('mousemove', this.trackSelectionCursor);
     },
 
     addToSelection(tile) {
@@ -441,11 +429,9 @@ export default {
 
     async endSelection() {
       window.removeEventListener('mouseup', this.endSelection);
-      window.removeEventListener('mousemove', this.trackSelectionCursor);
 
       this.isMakingSelection = false;
       this.isSelectionAllowed = false;
-      this.relativeMousePosition = undefined;
       this.nextPossibleTiles = [];
 
       if (this.selection.length > 1) {
@@ -486,17 +472,6 @@ export default {
         await this.popTiles(tilesToPop);
         await this.fallDown();
         await this.fillWithDots(availableColors);
-    },
-
-    trackSelectionCursor(e) {
-      const { top, left } = this.$refs.tileCanvas.getBoundingClientRect()
-
-      const relativePosition = {
-        x: (e.clientX - left) / config.tileSize,
-        y: (e.clientY - top) / config.tileSize
-      };
-
-      this.relativeMousePosition = relativePosition;
     },
 
     async popTiles(tiles) {
