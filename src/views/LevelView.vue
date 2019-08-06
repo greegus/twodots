@@ -71,9 +71,7 @@
 
     <!-- frame -->
     <SelectionProgressFrame
-      :length="isMakingSelection ? selection.length : 0"
-      :color="mappedSelectionColor"
-      :is-closed="isSelectionClosed"
+      :selection="isMakingSelection ? selection : []"
     />
   </div>
 </template>
@@ -285,10 +283,6 @@ export default {
 
     selectionColor() {
       return this.selection.length && this.selection[0].color || undefined;
-    },
-
-    mappedSelectionColor() {
-      return config.colorsMap[this.selectionColor]
     },
 
     isSelectionClosed() {

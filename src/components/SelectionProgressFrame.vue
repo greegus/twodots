@@ -4,38 +4,37 @@
       <polyline
         stroke-width="30"
         style="transition: stroke-dasharray .15s"
-        :points="points" height="100" fill="none" :stroke="visibleColor"
+        :points="points" height="100" fill="none" :stroke="hexColor"
         :style="style"
       />
     </g>
 
-    <rect x="0" y="0" width="100%" height="100%" :fill="visibleColor" :style="`opacity: ${length && isClosed ? .15 : 0}; transition: opacity .15s;`" />
+    <rect x="0" y="0" width="100%" height="100%" :fill="hexColor" :style="`opacity: ${selection.length && isSelectionClosed ? .15 : 0}; transition: opacity .15s;`" />
   </svg>
 </template>
 
 <script>
+import config from 'config'
+
+import { isSelectionClosed } from 'utils/selection'
+
 export default {
   props: {
-    color: {
-      type: String,
-      default: undefined
+    selection: {
+      type: Array,
+      default: () => []
     },
 
-    length: {
-      type: Number,
-      default: 0
-    },
-
-    isClosed: {
+    isActive: {
       type: Boolean
-    },
+    }
   },
 
   data() {
     return {
       points: '',
       style: '',
-      visibleColor: undefined,
+      hexColor: undefined,
       corners: [
         'translate(0, 0)',
         'translate(50%, 0) rotateY(180deg)',
@@ -45,49 +44,41 @@ export default {
     }
   },
 
+  computed: {
+    isSelectionClosed() {
+      return isSelectionClosed(this.selection)
+    }
+  },
+
   methods: {
     render() {
       if (!this.$el) {
         return
       }
 
-      if (this.color) {
-        this.visibleColor = this.color
+      const firstDot = this.selection[0]
+
+      if (firstDot) {
+        this.hexColor = config.colorsMap[firstDot.color]
       }
 
-      const length = Math.max(0, this.length - 1)
       const { clientWidth, clientHeight } = this.$el
-
-      this.points = `${clientWidth / 2},0 0,0 0,${clientHeight / 2}`
-
+      const length = Math.max(0, this.selection.length - 1)
       const fullLength = (clientWidth + clientHeight) / 2
-      const progress = length && this.isClosed ? 1 : Math.min(.95, length / 10)
+      const progress = length && this.isSelectionClosed ? 1 : Math.min(.95, length / 10)
       const line = progress * fullLength
       const gap = Math.max(0, fullLength - line)
 
-      this.style = {
-        strokeDasharray: `${line} ${gap}`
-      }
+      this.points = `${clientWidth / 2},0 0,0 0,${clientHeight / 2}`
+      this.style = `strokeDasharray: ${line} ${gap}`
     }
   },
 
   watch: {
-    length: {
+    'selection.length': {
       immediate: true,
       handler: 'render'
-    },
-
-    color: {
-      handler() {
-        if (this.color) {
-          this.visibleColor = this.color
-        }
-      }
     }
-  },
-
-  mounted() {
-    this.render()
   }
 }
 </script>
