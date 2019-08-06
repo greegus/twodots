@@ -99,18 +99,19 @@ function generateWallTile(position) {
   };
 }
 
-function generateDotTile(position, color = config.dotColors) {
+function generateDotTile(position, colors = config.dotColors) {
   return {
     ...position,
     id: tileId++,
-    color: getRandomItem([].concat(color)),
-    type: config.tileTypes.DOT
+    type: config.tileTypes.DOT,
+    color: getRandomItem([].concat(colors))
   };
 }
 
-function generateBombTile(position) {
+function generateBombTile(position, originalTile) {
   return {
     ...position,
+    originalTile,
     id: tileId++,
     type: config.tileTypes.BOMB
   }
@@ -290,7 +291,7 @@ export default {
     },
 
     selectionColor() {
-      return this.selection.length && this.selection[0].color;
+      return this.selection.length && this.selection[0].color || undefined;
     },
 
     mappedSelectionColor() {
@@ -588,7 +589,10 @@ export default {
 
     convertIntoBomb(tile) {
       this.popTiles([tile])
-      this.tiles.push(generateBombTile(tile))
+
+      const { x, y } = tile
+
+      this.tiles.push(generateBombTile({ x,y }, tile))
     },
 
     highlightRandomSquare() {

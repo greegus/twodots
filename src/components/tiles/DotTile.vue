@@ -1,8 +1,8 @@
 <template>
   <g class="DotTile" transform-origin="0.5 0.5">
-    <circle cx="0.5" cy="0.5" r="0.26" :fill="color" />
+    <circle cx="0.5" cy="0.5" r="0.26" :fill="hexColor" />
     <circle class="opacity-0" cx="0.5" cy="0.5" r="0.4" fill="black" />
-    <circle ref="beacon" cx="0.5" cy="0.5" r="0.26" :fill="color" transform-origin="0.5 0.5" class="pointer-events-none" />
+    <circle ref="beacon" cx="0.5" cy="0.5" r="0.26" :fill="hexColor" transform-origin="0.5 0.5" class="pointer-events-none" />
   </g>
 </template>
 
@@ -21,7 +21,7 @@ export default {
   },
 
   computed: {
-    color() {
+    hexColor() {
       return config.colorsMap[this.tile.color]
     }
   },

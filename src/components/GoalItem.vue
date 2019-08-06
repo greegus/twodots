@@ -47,10 +47,6 @@ export default {
   },
 
   computed: {
-    mappedColor() {
-      return config.colorsMap[this.goal.color]
-    },
-
     isCompleted() {
       return this.goal.current >= this.goal.target
     }
