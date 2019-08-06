@@ -44,33 +44,7 @@ export default {
         easing: 'linear',
         duration: 400
       }).finished
-    },
-
-    async animateFall(depth) {
-      await anime({
-        targets: this.$el,
-        easing: 'linear',
-        translateY: [-1 * depth, 0],
-        duration: 50 * depth
-      }).finished
-
-      return anime({
-        targets: this.$el,
-        easing: 'easeInQuad',
-        direction: 'alternate',
-        translateY: -0.125,
-        duration: 50
-      }).finished
-    },
-  },
-
-  mounted() {
-    anime({
-      targets: this.$el,
-      opacity: [0, 1],
-      easing: 'linear',
-      duration: 50
-    })
+    }
   }
 }
 </script>

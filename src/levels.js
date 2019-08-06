@@ -13,11 +13,11 @@ export default [
       { tile: { type: DOT, color: 'green' }, target: 99 }
     ],
     blueprint: `
-      E * * * *
-      E * * * *
-      X X X X X
-      r r * * *
-      r r * * *
+      r * * * *
+      r * * * *
+      r r r * *
+      r r r * *
+      r r r * *
     `,
   },
 

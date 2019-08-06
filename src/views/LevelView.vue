@@ -47,7 +47,7 @@
 
       <g>
         <svg v-for="tile in tiles" :key="tile.id" :x="tile.x" :y="tile.y">
-          <component :is="tileToComponentMap[tile.type]" @mousedown.native="startSelection(tile, $event)" :tile="tile" :ref="`tile.${tile.id}`" />
+          <MapTile :tile="tile" :ref="`tile.${tile.id}`" @mousedown.native="startSelection(tile, $event)" />
         </svg>
       </g>
 
@@ -83,9 +83,7 @@ import config from 'config'
 import SelectionProgressFrame from 'components/SelectionProgressFrame'
 import GoalItem from 'components/GoalItem'
 import Icon from 'components/Icon'
-
-import DotTile from 'components/tiles/DotTile'
-import WallTile from 'components/tiles/WallTile'
+import MapTile from 'components/tiles/MapTile'
 
 import SuccessModal from 'modals/SuccessModal';
 import OutOfMovesModal from 'modals/OutOfMovesModal';
@@ -108,6 +106,14 @@ function generateDotTile(position, color = config.dotColors) {
     color: getRandomItem([].concat(color)),
     type: config.tileTypes.DOT
   };
+}
+
+function generateBombTile(position) {
+  return {
+    ...position,
+    id: tileId++,
+    type: config.tileTypes.BOMB
+  }
 }
 
 function generateMap(level) {
@@ -184,17 +190,37 @@ function getRandomItem(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
 
-function getMatrixColumn(matrix, columnIndex) {
-  return matrix.map(row => row[columnIndex])
-}
+// function getMatrixColumn(matrix, columnIndex) {
+//   return matrix.map(row => row[columnIndex])
+// }
 
-function walkMatrix(matrix, callback) {
-  matrix.forEach((row, x) => {
-    row.forEach((item, y) => {
-      const column = matrix.map(row => row[x])
-      callback({ item, x, y, row, column })
-    })
-  })
+// function walkMatrix(matrix, callback) {
+//   matrix.forEach((row, x) => {
+//     row.forEach((item, y) => {
+//       const column = matrix.map(row => row[x])
+//       callback({ item, x, y, row, column })
+//     })
+//   })
+// }
+
+function getTilesEnclosedBySelection(tiles, selection) {
+  const lastCoreTile = selection[selection.length - 1]
+  const indexOfCoreStart = selection.findIndex(tile => tile.id === lastCoreTile.id)
+  const coreSelection = selection.slice(indexOfCoreStart)
+
+  const boundaries = {
+    left: Math.min.apply(Math, coreSelection.map(tile => tile.x)),
+    right: Math.max.apply(Math, coreSelection.map(tile => tile.x)),
+    top: Math.min.apply(Math, coreSelection.map(tile => tile.y)),
+    bottom: Math.max.apply(Math, coreSelection.map(tile => tile.y))
+  }
+
+  return tiles.filter(tile => (
+    tile.x > boundaries.left &&
+    tile.x < boundaries.right &&
+    tile.y > boundaries.top &&
+    tile.y < boundaries.bottom
+  ))
 }
 
 async function sleep(time) {
@@ -208,9 +234,7 @@ export default {
     SelectionProgressFrame,
     GoalItem,
     Icon,
-
-    DotTile,
-    WallTile,
+    MapTile
   },
 
   props: {
@@ -232,11 +256,7 @@ export default {
       selection: [],
       isMakingSelection: false,
       nextPossibleTiles: [],
-      relativeMousePosition: undefined,
-      tileToComponentMap: {
-        [config.tileTypes.DOT]: DotTile,
-        [config.tileTypes.WALL]: WallTile
-      }
+      relativeMousePosition: undefined
     };
   },
 
@@ -383,7 +403,7 @@ export default {
     addToSelection(tile) {
       this.selection.push(tile);
 
-      this.getTileComponent(tile).animateBeacon()
+      this.getTileComponent(tile).$refs.content.animateBeacon()
 
       const selectedWithoutLast = this.selection.slice(
         0,
@@ -391,7 +411,7 @@ export default {
       );
 
       if (this.isSelectionClosed) {
-        this.getAllDotTilesOfColor(this.selectionColor).map(this.getTileComponent).forEach(dot => dot.animateBeacon())
+        this.getAllDotTilesOfColor(this.selectionColor).map(this.getTileComponent).forEach(tile => tile.$refs.content.animateBeacon())
       }
 
       if (selectedWithoutLast.some(({ id }) => id === this.lastSelected.id)) {
@@ -429,6 +449,11 @@ export default {
 
       if (this.selection.length > 1) {
         this.movesLeft = this.movesLeft - 1
+
+        if (this.isSelectionClosed) {
+          getTilesEnclosedBySelection(this.tiles, this.selection)
+            .forEach(this.convertIntoBomb)
+        }
 
         const tilesToPop = this.isSelectionClosed
           ? this.getAllDotTilesOfColor(this.selectionColor)
@@ -478,7 +503,7 @@ export default {
 
       const animations = tiles
         .map(this.getTileComponent)
-        .map(component => component.animateDestruction())
+        .map(tile => tile.$refs.content.animateDestruction())
 
       await Promise.all(animations)
 
@@ -561,6 +586,11 @@ export default {
       })
     },
 
+    convertIntoBomb(tile) {
+      this.popTiles([tile])
+      this.tiles.push(generateBombTile(tile))
+    },
+
     highlightRandomSquare() {
       if (!this.availableDotSquares.length) {
         return
@@ -568,7 +598,7 @@ export default {
 
       getRandomItem(this.availableDotSquares)
         .map(this.getTileComponent)
-        .forEach(dotTile => dotTile.animateBeacon())
+        .forEach(tile => tile.$refs.content.animateBeacon())
     },
 
     accountTiles(tiles) {
@@ -600,6 +630,10 @@ export default {
     getTileComponent(tile) {
       return this.$refs[`tile.${tile.id}`][0]
     },
+
+    // getInnerTileComponents(tile) {
+    //   return getTileComponent(tile).$ref.inner
+    // },
 
     async completeLevel() {
       await sleep(150)
