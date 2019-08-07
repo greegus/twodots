@@ -1,16 +1,18 @@
 <template>
-  <svg class="absolute top-0 left-0 w-screen h-screen pointer-events-none z-10">
-    <g v-for="(corner, $index) in corners" :key="$index" :style="`transform-origin: 25% 25%; transform: ${corner}`">
+  <div class="fixed inset-0 pointer-events-none z-10">
+    <div class="fixed inset-0" :style="`background: ${hexColor}; opacity: ${selection.length && isSelectionClosed ? .15 : 0}; transition: opacity .15s;`">
+    </div>
+
+    <svg class="absolute w-1/2 h-1/2" v-for="(corner, $index) in corners" :key="$index" :style="corner" viewBox="0 0 1 1" preserveAspectRatio="none">
       <polyline
-        stroke-width="30"
-        style="transition: stroke-dasharray .15s"
-        :points="points" height="100" fill="none" :stroke="hexColor"
+        stroke-width="20"
+        style="transition: stroke-dasharray .25s"
+        points="1,0 0,0 0,1" height="100" fill="none" :stroke="hexColor"
+        vector-effect="non-scaling-stroke"
         :style="style"
       />
-    </g>
-
-    <rect x="0" y="0" width="100%" height="100%" :fill="hexColor" :style="`opacity: ${selection.length && isSelectionClosed ? .15 : 0}; transition: opacity .15s;`" />
-  </svg>
+    </svg>
+  </div>
 </template>
 
 <script>
@@ -36,10 +38,10 @@ export default {
       style: '',
       hexColor: undefined,
       corners: [
-        'translate(0, 0)',
-        'translate(50%, 0) rotateY(180deg)',
-        'translate(50%, 50%) rotateX(180deg) rotateY(180deg)',
-        'translate(0%, 50%) rotateX(180deg)'
+        'top: 0; left: 0;',
+        'top: 0; right: 0; transform: rotateY(180deg)',
+        'bottom: 0; right: 0; transform: rotateX(180deg) rotateY(180deg)',
+        'bottom: 0; left: 0; transform: rotateX(180deg)'
       ]
     }
   },
@@ -69,7 +71,6 @@ export default {
       const line = progress * fullLength
       const gap = Math.max(0, fullLength - line)
 
-      this.points = `${clientWidth / 2},0 0,0 0,${clientHeight / 2}`
       this.style = `strokeDasharray: ${line} ${gap}`
     }
   },

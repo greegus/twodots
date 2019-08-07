@@ -369,7 +369,7 @@ export default {
       this.squaresHighlightingInterval && clearInterval(this.squaresHighlightingInterval)
     },
 
-    startSelection(tile, event) {
+    startSelection(tile) {
       if (!this.isSelectionAllowed || tile.type !== config.tileTypes.DOT) {
         return
       }

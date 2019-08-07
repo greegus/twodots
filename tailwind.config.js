@@ -8,10 +8,16 @@ module.exports = {
     extend: {
       zIndex: {
         '1': 1
+      },
+
+      height: {
+        '1/2': '50%'
       }
     }
   },
+
   variants: {},
+
   plugins: [
     function({ addUtilities, addComponents, theme}) {
       // utilities
