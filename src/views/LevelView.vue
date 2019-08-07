@@ -79,7 +79,11 @@
 <script>
 import config from 'config'
 
-import { isSelectionClosed } from 'utils/selection'
+import { isSelectionClosed, getTilesEnclosedBySelection } from 'utils/selection'
+import { generateBombTile, generateDotTile } from 'utils/tileGenerator'
+import { getNeighbourTiles, PATTERN_DOWN_SQUARE } from 'utils/tilesFinder'
+import { getRandomItem } from 'utils/array'
+import { generateMap } from 'utils/map'
 
 import SelectionProgressFrame from 'components/SelectionProgressFrame'
 import SelectionLine from 'components/SelectionLine'
@@ -90,68 +94,9 @@ import MapTile from 'components/tiles/MapTile'
 import SuccessModal from 'modals/SuccessModal';
 import OutOfMovesModal from 'modals/OutOfMovesModal';
 
-let tileId = 1;
-
-function generateWallTile(position) {
-  return {
-    ...position,
-    id: tileId++,
-    type: config.tileTypes.WALL,
-    fixed: true
-  };
-}
-
-function generateDotTile(position, colors = config.dotColors) {
-  return {
-    ...position,
-    id: tileId++,
-    type: config.tileTypes.DOT,
-    color: getRandomItem([].concat(colors))
-  };
-}
-
-function generateBombTile(position, originalTile) {
-  return {
-    ...position,
-    originalTile,
-    id: tileId++,
-    type: config.tileTypes.BOMB
-  }
-}
-
-function generateMap(level) {
-  const symbolToTileMap = {
-    'E': undefined,
-    '*': position => generateDotTile(position, level.colors),
-    'r': position => generateDotTile(position, 'red'),
-    'b': position => generateDotTile(position, 'blue'),
-    'y': position => generateDotTile(position, 'yellow'),
-    'g': position => generateDotTile(position, 'green'),
-    'p': position => generateDotTile(position, 'pink'),
-    'X': position => generateWallTile(position)
-  };
-
-  const tilesMatrix = level.blueprint
-    .trim().split("\n").map((row, y) => {
-      return row.trim().split(/\s+/).map((symbol, x) => {
-          return symbolToTileMap[symbol] && symbolToTileMap[symbol]({ x, y });
-        });
-    });
-
-  const size = {
-    height: tilesMatrix.length,
-    width: tilesMatrix[0].length
-  };
-
-  return {
-    tiles: tilesMatrix.flatMap(row => row).filter(Boolean),
-    size
-  };
-}
-
 function getInitialState(level) {
   return {
-    ...generateMap(level),
+    ...generateMap(level.blueprint, level.colors),
     movesLeft: level.moves,
     goals: level.goals.map(goal => ({ ...goal, current: 0 })),
     score: 0,
@@ -159,27 +104,9 @@ function getInitialState(level) {
   }
 }
 
-function getNextPossibleTiles(tilesMatrix, tile, lastSelected = undefined) {
-  const neighbourTiles = [
-    tilesMatrix[tile.y][tile.x - 1],
-    tilesMatrix[tile.y][tile.x + 1]
-  ];
-
-  const prevRow = tilesMatrix[tile.y - 1];
-
-  if (prevRow) {
-    neighbourTiles.push(prevRow[tile.x]);
-  }
-
-  const nextRow = tilesMatrix[tile.y + 1];
-
-  if (nextRow) {
-    neighbourTiles.push(nextRow[tile.x]);
-  }
-
-  return neighbourTiles
-    .filter(Boolean)
-    .filter(({ color }) => tile.color === color)
+function getNextPossibleTiles(tile, tiles, lastSelected = undefined) {
+  return getNeighbourTiles(tile, tiles)
+    .filter(({ color, type }) => type === config.tileTypes.DOT &&  tile.color === color)
     .filter(({ id }) => (lastSelected ? lastSelected.id !== id : true));
 }
 
@@ -187,43 +114,6 @@ function sumTilesScorePoinst(tiles) {
   return tiles.reduce((sum, tile) => {
     return sum + (tile.value || 1)
   }, 0)
-}
-
-function getRandomItem(array) {
-  return array[Math.floor(Math.random() * array.length)];
-}
-
-// function getMatrixColumn(matrix, columnIndex) {
-//   return matrix.map(row => row[columnIndex])
-// }
-
-// function walkMatrix(matrix, callback) {
-//   matrix.forEach((row, x) => {
-//     row.forEach((item, y) => {
-//       const column = matrix.map(row => row[x])
-//       callback({ item, x, y, row, column })
-//     })
-//   })
-// }
-
-function getTilesEnclosedBySelection(tiles, selection) {
-  const lastCoreTile = selection[selection.length - 1]
-  const indexOfCoreStart = selection.findIndex(tile => tile.id === lastCoreTile.id)
-  const coreSelection = selection.slice(indexOfCoreStart)
-
-  const boundaries = {
-    left: Math.min.apply(Math, coreSelection.map(tile => tile.x)),
-    right: Math.max.apply(Math, coreSelection.map(tile => tile.x)),
-    top: Math.min.apply(Math, coreSelection.map(tile => tile.y)),
-    bottom: Math.max.apply(Math, coreSelection.map(tile => tile.y))
-  }
-
-  return tiles.filter(tile => (
-    tile.x > boundaries.left &&
-    tile.x < boundaries.right &&
-    tile.y > boundaries.top &&
-    tile.y < boundaries.bottom
-  ))
 }
 
 async function sleep(time) {
@@ -298,18 +188,13 @@ export default {
     },
 
     availableDotSquares() {
-      const squareCoordinates = [
-        [0,0], [1,0],
-        [0,1], [1,1]
-      ]
-
       return this.tiles
         .filter(tile => tile.type === config.tileTypes.DOT)
         .reduce((squares, tile) => {
-          const squareTiles = squareCoordinates.map(([ x, y ]) => this.tilesMatrix[tile.y + y] && this.tilesMatrix[tile.y + y][tile.x + x])
+          const squareTiles = getNeighbourTiles(tile, this.tiles, PATTERN_DOWN_SQUARE)
           const hasSameColor = squareTiles.every(tileInSquare => tileInSquare && tileInSquare.color === tile.color)
 
-          if (hasSameColor) {
+          if (hasSameColor && squareTiles.length === 4) {
             squares.push(squareTiles)
           }
 
@@ -362,7 +247,7 @@ export default {
     },
 
     initSquaresHighlighting() {
-      // this.squaresHighlightingInterval = setInterval(() => this.highlightRandomSquare(), 10000)
+      this.squaresHighlightingInterval = setInterval(() => this.highlightRandomSquare(), 10000)
     },
 
     cancelSquaresHighlighting() {
@@ -403,8 +288,8 @@ export default {
       }
 
       const nextPossibleTiles = getNextPossibleTiles(
-        this.tilesMatrix,
         tile,
+        this.tiles,
         this.lastSelected
       );
 
@@ -415,8 +300,8 @@ export default {
       this.selection.pop();
 
       this.nextPossibleTiles = getNextPossibleTiles(
-        this.tilesMatrix,
         this.lastSelected,
+        this.tiles,
         this.secondLastSelected
       );
     },
