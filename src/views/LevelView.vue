@@ -316,6 +316,7 @@ export default {
 
         if (this.isSelectionClosed) {
           getTilesEnclosedBySelection(this.tiles, this.selection)
+            .filter(({ type }) => type === config.tileTypes.DOT)
             .forEach(this.convertIntoBomb)
         }
 
