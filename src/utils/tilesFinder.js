@@ -22,9 +22,14 @@ export const PATTERN_DOWN_SQUARE = [
   0, 1, 1
 ]
 
-export function getNeighbourTiles(tile, tiles, pattern = PATTERN_CROSS) {
-  return coordinatesMatrix
-    .filter((_, index) => pattern[index])
-    .map(([x, y]) => tiles.find(item => tile.x + x === item.x && tile.y + y === item.y))
-    .filter(Boolean)
+export function getNeighbourTiles(tiles, mapTiles, pattern = PATTERN_CROSS) {
+  tiles = [].concat(tiles)
+
+  return tiles.reduce((acc, tile) => {
+    return acc.concat(coordinatesMatrix
+      .filter((_, index) => pattern[index])
+      .map(([x, y]) => mapTiles.find(item => tile.x + x === item.x && tile.y + y === item.y))
+      .filter(tile => tile && !acc.some(({ id }) => id === tile.id))
+    )
+  }, [])
 }

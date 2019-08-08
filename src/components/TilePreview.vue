@@ -7,7 +7,7 @@
 <script>
 import config from 'config'
 
-import DotTile from 'components/tiles/DotTile'
+import DotTile from 'components/canvas/tiles/DotTile'
 
 export default {
   components: {

@@ -16,6 +16,7 @@ export function getTilesEnclosedBySelection(tiles, selection) {
   }
 
   return tiles.filter(tile => (
+    !selection.some(({ id }) => tile.id === id) &&
     tile.x > boundaries.left &&
     tile.x < boundaries.right &&
     tile.y > boundaries.top &&

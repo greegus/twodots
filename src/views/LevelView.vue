@@ -36,15 +36,8 @@
       class="mx-auto"
       ref="tileCanvas"
     >
-      <defs>
-        <filter id="inner-shadow">
-          <!-- <feFlood flood-color="red"/> -->
-          <feComposite in2="SourceAlpha" operator="out"/>
-          <feGaussianBlur stdDeviation="2" result="blur"/>
-          <feComposite operator="atop" in2="SourceGraphic"/>
-        </filter>
-      </defs>
 
+      <!-- tiles -->
       <g>
         <svg v-for="tile in tiles" :key="tile.id" :x="tile.x" :y="tile.y">
           <MapTile :tile="tile" :ref="`tile.${tile.id}`" @mousedown.native="startSelection(tile, $event)" />
@@ -58,7 +51,7 @@
       />
 
       <!-- selection zones -->
-      <g v-if="isMakingSelection" style="position: relative; z-index: 1; opacity: 0">
+      <g v-if="isMakingSelection" class="relative z-1 opacity-0">
         <svg v-for="tile in nextPossibleTiles" :key="tile.id" :x="tile.x" :y="tile.y">
           <rect width="1" height="1" @mouseenter="addToSelection(tile)" />
         </svg>
@@ -81,18 +74,20 @@ import config from 'config'
 
 import { isSelectionClosed, getTilesEnclosedBySelection } from 'utils/selection'
 import { generateBombTile, generateDotTile } from 'utils/tileGenerator'
-import { getNeighbourTiles, PATTERN_DOWN_SQUARE } from 'utils/tilesFinder'
+import { getNeighbourTiles, PATTERN_DOWN_SQUARE, PATTERN_SQUARE } from 'utils/tilesFinder'
 import { getRandomItem } from 'utils/array'
 import { generateMap } from 'utils/map'
 
-import SelectionProgressFrame from 'components/SelectionProgressFrame'
-import SelectionLine from 'components/SelectionLine'
 import GoalItem from 'components/GoalItem'
 import Icon from 'components/Icon'
-import MapTile from 'components/tiles/MapTile'
+
+import MapTile from 'components/canvas/MapTile'
+import SelectionLine from 'components/canvas/SelectionLine'
+import SelectionProgressFrame from 'components/canvas/SelectionProgressFrame'
 
 import SuccessModal from 'modals/SuccessModal';
 import OutOfMovesModal from 'modals/OutOfMovesModal';
+import { Promise } from 'q';
 
 function getInitialState(level) {
   return {
@@ -128,6 +123,7 @@ export default {
     SelectionLine,
     GoalItem,
     Icon,
+
     MapTile
   },
 
@@ -271,7 +267,7 @@ export default {
     addToSelection(tile) {
       this.selection.push(tile);
 
-      this.getTileComponent(tile).$refs.content.animateBeacon()
+      this.getTileContentComponent(tile).animateBeacon()
 
       const selectedWithoutLast = this.selection.slice(
         0,
@@ -279,7 +275,9 @@ export default {
       );
 
       if (this.isSelectionClosed) {
-        this.getAllDotTilesOfColor(this.selectionColor).map(this.getTileComponent).forEach(tile => tile.$refs.content.animateBeacon())
+        this.getAllDotTilesOfColor(this.selectionColor)
+          .map(this.getTileContentComponent)
+          .forEach(c => c.animateBeacon())
       }
 
       if (selectedWithoutLast.some(({ id }) => id === this.lastSelected.id)) {
@@ -351,19 +349,44 @@ export default {
         await this.popTiles(tilesToPop);
         await this.fallDown();
         await this.fillWithDots(availableColors);
+
+        // bombs
+        const bombs = this.tiles.filter(({ type }) => type === config.tileTypes.BOMB)
+
+        if (bombs.length) {
+          const tilesToPopByBomb = bombs.reduce((acc, bomb) => {
+            const tiles = getNeighbourTiles(bomb, this.tiles, PATTERN_SQUARE)
+              .filter(tile => tile.type === config.tileTypes.DOT)
+
+            return {
+              ...acc,
+              [bomb.id]: tiles
+            }
+          }, {})
+
+          const tilesToPop = bombs.reduce((acc, bomb) => acc.concat(tilesToPopByBomb[bomb.id]), [])
+
+          this.animateTiles(tilesToPop, ref => ref.animateBurn())
+
+          await this.animateTiles(bombs, (ref, bomb) => ref.animateDetonation(tilesToPopByBomb[bomb.id]))
+
+          return this.poppingRoutine(tilesToPop.concat(bombs))
+        }
+    },
+
+    async animateTiles(tiles, animationMapper, refMapper = this.getTileContentComponent) {
+      return Promise.all(
+        tiles
+          .map(tile => ({ tile, ref: refMapper(tile)}))
+          .map(({ tile, ref }) => animationMapper(ref, tile)))
     },
 
     async popTiles(tiles) {
       this.accountTiles(tiles)
 
-      const animations = tiles
-        .map(this.getTileComponent)
-        .map(tile => tile.$refs.content.animateDestruction())
-
-      await Promise.all(animations)
+      await this.animateTiles(tiles, c => c.animateDestruction(), this.getTileComponent)
 
       this.tiles = this.tiles.filter(tile => !tiles.some(({ id }) => id === tile.id));
-
     },
 
     async fallDown() {
@@ -431,12 +454,9 @@ export default {
       this.tiles = this.tiles.concat(newTiles)
 
       return new Promise(resolve => {
-        this.$nextTick(() => {
-          const animations = newTiles.map((tile) => {
-            return this.getTileComponent(tile).animateFall(falls[tile.id])
-          })
-
-          Promise.all(animations).then(resolve)
+        this.$nextTick(async () => {
+          await this.animateTiles(newTiles, (ref, tile) => ref.animateFall(falls[tile.id]), this.getTileComponent)
+          resolve()
         })
       })
     },
@@ -450,13 +470,9 @@ export default {
     },
 
     highlightRandomSquare() {
-      if (!this.availableDotSquares.length) {
-        return
+      if (this.availableDotSquares.length) {
+        this.animateTiles(getRandomItem(this.availableDotSquares), ref => ref.animateBeacon())
       }
-
-      getRandomItem(this.availableDotSquares)
-        .map(this.getTileComponent)
-        .forEach(tile => tile.$refs.content.animateBeacon())
     },
 
     accountTiles(tiles) {
@@ -489,9 +505,9 @@ export default {
       return this.$refs[`tile.${tile.id}`][0]
     },
 
-    // getInnerTileComponents(tile) {
-    //   return getTileComponent(tile).$ref.inner
-    // },
+    getTileContentComponent(tile) {
+      return this.getTileComponent(tile).$refs.content
+    },
 
     async completeLevel() {
       await sleep(150)

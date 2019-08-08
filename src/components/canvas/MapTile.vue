@@ -8,9 +8,9 @@
 import anime from 'animejs'
 import config from 'config'
 
-import DotTile from 'components/tiles/DotTile'
-import WallTile from 'components/tiles/WallTile'
-import BombTile from 'components/tiles/BombTile'
+import DotTile from 'components/canvas/tiles/DotTile'
+import WallTile from 'components/canvas/tiles/WallTile'
+import BombTile from 'components/canvas/tiles/BombTile'
 
 export default {
   components: {
@@ -37,6 +37,15 @@ export default {
   },
 
   methods: {
+    animateDestruction() {
+      return anime({
+        targets: this.$el,
+        scale: 0,
+        easing: 'linear',
+        duration: 150
+      }).finished
+    },
+
     async animateFall(depth) {
       await anime({
         targets: this.$el,
