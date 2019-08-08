@@ -15,8 +15,8 @@ export default [
     blueprint: `
       * * * * *
       * r r r r
-      W r r r r
-      r W r r r
+      W r W r r
+      r r r r r
       r r W b b
     `,
   },
@@ -177,6 +177,25 @@ export default [
       p p W W
       y b r y
       b y r r
+    `,
+  },
+
+  {
+    id: 9,
+    colors: ['blue', 'red'],
+    moves: 33,
+    goals: [
+      { tile: { type: DOT, color: 'blue' }, target: 80 },
+      { tile: { type: DOT, color: 'red' }, target: 80 },
+    ],
+    blueprint: `
+      r r r W r r b
+      b W r W b W b
+      b r b r r r b
+      W W r W r W W
+      r r r b r b b
+      r W b W r W b
+      b b r W b b b
     `,
   }
 ]
