@@ -143,7 +143,7 @@ export default [
     colors: ['pink', 'green', 'yellow', 'red'],
     moves: 30,
     goals: [
-      { tile: { type: DOT, color: 'ping' }, target: 50 },
+      { tile: { type: DOT, color: 'pink' }, target: 50 },
       { tile: { type: DOT, color: 'red' }, target: 50 },
       { tile: { type: DOT, color: 'green' }, target: 50 },
       { tile: { type: DOT, color: 'yellow' }, target: 50 },
@@ -156,6 +156,27 @@ export default [
       p r g g g g g
       p r r r r r r
       p p p p p p p
+    `,
+  },
+
+  {
+    id: 8,
+    colors: ['pink', 'blue', 'red', 'yellow'],
+    moves: 23,
+    goals: [
+      { tile: { type: DOT, color: 'pink' }, target: 15 },
+      { tile: { type: DOT, color: 'blue' }, target: 15 },
+      { tile: { type: DOT, color: 'red' }, target: 15 },
+      { tile: { type: DOT, color: 'yellow' }, target: 15 },
+    ],
+    blueprint: `
+      b b b y
+      y p b y
+      W W r b
+      p y y r
+      p p W W
+      y b r y
+      b y r r
     `,
   }
 ]

@@ -10,7 +10,7 @@ const TYPES = {
 const state = {
   user: JSON.parse(localStorage.getItem('user') || null) || {
     name: 'greegus',
-    level: 1,
+    level: 7,
     scoreByLevel: {}
   }
 }

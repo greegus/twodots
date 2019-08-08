@@ -56,8 +56,8 @@ export default {
             targets: this.$refs.beams,
             complete: resolve,
             strokeDashoffset: [
-              { value: [-1, 0], duration: 200, easing: 'easeOutQuad'},
-              { value: [0, 1], duration: 200, easing: 'easeOutQuad', delay: 100 }
+              { value: [-1, 0], duration: 200, easing: 'easeInQuad'},
+              { value: [0, 1], duration: 200, easing: 'easeInQuad', delay: 100 }
             ],
             opacity: {
               value: [1, 0],
