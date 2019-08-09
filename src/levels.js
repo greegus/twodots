@@ -232,7 +232,7 @@ export default [
       g b A b g
       g p b p g
       g p b p g
-      `,
+    `,
   },
 
   {
@@ -250,7 +250,7 @@ export default [
       g y p g b y
       p y r g y p
       r y r b p p
-      `,
+    `,
   },
 
   {
@@ -267,6 +267,26 @@ export default [
       g b g b b r g y
       b y g r b b g r
       g r g r r y g b
-      `,
+    `,
+  },
+
+  {
+    id: 14,
+    colors: ['blue', 'red', 'yellow'],
+    moves: 30,
+    maxAnchors: 2,
+    goals: [
+      { tile: { type: ANCHOR }, target: 10 },
+      { tile: { type: DOT, color: 'red' }, target: 40 },
+      { tile: { type: DOT, color: 'yellow' }, target: 35 },
+      { tile: { type: DOT, color: 'blue' }, target: 10 },
+    ],
+    blueprint: `
+      A W W A
+      r r b y
+      r r r r
+      b y y y
+      y y y y
+    `,
   }
 ]
