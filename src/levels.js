@@ -288,5 +288,24 @@ export default [
       b y y y
       y y y y
     `,
+  },
+
+  {
+    id: 15,
+    colors: ['blue', 'yellow', 'green'],
+    moves: 30,
+    maxAnchors: 1,
+    goals: [
+      { tile: { type: ANCHOR }, target: 5 },
+    ],
+    blueprint: `
+      g g p p
+      b p y b
+      b p p p
+      W b b b
+      W g g b
+      g b p y
+      g b y p
+    `,
   }
 ]
