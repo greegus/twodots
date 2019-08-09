@@ -1,6 +1,6 @@
 import config from 'config'
 
-const { DOT } = config.tileTypes
+const { DOT, ANCHOR } = config.tileTypes
 
 export default [
   {
@@ -216,5 +216,21 @@ export default [
       y y r r b b
       r r b g y y
     `,
+  },
+
+  {
+    id: 11,
+    colors: ['green', 'pink', 'blue'],
+    moves: 20,
+    goals: [
+      { tile: { type: ANCHOR }, target: 4 },
+    ],
+    blueprint: `
+      g p b p g
+      g p b p g
+      g b A b g
+      g p b p g
+      g p b p g
+      `,
   }
 ]
