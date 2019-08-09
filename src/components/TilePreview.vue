@@ -5,15 +5,9 @@
 </template>
 
 <script>
-import config from 'config'
-
-import DotTile from 'components/canvas/tiles/DotTile'
+import tileToComponentMap from 'utils/tileToComponentMap'
 
 export default {
-  components: {
-    DotTile
-  },
-
   props: {
     tile: {
       type: Object,
@@ -23,10 +17,6 @@ export default {
 
   computed: {
     component() {
-      const tileToComponentMap = {
-        [config.tileTypes.DOT]: DotTile
-      }
-
       return tileToComponentMap[this.tile.type]
     }
   }

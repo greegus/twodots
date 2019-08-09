@@ -73,7 +73,7 @@
 import config from 'config'
 
 import { isSelectionClosed, getTilesEnclosedBySelection } from 'utils/selection'
-import { generateBombTile, generateDotTile } from 'utils/tileGenerator'
+import { generateBombTile, generateDotTile, generateAnchorTile, isDot, isBomb, isWall, isAnchor } from 'utils/tileGenerator'
 import { getNeighbourTiles, PATTERN_DOWN_SQUARE, PATTERN_SQUARE } from 'utils/tilesFinder'
 import { getRandomItem } from 'utils/array'
 import { generateMap } from 'utils/map'
@@ -101,7 +101,8 @@ function getInitialState(level) {
 
 function getNextPossibleTiles(tile, tiles, lastSelected = undefined) {
   return getNeighbourTiles(tile, tiles)
-    .filter(({ color, type }) => type === config.tileTypes.DOT &&  tile.color === color)
+    .filter(isDot)
+    .filter(({ color }) => tile.color === color)
     .filter(({ id }) => (lastSelected ? lastSelected.id !== id : true));
 }
 
@@ -185,7 +186,7 @@ export default {
 
     availableDotSquares() {
       return this.tiles
-        .filter(tile => tile.type === config.tileTypes.DOT)
+        .filter(isDot)
         .reduce((squares, tile) => {
           const squareTiles = getNeighbourTiles(tile, this.tiles, PATTERN_DOWN_SQUARE)
           const hasSameColor = squareTiles.every(tileInSquare => tileInSquare && tileInSquare.color === tile.color)
@@ -251,7 +252,7 @@ export default {
     },
 
     startSelection(tile) {
-      if (!this.isSelectionAllowed || tile.type !== config.tileTypes.DOT) {
+      if (!this.isSelectionAllowed || !isDot(tile)) {
         return
       }
 
@@ -316,7 +317,7 @@ export default {
 
         if (this.isSelectionClosed) {
           getTilesEnclosedBySelection(this.tiles, this.selection)
-            .filter(({ type }) => type === config.tileTypes.DOT)
+            .filter(isDot)
             .forEach(this.convertIntoBomb)
         }
 
@@ -352,12 +353,12 @@ export default {
         await this.fillWithDots(availableColors);
 
         // bombs
-        const bombs = this.tiles.filter(({ type }) => type === config.tileTypes.BOMB)
+        const bombs = this.tiles.filter(isBomb)
 
         if (bombs.length) {
           const tilesToPopByBomb = bombs.reduce((acc, bomb) => {
             const tiles = getNeighbourTiles(bomb, this.tiles, PATTERN_SQUARE)
-              .filter(tile => tile.type === config.tileTypes.DOT)
+              .filter(isDot)
 
             return {
               ...acc,
@@ -373,13 +374,19 @@ export default {
 
           return this.poppingRoutine(tilesToPop.concat(bombs))
         }
+
+        // anchors
+        const sunkenAnchors = this.tiles
+          .filter(isAnchor)
+          .filter(tile => tile.y + 1 === this.size.height)
+
+        if (sunkenAnchors.length) {
+          return this.poppingRoutine(sunkenAnchors)
+        }
     },
 
     async animateTiles(tiles, animationMapper, refMapper = this.getTileContentComponent) {
-      return Promise.all(
-        tiles
-          .map(tile => ({ tile, ref: refMapper(tile)}))
-          .map(({ tile, ref }) => animationMapper(ref, tile)))
+      return Promise.all([].concat(tiles).map(tile => animationMapper(refMapper(tile))))
     },
 
     async popTiles(tiles) {
@@ -407,7 +414,7 @@ export default {
             continue
           }
 
-          if (tile.type !== config.tileTypes.WALL && emptyTiles.length) {
+          if (!isWall(tile) && emptyTiles.length) {
             const newPosition = emptyTiles.shift()
             const depth = newPosition.y - tile.y
 
@@ -431,33 +438,66 @@ export default {
 
     fillWithDots(colors) {
       const { width, height } = this.size;
-      const falls = {}
-      let newTiles = [];
+
+      let emptySlots = [];
 
       for (let x = 0; x < width; x++) {
-        let newTilesInColumn = []
+        let emptySlotsInColumn = []
 
         for (let y = 0; y < height; y++) {
           const tile = this.tilesMatrix[y][x]
 
           if (!tile) {
-            newTilesInColumn.push(generateDotTile({x, y}, colors))
+            emptySlotsInColumn.push({
+              position: { x, y },
+              newTile: undefined,
+              initialOffset: 0
+            })
           }
         }
 
-        newTiles = newTiles.concat(newTilesInColumn)
-
-        newTilesInColumn.reverse().forEach((tile, index) => {
-          falls[tile.id] = tile.y + index + 1
+        emptySlotsInColumn.forEach((slot, index, { length }) => {
+          slot.initialOffset = slot.position.y + (length - index)
         })
+
+        emptySlots = emptySlots.concat(emptySlotsInColumn)
       }
+
+      // anchors
+
+      if (this.goals.map(goal => goal.tile).some(isAnchor)) {
+        const numberOfCurrentAnchors = this.tiles.filter(isAnchor).length
+        const anchorsLimit = Math.ceil(this.size.width * this.size.height / 16)
+        const numberOfNewAnchors = Math.floor(Math.random() * (anchorsLimit - numberOfCurrentAnchors + 1))
+
+        console.log(numberOfNewAnchors)
+
+        for (let i = 0; i < numberOfNewAnchors; i++) {
+          const slot = getRandomItem(emptySlots.filter(slot => !slot.newTile && !slot.position.y));
+
+          if (slot) {
+            slot.newTile = generateAnchorTile(slot.position)
+          }
+        }
+      }
+
+      // dots
+
+      emptySlots.forEach(slot => {
+        slot.newTile = slot.newTile || generateDotTile(slot.position, colors)
+      })
+
+      const newTiles = emptySlots.map(({ newTile }) => newTile)
 
       this.tiles = this.tiles.concat(newTiles)
 
       return new Promise(resolve => {
         this.$nextTick(async () => {
-          await this.animateTiles(newTiles, (ref, tile) => ref.animateFall(falls[tile.id]), this.getTileComponent)
-          resolve()
+          const animations = emptySlots.map(
+            emptySlot => this.animateTiles(emptySlot.newTile, (ref) => ref.animateFall(emptySlot.initialOffset), this.getTileComponent)
+          )
+
+          Promise.all(animations).then(resolve)
         })
       })
     },
@@ -481,7 +521,7 @@ export default {
 
       this.goals = this.goals.map(goal => {
         const numberOfTiles = tiles.filter(tile => {
-          if (goal.tile.type === config.tileTypes.DOT) {
+          if (isDot(goal.tile)) {
             return goal.tile.color === tile.color
           }
 
@@ -497,9 +537,9 @@ export default {
     },
 
     getAllDotTilesOfColor(color) {
-      return this.tiles.filter(
-        tile => tile.type === config.tileTypes.DOT && tile.color === color
-      );
+      return this.tiles
+        .filter(isDot)
+        .filter(tile => tile.color === color)
     },
 
     getTileComponent(tile) {

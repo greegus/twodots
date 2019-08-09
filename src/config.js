@@ -17,6 +17,7 @@ export default {
   tileTypes: {
     DOT: 'dot',
     WALL: 'wall',
-    BOMB: 'bomb'
+    BOMB: 'bomb',
+    ANCHOR: 'anchor'
   }
 }

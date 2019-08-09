@@ -6,19 +6,10 @@
 
 <script>
 import anime from 'animejs'
-import config from 'config'
 
-import DotTile from 'components/canvas/tiles/DotTile'
-import WallTile from 'components/canvas/tiles/WallTile'
-import BombTile from 'components/canvas/tiles/BombTile'
+import tileToComponentMap from 'utils/tileToComponentMap'
 
 export default {
-  components: {
-    DotTile,
-    WallTile,
-    BombTile
-  },
-
   props: {
     tile: {
       type: Object,
@@ -28,11 +19,7 @@ export default {
 
   data() {
     return {
-      tileToComponentMap: {
-        [config.tileTypes.DOT]: DotTile,
-        [config.tileTypes.WALL]: WallTile,
-        [config.tileTypes.BOMB]: BombTile
-      }
+      tileToComponentMap
     }
   },
 
