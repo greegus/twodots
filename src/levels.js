@@ -18,7 +18,7 @@ export default [
       W r W r r
       r r r r r
       r r W b b
-    `,
+    `
   },
 
   //

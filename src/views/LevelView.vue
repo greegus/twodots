@@ -37,12 +37,16 @@
       ref="tileCanvas"
     >
 
+      <!-- walls -->
+      <WallsLayer
+        :walls="wallTiles"
+        :size="size"
+      />
+
       <!-- tiles -->
-      <g>
-        <svg v-for="tile in tiles" :key="tile.id" :x="tile.x" :y="tile.y">
-          <MapTile :tile="tile" :ref="`tile.${tile.id}`" @mousedown.native="startSelection(tile, $event)" />
-        </svg>
-      </g>
+      <svg v-for="tile in tiles" :key="tile.id" :x="tile.x" :y="tile.y">
+        <MapTile :tile="tile" :ref="`tile.${tile.id}`" @mousedown.native="startSelection(tile, $event)" />
+      </svg>
 
       <!-- selection line -->
       <SelectionLine
@@ -84,6 +88,7 @@ import Icon from 'components/Icon'
 import MapTile from 'components/canvas/MapTile'
 import SelectionLine from 'components/canvas/SelectionLine'
 import SelectionProgressFrame from 'components/canvas/SelectionProgressFrame'
+import WallsLayer from 'components/canvas/WallsLayer'
 
 import SuccessModal from 'modals/SuccessModal';
 import OutOfMovesModal from 'modals/OutOfMovesModal';
@@ -120,12 +125,13 @@ export default {
   name: 'LevelView',
 
   components: {
-    SelectionProgressFrame,
-    SelectionLine,
     GoalItem,
     Icon,
 
-    MapTile
+    MapTile,
+    WallsLayer,
+    SelectionLine,
+    SelectionProgressFrame
   },
 
   props: {
@@ -166,6 +172,10 @@ export default {
       this.tiles.forEach(tile => matrix[tile.y][tile.x] = tile)
 
       return matrix
+    },
+
+    wallTiles() {
+      return this.tiles.filter(isWall)
     },
 
     selectionColor() {

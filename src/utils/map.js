@@ -2,7 +2,7 @@ import tileGenerator from 'utils/tileGenerator'
 
 export function generateMap(blueprint, colors) {
   const symbolToTileMap = {
-    'E': undefined,
+    '.': undefined,
     '*': position => tileGenerator.generateDotTile(position, colors),
     'r': position => tileGenerator.generateDotTile(position, 'red'),
     'b': position => tileGenerator.generateDotTile(position, 'blue'),
