@@ -19,6 +19,7 @@ export default {
     DOT: 'dot',
     WALL: 'wall',
     BOMB: 'bomb',
-    ANCHOR: 'anchor'
+    ANCHOR: 'anchor',
+    RAMP: 'ramp'
   }
 }

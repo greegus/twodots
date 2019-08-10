@@ -4,39 +4,42 @@ import { getRandomItem } from 'utils/array'
 
 let tileId = 1;
 
-export function generateWallTile(position) {
+function generateTile(position, type, config = {}) {
   return {
     ...position,
-    id: tileId++,
-    type: config.tileTypes.WALL,
+    ...config,
+    type,
+    id: tileId++
+  }
+}
+
+export function generateWallTile(position) {
+  return generateTile(position, config.tileTypes.WALL, {
     fixed: true
-  };
+  })
 }
 
 export function generateDotTile(position, colors = config.dotColors) {
-  return {
-    ...position,
-    id: tileId++,
-    type: config.tileTypes.DOT,
+  return generateTile(position, config.tileTypes.DOT, {
     color: getRandomItem([].concat(colors))
-  };
+  })
 }
 
 export function generateBombTile(position, originalTile) {
-  return {
-    ...position,
-    originalTile,
-    id: tileId++,
-    type: config.tileTypes.BOMB
-  }
+  return generateTile(position, config.tileTypes.BOMB, {
+    originalTile
+  })
 }
 
 export function generateAnchorTile(position) {
-  return {
-    ...position,
-    id: tileId++,
-    type: config.tileTypes.ANCHOR
-  }
+  return generateTile(position, config.tileTypes.ANCHOR)
+}
+
+export function generateRampTile(position, direction) {
+  return generateTile(position, config.tileTypes.RAMP, {
+    fixed: true,
+    direction
+  })
 }
 
 export function isDot(tile) {
@@ -60,6 +63,7 @@ export default {
   generateDotTile,
   generateBombTile,
   generateAnchorTile,
+  generateRampTile,
 
   isDot,
   isBomb,

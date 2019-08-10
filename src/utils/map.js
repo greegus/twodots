@@ -11,7 +11,9 @@ export function generateMap(blueprint, colors) {
     'p': position => tileGenerator.generateDotTile(position, 'pink'),
     't': position => tileGenerator.generateDotTile(position, 'teal'),
     'W': position => tileGenerator.generateWallTile(position),
-    'A': position => tileGenerator.generateAnchorTile(position)
+    'A': position => tileGenerator.generateAnchorTile(position),
+    'Rr': position => tileGenerator.generateRampTile(position, 'right'),
+    'Rl': position => tileGenerator.generateRampTile(position, 'left')
   };
 
   const tilesMatrix = blueprint

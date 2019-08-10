@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="100px" height="100px" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 56.3 (81716) - https://sketch.com -->
+    <title>Artboard</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Artboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M8,6 L8,92 L94,92 L8,6 Z M20,36 L64,80 L20,80 L20,36 Z" id="Path" fill-opacity="0.301027098" fill="#000000" fill-rule="nonzero"></path>
+        <polygon id="Path" fill-opacity="0.104567308" fill="#000000" fill-rule="nonzero" points="20 36 64 80 20 80"></polygon>
+    </g>
+</svg>
