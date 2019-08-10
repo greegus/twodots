@@ -3,7 +3,7 @@
     <div class="absolute top-0 flex align-center text-gray-700 mt-12">
       <div class="LevelView__panel px-0 w-16 mr-5">
         <div class="text-center leading-none">
-          <div class="text-2xl mb-1">{{ movesLeft }}</div>
+          <div class="text-2xl mb-1" :class="{'text-red-500': isLowOnMovesLeft}">{{ movesLeft }}</div>
           <div class="uppercase text-xs font-normal">Moves</div>
         </div>
       </div>
@@ -238,6 +238,10 @@ export default {
       })
     },
 
+    isLowOnMovesLeft() {
+      return this.movesLeft <= 5
+    },
+
     hasMovesLeft() {
       return this.movesLeft > 0
     }
@@ -327,7 +331,7 @@ export default {
 
         if (this.isSelectionClosed) {
           getTilesEnclosedBySelection(this.tiles, this.selection)
-            .filter(isDot)
+            .filter(tile => !tile.fixed)
             .forEach(this.convertIntoBomb)
         }
 
@@ -368,19 +372,20 @@ export default {
         if (bombs.length) {
           const tilesToPopByBomb = bombs.reduce((acc, bomb) => {
             const tiles = getNeighbourTiles(bomb, this.tiles, PATTERN_SQUARE)
-              .filter(isDot)
+              .filter(tile => !tile.fixed)
 
-            return {
-              ...acc,
-              [bomb.id]: tiles
-            }
-          }, {})
+            return acc.concat({ bomb, tiles })
+          }, [])
 
-          const tilesToPop = bombs.reduce((acc, bomb) => acc.concat(tilesToPopByBomb[bomb.id]), [])
+          const tilesToPop = tilesToPopByBomb.flatMap(({ tiles }) => tiles)
 
           this.animateTiles(tilesToPop, ref => ref.animateBurn())
 
-          await this.animateTiles(bombs, (ref, bomb) => ref.animateDetonation(tilesToPopByBomb[bomb.id]))
+          const detonationAnimations = tilesToPopByBomb.map(
+            ({ bomb, tiles }) => this.animateTiles(bomb, ref => ref.animateDetonation(tiles))
+          )
+
+          await Promise.all(detonationAnimations)
 
           return this.poppingRoutine(tilesToPop.concat(bombs))
         }

@@ -23,12 +23,10 @@
 </template>
 
 <script>
-import Icon from 'components/Icon'
 import GoalItem from 'components/GoalItem'
 
 export default {
   components: {
-    Icon,
     GoalItem
   },
 

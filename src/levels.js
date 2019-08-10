@@ -6,18 +6,18 @@ export default [
   {
     id: 0,
     colors: ['blue', 'red', 'green', 'pink'],
-    moves: 99,
+    moves: 6,
     goals: [
-      { tile: { type: DOT, color: 'red' }, target: 99 },
+      { tile: { type: ANCHOR }, target: 99 },
       { tile: { type: DOT, color: 'blue' }, target: 99 },
       { tile: { type: DOT, color: 'green' }, target: 99 }
     ],
     blueprint: `
-      * * * * *
-      * r r r r
-      W r W r r
-      r r r r r
-      r r W b b
+      * * * * * r
+      * r r r r r
+      W r A r r r
+      r r r r r r
+      r r W b b r
     `
   },
 
