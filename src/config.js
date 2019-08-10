@@ -3,7 +3,8 @@ const dotColors = {
   blue:  { hex: '#3182CE' },
   green:  { hex: '#48BB78' },
   pink:  { hex: '#97266D' },
-  yellow:  { hex: '#F6E05E' }
+  yellow:  { hex: '#F6E05E' },
+  teal:  { hex: '#81E6D9' }
 }
 
 export default {

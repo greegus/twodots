@@ -307,5 +307,25 @@ export default [
       g b p y
       g b y p
     `,
+  },
+
+  {
+    id: 16,
+    colors: ['blue', 'yellow', 'green', 'blue', 'pink', 'red'],
+    moves: 35,
+    goals: [
+      { tile: { type: DOT, color: 'pink' }, target: 35 },
+      { tile: { type: DOT, color: 'blue' }, target: 30 },
+      { tile: { type: DOT, color: 'yellow' }, target: 25 },
+    ],
+    blueprint: `
+      * * * * * * *
+      * * * * * * *
+      * * * * * * *
+      W * * * * * W
+      W * * * * * W
+      W * p p p * W
+      W W p p p W W
+    `,
   }
 ]

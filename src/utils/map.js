@@ -9,6 +9,7 @@ export function generateMap(blueprint, colors) {
     'y': position => tileGenerator.generateDotTile(position, 'yellow'),
     'g': position => tileGenerator.generateDotTile(position, 'green'),
     'p': position => tileGenerator.generateDotTile(position, 'pink'),
+    't': position => tileGenerator.generateDotTile(position, 'teal'),
     'W': position => tileGenerator.generateWallTile(position),
     'A': position => tileGenerator.generateAnchorTile(position)
   };
