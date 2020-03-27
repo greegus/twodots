@@ -4,8 +4,8 @@ A simple remake of a popular [TwoDots](https://play.google.com/store/apps/detail
 
 ![](http://g.recordit.co/w1P91Zt7c9.gif)
 
-## Running localy
-```
+## Running locally
+```shell script
 yarn install
 yarn run serve
 ```
