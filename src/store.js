@@ -9,8 +9,8 @@ const TYPES = {
 
 const state = {
   user: JSON.parse(localStorage.getItem('user') || null) || {
-    name: 'greegus',
-    level: 7,
+    name: 'player',
+    level: 1,
     scoreByLevel: {}
   }
 }
