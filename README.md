@@ -1,29 +1,9 @@
-# twodots
+# TwoDots
 
-## Project setup
+A simple remake of a popular [TwoDots](https://play.google.com/store/apps/details?id=com.weplaydots.twodotsandroid&hl=cs) game. I'm using this project as a playground for trying out various animation techniques and game mechanics.
+
+## Running localy
 ```
 yarn install
-```
-
-### Compiles and hot-reloads for development
-```
 yarn run serve
 ```
-
-### Compiles and minifies for production
-```
-yarn run build
-```
-
-### Run your tests
-```
-yarn run test
-```
-
-### Lints and fixes files
-```
-yarn run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
