@@ -1,4 +1,6 @@
 module.exports = {
+  lintOnSave: 'warning',
+
   configureWebpack: {
     resolve: {
       modules: [

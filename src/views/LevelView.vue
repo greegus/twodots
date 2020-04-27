@@ -28,6 +28,16 @@
       </div>
     </div>
 
+    <div>
+      <button @click="fallDown()">
+        FallDown
+      </button>
+
+      <button @click="restart()">
+        Restrat
+      </button>
+    </div>
+
     <!-- canvas -->
     <svg
       :width="realSize.width"
@@ -77,10 +87,11 @@
 import config from 'config'
 
 import { isSelectionClosed, getTilesEnclosedBySelection } from 'utils/selection'
-import { generateBombTile, generateDotTile, generateAnchorTile, isDot, isBomb, isWall, isAnchor } from 'utils/tileGenerator'
+import { generateBombTile, generateDotTile, generateAnchorTile, isDot, isBomb, isWall, isRamp, isAnchor } from 'utils/tileGenerator'
 import { getNeighbourTiles, PATTERN_DOWN_SQUARE, PATTERN_SQUARE } from 'utils/tilesFinder'
 import { getRandomItem } from 'utils/array'
 import { generateMap } from 'utils/map'
+import { createMatrix, getMatrixCell, getMatrixRow, setMatrixCell } from 'utils/matrix'
 
 import GoalItem from 'components/GoalItem'
 import Icon from 'components/Icon'
@@ -92,7 +103,7 @@ import WallsLayer from 'components/canvas/WallsLayer'
 
 import SuccessModal from 'modals/SuccessModal';
 import OutOfMovesModal from 'modals/OutOfMovesModal';
-import { Promise } from 'q';
+import { Promise } from 'q'; // todo: ?
 
 function getInitialState(level) {
   return {
@@ -165,11 +176,9 @@ export default {
     },
 
     tilesMatrix() {
-      const matrix = Array.from({ length: this.size.height }).map(() => {
-        return Array.from({ from: this.size.width })
-      })
+      const matrix = createMatrix(this.size)
 
-      this.tiles.forEach(tile => matrix[tile.y][tile.x] = tile)
+      this.tiles.forEach(tile => setMatrixCell(matrix, tile, tile))
 
       return matrix
     },
@@ -199,7 +208,7 @@ export default {
         .filter(isDot)
         .reduce((squares, tile) => {
           const squareTiles = getNeighbourTiles(tile, this.tiles, PATTERN_DOWN_SQUARE)
-          const hasSameColor = squareTiles.every(tileInSquare => tileInSquare && tileInSquare.color === tile.color)
+          const hasSameColor = squareTiles.every(tileInSquare => tileInSquare?.color === tile.color)
 
           if (hasSameColor && squareTiles.length === 4) {
             squares.push(squareTiles)
@@ -213,7 +222,7 @@ export default {
       return this.tilesMatrix.some(row => {
         return row.some((tile, index, tiles) => {
           const nextTile = tiles[index + 1];
-          return nextTile && nextTile.color === tile.color;
+          return nextTile?.color === tile.color;
         });
       });
     },
@@ -223,7 +232,7 @@ export default {
         return row.some((tile, index) => {
           const nextRow = rows[rowIndex + 1];
           const nextTile = nextRow && nextRow[index];
-          return nextTile && nextTile.color === tile.color;
+          return nextTile?.color === tile.color;
         });
       });
     },
@@ -360,11 +369,16 @@ export default {
     async poppingRoutine(tilesToPop, restrictedColor = undefined) {
         const availableColors = restrictedColor
           ? this.level.colors.filter(color => color !== restrictedColor)
-          : this.level.colors;
+          : this.level.colors
 
-        await this.popTiles(tilesToPop);
-        await this.fallDown();
-        await this.fillWithDots(availableColors);
+        const movements = []
+
+        await this.popTiles(tilesToPop)
+
+        movements.push(...this.fallDown())
+        movements.push(...this.fillWithDots(availableColors))
+
+        await this.animateMovements(movements)
 
         // bombs
         const bombs = this.tiles.filter(isBomb)
@@ -400,6 +414,18 @@ export default {
         }
     },
 
+    async animateMovements(movements) {
+      return new Promise((resolve) => {
+        this.$nextTick(() => {
+          const animations = movements
+            .filter(({ waypoints }) => waypoints.length > 1)
+            .map(({ tile, waypoints }) => this.getTileComponent(tile).animateFall(waypoints))
+
+          Promise.all(animations).then(resolve)
+        })
+      })
+    },
+
     async animateTiles(tiles, animationMapper, refMapper = this.getTileContentComponent) {
       return Promise.all([].concat(tiles).map(tile => animationMapper(refMapper(tile))))
     },
@@ -412,43 +438,89 @@ export default {
       this.tiles = this.tiles.filter(tile => !tiles.some(({ id }) => id === tile.id));
     },
 
-    async fallDown() {
-      const { width, height } = this.size;
-      const falls = {};
+    fallDown() {
+      const computeFalldownPath = ({ x, y }, matrix) => {
+        const cursor = { x, y }
+        const waypoints = []
 
-      for (let x = 0; x < width; x++) {
-        const emptyTiles = []
-
-        const column = this.tilesMatrix.map(row => row[x])
-
-        for (let y = height - 1; y >= 0; y--) {
-          const tile = column[y]
+        while (++cursor.y < matrix.length) {
+          const tile = getMatrixCell(matrix, cursor)
 
           if (!tile) {
-            emptyTiles.push({ x, y })
+            waypoints.push({...cursor})
             continue
           }
 
-          if (!isWall(tile) && emptyTiles.length) {
-            const newPosition = emptyTiles.shift()
-            const depth = newPosition.y - tile.y
+          if (isRamp(tile)) {
+            waypoints.push(...computeFalldownPath({
+              x: cursor.x + (tile.orientation === 'left' ? -1 : 1),
+              y: cursor.y - 1
+            }, matrix))
 
-            falls[tile.id] = depth
-            emptyTiles.push({ y: tile.y, x: tile.x })
+            continue
           }
+
+          if (isWall(tile)) {
+            waypoints.push(...computeFalldownPath({
+              x: cursor.x,
+              y: cursor.y + 1
+            }, matrix))
+
+            continue
+          }
+
+          break
         }
+
+        return waypoints
       }
 
-      this.tiles = this.tiles.map(tile => ({
-        ...tile,
-        y: tile.y + (falls[tile.id] || 0)
-      }));
+      const matrix = createMatrix(this.size)
 
-      this.$nextTick(() => {
-        Object.entries(falls).forEach(([id, depth]) => {
-          this.getTileComponent({ id }).animateFall(depth)
-        })
+      this.tiles.filter(tile => tile.static).forEach(tile => {
+        setMatrixCell(matrix, tile, tile)
       })
+
+      const movements = {}
+
+      // Start from bottom to top, row by row
+      for (let y = this.size.height - 1; y >= 0; y--) {
+        const tilesInRow = getMatrixRow(this.tilesMatrix, y)
+          .filter(Boolean)
+          .filter(tile => !tile.static)
+
+        // Prioritize tiles over ramps
+        tilesInRow.sort((a, b) => {
+          const tileUnder = tile => getMatrixCell(this.tilesMatrix, {x: tile.x, y: tile.y + 1})
+          return isRamp(tileUnder(b)) - isRamp(tileUnder(a))
+        })
+
+        tilesInRow.forEach(tile => {
+          const currentPosition = { x: tile.x, y: tile.y }
+          const waypoints = [currentPosition, ...computeFalldownPath(tile, matrix)]
+          const newPosition = waypoints.slice(-1).pop()
+          const updatedTile = { ...tile, ...newPosition }
+
+          setMatrixCell(matrix, newPosition, updatedTile)
+
+          movements[tile.id] = {
+            tile: updatedTile,
+            waypoints
+          }
+        })
+      }
+
+      this.tiles = this.tiles.map(tile => movements[tile.id]?.tile || tile)
+
+      return Object.values(movements)
+
+      // this.$nextTick(() => {
+      //   Object.values(movements)
+      //     .filter(({ waypoints }) => waypoints.length > 1)
+      //     .map(({ tile, waypoints }) => {
+      //       return this.getTileComponent(tile).animateFall(waypoints)
+      //     })
+      // })
     },
 
     fillWithDots(colors) {
@@ -504,15 +576,34 @@ export default {
 
       this.tiles = this.tiles.concat(newTiles)
 
-      return new Promise(resolve => {
-        this.$nextTick(async () => {
-          const animations = emptySlots.map(
-            emptySlot => this.animateTiles(emptySlot.newTile, (ref) => ref.animateFall(emptySlot.initialOffset), this.getTileComponent)
-          )
+      const movements = emptySlots.map(emptySlot => {
+        const waypoints = [...Array(emptySlot.initialOffset + 1)].map((_, index) => ({
+          x: emptySlot.newTile.x,
+          y: emptySlot.newTile.y - emptySlot.initialOffset + index
+        }))
 
-          Promise.all(animations).then(resolve)
-        })
+        return {
+          tile: emptySlot.newTile,
+          waypoints
+        }
       })
+
+      return movements
+
+      // return new Promise(resolve => {
+      //   this.$nextTick(async () => {
+      //     const animations = emptySlots.map(emptySlot => {
+      //       const waypoints = [...Array(emptySlot.initialOffset + 1)].map((_, index) => ({
+      //         x: emptySlot.newTile.x,
+      //         y: emptySlot.newTile.y - emptySlot.initialOffset + index
+      //       }))
+
+      //       return this.animateTiles(emptySlot.newTile, (ref) => ref.animateFall(waypoints), this.getTileComponent)
+      //     })
+
+      //     Promise.all(animations).then(resolve)
+      //   })
+      // })
     },
 
     convertIntoBomb(tile) {

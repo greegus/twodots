@@ -3,23 +3,27 @@ import config from 'config'
 const { DOT, ANCHOR } = config.tileTypes
 
 export default [
-  // {
-  //   id: 0,
-  //   colors: ['blue', 'red', 'green', 'pink'],
-  //   moves: 6,
-  //   goals: [
-  //     { tile: { type: ANCHOR }, target: 99 },
-  //     { tile: { type: DOT, color: 'blue' }, target: 99 },
-  //     { tile: { type: DOT, color: 'green' }, target: 99 }
-  //   ],
-  //   blueprint: `
-  //     *  * * * * r
-  //     *  r * r r r
-  //     Rr r r r r r
-  //     W  r r r r r
-  //     W  r W b b r
-  //   `
-  // },
+  {
+    id: 0,
+    colors: ['blue', 'red', 'green', 'pink'],
+    moves: 6,
+    goals: [
+      { tile: { type: ANCHOR }, target: 99 },
+      { tile: { type: DOT, color: 'blue' }, target: 99 },
+      { tile: { type: DOT, color: 'green' }, target: 99 }
+    ],
+    // blueprint: `
+    //   b g b r
+    //   Rr . . Rl
+    //   W . y W
+    // `
+    blueprint: `
+      * * * *
+      * b * *
+      * b * *
+      * b * *
+    `
+  },
 
   //
 

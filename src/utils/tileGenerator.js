@@ -15,7 +15,7 @@ function generateTile(position, type, config = {}) {
 
 export function generateWallTile(position) {
   return generateTile(position, config.tileTypes.WALL, {
-    fixed: true
+    static: true
   })
 }
 
@@ -35,27 +35,31 @@ export function generateAnchorTile(position) {
   return generateTile(position, config.tileTypes.ANCHOR)
 }
 
-export function generateRampTile(position, direction) {
+export function generateRampTile(position, orientation) {
   return generateTile(position, config.tileTypes.RAMP, {
-    fixed: true,
-    direction
+    static: true,
+    orientation
   })
 }
 
 export function isDot(tile) {
-  return tile.type === config.tileTypes.DOT
+  return tile?.type === config.tileTypes.DOT
 }
 
 export function isBomb(tile) {
-  return tile.type === config.tileTypes.BOMB
+  return tile?.type === config.tileTypes.BOMB
 }
 
 export function isWall(tile) {
-  return tile.type === config.tileTypes.WALL
+  return tile?.type === config.tileTypes.WALL
 }
 
 export function isAnchor(tile) {
-  return tile.type === config.tileTypes.ANCHOR
+  return tile?.type === config.tileTypes.ANCHOR
+}
+
+export function isRamp(tile) {
+  return tile?.type === config.tileTypes.RAMP
 }
 
 export default {

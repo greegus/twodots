@@ -33,19 +33,34 @@ export default {
       }).finished
     },
 
-    async animateFall(depth) {
+    async animateFall(waypoints) {
+      const keyframes = waypoints
+        // Relativize waypoints
+        .map(({ x, y }) => ({
+          translateX: x - this.tile.x,
+          translateY: y - this.tile.y
+        }))
+
+      // Force starting position without animaition
+      await anime({
+        targets: this.$el,
+        ...keyframes[0],
+        easing: 'linear',
+        duration: 0
+      }).finished
+
       await anime({
         targets: this.$el,
         easing: 'linear',
-        translateY: [-1 * depth, 0],
-        duration: 50 * depth
+        duration: 500 * keyframes.length,
+        keyframes,
       }).finished
 
       return anime({
         targets: this.$el,
         easing: 'easeInQuad',
         direction: 'alternate',
-        translateY: -0.125,
+        translateY: -0.125 * keyframes.length,
         duration: 50
       }).finished
     },
