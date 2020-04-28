@@ -56,13 +56,20 @@ export default {
         keyframes,
       }).finished
 
+      await this.bounce(keyframes.length)
+    },
+
+    async bounce(speed) {
+      const maxSpeed = 10
+      speed = Math.min(maxSpeed, speed)
+
       return anime({
         targets: this.$el,
         easing: () => (x) => (-Math.pow(2 * x - 1, 2) + 1),
-        duration: 200,
-        translateY: -0.125 * (this.tile.y === 0 ? 4 : 1),
+        duration: 150,
+        translateY: -0.05 * (this.tile.y === 0 ? maxSpeed * 1.5 : speed),
       }).finished
-    },
+    }
   },
 
   mounted() {
