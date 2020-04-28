@@ -331,5 +331,61 @@ export default [
       W * p p p * W
       W W p p p W W
     `,
+  },
+
+  {
+    id: 17,
+    colors: ['red', 'green', 'blue'],
+    moves: 29,
+    goals: [
+      { tile: { type: ANCHOR }, target: 16 },
+      { tile: { type: DOT, color: 'blue' }, target: 50 },
+      { tile: { type: DOT, color: 'red' }, target: 40 },
+      { tile: { type: DOT, color: 'green' }, target: 30 },
+    ],
+    blueprint: `
+      A * * * A
+      * A * A *
+      * * A * *
+      * * * * *
+    `,
+  },
+
+  {
+    id: 18,
+    colors: ['red', 'green', 'pink', 'yellow'],
+    moves: 27,
+    goals: [
+      { tile: { type: ANCHOR }, target: 7 },
+    ],
+    blueprint: `
+      A W g g W A
+      * W g g W *
+      * * W W * *
+      * * * * * *
+      * * * * * *
+      * * * * * *
+      * * * * * *
+      * * * * * *
+    `,
+  },
+
+  {
+    id: 19,
+    colors: ['red', 'green', 'pink', 'yellow', 'blue'],
+    moves: 31,
+    goals: [
+      { tile: { type: ANCHOR }, target: 8 },
+    ],
+    blueprint: `
+      * A * A * A *
+      W W W W W W W
+      * * * * * * *
+      * * * * * * *
+      * * * * * * *
+      * * * * * * *
+      * * * * * * *
+      * * * * * * *
+    `,
   }
 ]
