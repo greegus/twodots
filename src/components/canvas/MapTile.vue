@@ -58,10 +58,9 @@ export default {
 
       return anime({
         targets: this.$el,
-        easing: 'easeInQuad',
-        direction: 'alternate',
-        translateY: -0.125 * keyframes.length,
-        duration: 50
+        easing: () => (x) => (-Math.pow(2 * x - 1, 2) + 1),
+        duration: 200,
+        translateY: -0.125 * (this.tile.y === 0 ? 4 : 1),
       }).finished
     },
   },
