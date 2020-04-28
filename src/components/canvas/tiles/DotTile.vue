@@ -1,7 +1,7 @@
 <template>
   <g class="DotTile" transform-origin="0.5 0.5">
-    <circle ref="beacon" cx="0.5" cy="0.5" r="0.26" :fill="hexColor" transform-origin="0.5 0.5" class="pointer-events-none" />
-    <circle cx="0.5" cy="0.5" r="0.26" :fill="hexColor" ref="dot" />
+    <circle ref="beacon" cx="0.5" cy="0.5" r="0.26" :fill="hexColor" transform-origin="0.5 0.5" class="pointer-events-none will-transform" />
+    <circle cx="0.5" cy="0.5" r="0.26" :fill="hexColor" class="will-transform" ref="dot" />
     <circle class="opacity-0" cx="0.5" cy="0.5" r="0.4" fill="black" />
   </g>
 </template>

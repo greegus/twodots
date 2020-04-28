@@ -1,5 +1,5 @@
 <template>
-  <g class="MapTile" transform-origin="0.5 0.5">
+  <g class="MapTile will-transform" transform-origin="0.5 0.5">
     <component :is="tileToComponentMap[tile.type]" :tile="tile" ref="content" />
   </g>
 </template>
@@ -52,7 +52,7 @@ export default {
       await anime({
         targets: this.$el,
         easing: 'linear',
-        duration: 500 * keyframes.length,
+        duration: 50 * keyframes.length,
         keyframes,
       }).finished
 

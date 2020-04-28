@@ -28,16 +28,6 @@
       </div>
     </div>
 
-    <div>
-      <button @click="fallDown()">
-        FallDown
-      </button>
-
-      <button @click="restart()">
-        Restrat
-      </button>
-    </div>
-
     <!-- canvas -->
     <svg
       :width="realSize.width"

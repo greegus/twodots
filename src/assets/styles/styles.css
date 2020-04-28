@@ -9,6 +9,10 @@ body {
   font-weight: 500;
 }
 
+.will-transform {
+  will-change: transform;
+}
+
 .ModalLayout {
   border-radius: 2.5rem;
 }
