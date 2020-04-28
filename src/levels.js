@@ -1,5 +1,7 @@
 import config from 'config'
 
+import aquaBackground from 'assets/images/backgrounds/aqua.png'
+
 const { DOT, ANCHOR } = config.tileTypes
 
 export default [
@@ -372,6 +374,7 @@ export default [
 
   {
     id: 19,
+    background: aquaBackground,
     colors: ['red', 'green', 'pink', 'yellow', 'blue'],
     moves: 31,
     goals: [
