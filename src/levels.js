@@ -390,5 +390,101 @@ export default [
       * * * * * * *
       * * * * * * *
     `,
+  },
+
+  {
+    id: 20,
+    background: aquaBackground,
+    colors: ['red', 'green', 'pink', 'blue'],
+    moves: 39,
+    goals: [
+      { tile: { type: ANCHOR }, target: 9 },
+    ],
+    blueprint: `
+      A * * A * * A
+      * * * * * * *
+      * * * * * * *
+      * * * * * * *
+    `,
+  },
+
+  {
+    id: 21,
+    background: aquaBackground,
+    colors: ['red', 'pink', 'blue'],
+    moves: 40,
+    goals: [
+      { tile: { type: ANCHOR }, target: 10 },
+    ],
+    blueprint: `
+      *  * * * *
+      *  * * * *
+      *  * * * *
+      *  * * * *
+      Rr * * * Rl
+      W  * * * W
+      W  * * * W
+    `,
+  },
+
+  {
+    id: 22,
+    background: aquaBackground,
+    colors: ['red', 'pink', 'blue', 'green'],
+    moves: 17,
+    goals: [
+      { tile: { type: ANCHOR }, target: 4 },
+    ],
+    blueprint: `
+      * A A A *
+      * * * * *
+      * * * * *
+      * * * * *
+      * * * * *
+    `,
+  },
+
+  {
+    id: 23,
+    background: aquaBackground,
+    colors: ['red', 'pink', 'blue', 'green'],
+    moves: 30,
+    goals: [
+      { tile: { type: DOT, color: 'pink' }, target: 36 },
+      { tile: { type: DOT, color: 'red' }, target: 36 },
+      { tile: { type: DOT, color: 'blue' }, target: 36 },
+      { tile: { type: DOT, color: 'green' }, target: 36 },
+    ],
+    blueprint: `
+      * * * *
+      * * * *
+      * W W *
+      * W W *
+      * r * *
+      * r r *
+      * * r *
+      W g g W
+      * g * *
+    `,
+  },
+
+  {
+    id: 24,
+    background: aquaBackground,
+    colors: ['red', 'pink', 'blue', 'green'],
+    moves: 33,
+    goals: [
+      { tile: { type: ANCHOR }, target: 8 },
+    ],
+    blueprint: `
+      A * * * A
+      * * A * *
+      * * * * *
+      W * * * W
+      W * * * W
+      * * * * *
+      * * * * *
+      * * * * *
+    `,
   }
 ]
