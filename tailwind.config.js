@@ -12,8 +12,12 @@ module.exports = {
 
       height: {
         '1/2': '50%'
+      },
+
+      borderRadius: {
+        'xl': '1.25rem'
       }
-    }
+    },
   },
 
   variants: {},

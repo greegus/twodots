@@ -19,7 +19,7 @@
 
       <g filter="url(#shadow)" clip-path="url(#clipPath)">
         <rect x="0" y="0" width="100%" height="100%" fill="rgba(0,0,0,.2)" mask="url(#mask)" />
-        <rect x="0" y="0" width="100%" height="100%" fill="rgba(0,0,0,.1)" />
+        <rect x="0" y="0" width="100%" height="100%" fill="rgba(0,0,0,.2)" />
       </g>
     </svg>
   </g>

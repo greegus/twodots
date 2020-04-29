@@ -486,5 +486,236 @@ export default [
       * * * * *
       * * * * *
     `,
-  }
+  },
+
+  {
+    id: 25,
+    background: aquaBackground,
+    colors: ['red', 'pink', 'yellow', 'green'],
+    moves: 21,
+    goals: [
+      { tile: { type: DOT, color: 'pink' }, target: 80 },
+      { tile: { type: DOT, color: 'red' }, target: 70 },
+      { tile: { type: DOT, color: 'green' }, target: 60 },
+      { tile: { type: DOT, color: 'yellow' }, target: 50 },
+    ],
+    blueprint: `
+      * * * * * * *
+      * * * * * * *
+      * * * * * * *
+      * * * * * * *
+      * * * * * * *
+      * * * * * * *
+    `,
+  },
+
+  {
+    id: 26,
+    background: aquaBackground,
+    colors: ['blue', 'pink', 'yellow', 'green'],
+    moves: 31,
+    goals: [
+      { tile: { type: DOT, color: 'pink' }, target: 44 },
+      { tile: { type: DOT, color: 'blue' }, target: 44 },
+      { tile: { type: DOT, color: 'green' }, target: 44 },
+      { tile: { type: DOT, color: 'yellow' }, target: 44 },
+    ],
+    blueprint: `
+      g g g g g
+      g W W W g
+      y y W b b
+      p p W p p
+      p W W W p
+      p p p p p
+      y y g b b
+      y g g g b
+    `,
+  },
+
+  {
+    id: 27,
+    background: aquaBackground,
+    colors: ['blue', 'pink', 'yellow', 'green', 'red'],
+    moves: 30,
+    goals: [
+      { tile: { type: ANCHOR }, target: 9 },
+    ],
+    blueprint: `
+     * * * * * * *
+     * * * * * * *
+     * * * * * * *
+     * * r r * * *
+     * * r r * * *
+     * * * * * * *
+     W A A A A A W
+     p b g r g b y
+    `,
+  },
+
+  {
+    id: 28,
+    background: aquaBackground,
+    colors: ['blue', 'pink', 'yellow', 'green', 'red'],
+    moves: 17,
+    goals: [
+      { tile: { type: ANCHOR }, target: 4 },
+    ],
+    blueprint: `
+     W W W A A W W W
+     W W W * * W W W
+     W W W * * W W W
+     W W * g g * W W
+     W W * g g * W W
+     W * * * * * * W
+     W * * y y * * W
+     * * * y y * * *
+    `,
+  },
+
+  {
+    id: 29,
+    background: aquaBackground,
+    colors: ['blue', 'pink', 'yellow', 'green', 'red'],
+    moves: 32,
+    goals: [
+      { tile: { type: ANCHOR }, target: 6 },
+    ],
+    blueprint: `
+     W W W A  W  W W W
+     W W W *  W  W W W
+     W W * Rr p  W W W
+     W * * W  p  p W W
+     * * * r  Rl * * *
+     * * r r  W  * * *
+     * * * Rr g  * * *
+     * * * W  g  g * *
+    `,
+  },
+
+  {
+    id: 30,
+    background: aquaBackground,
+    colors: ['blue', 'pink', 'yellow', 'green', 'red'],
+    moves: 20,
+    goals: [
+      { tile: { type: ANCHOR }, target: 9 },
+    ],
+    blueprint: `
+     * * * A A * * *
+     * * * g b * * *
+     * * * r r * * *
+     * * * b r * * *
+     * W * r r * W *
+     * W * b b * W *
+    `,
+  },
+
+  {
+    id: 31,
+    background: aquaBackground,
+    colors: ['blue', 'pink', 'yellow', 'red'],
+    moves: 39,
+    goals: [
+      { tile: { type: DOT, color: 'pink' }, target: 28 },
+      { tile: { type: DOT, color: 'blue' }, target: 28 },
+      { tile: { type: DOT, color: 'red' }, target: 28 },
+      { tile: { type: DOT, color: 'yellow' }, target: 28 },
+      { tile: { type: ANCHOR }, target: 7 },
+    ],
+    blueprint: `
+      W W W W W W
+      W * * * * W
+      * * * * * *
+      * * * * * *
+      * * * * * *
+      * * * * * *
+      W W W W W W
+      W A A A A W
+      W * * * * W
+      `,
+  },
+
+  {
+    id: 32,
+    background: aquaBackground,
+    colors: ['blue', 'pink', 'green', 'red', 'yellow'],
+    moves: 29,
+    goals: [
+      { tile: { type: ANCHOR }, target: 12 },
+    ],
+    blueprint: `
+      W A A A A A A W
+      W W W W W W W W
+      * * * * * * * *
+      * * * * * * * *
+      * * * * * * * *
+      * * * * * * * *
+      * * * * * * * *
+      * * * * * * * *
+      `,
+  },
+
+  {
+    id: 33,
+    background: aquaBackground,
+    colors: ['blue', 'pink', 'green', 'red', 'yellow'],
+    moves: 31,
+    goals: [
+      { tile: { type: ANCHOR }, target: 5 },
+    ],
+    blueprint: `
+      A W A W A W A
+      * W * W * W *
+      * * * * * * *
+      * * * * * * *
+      * * * * * * *
+      * * * * * * *
+      * * * * * * *
+      * W * W * W *
+      `,
+  },
+
+  {
+    id: 34,
+    background: aquaBackground,
+    colors: ['blue', 'pink', 'green', 'red', 'yellow'],
+    moves: 35,
+    goals: [
+      { tile: { type: ANCHOR }, target: 9 },
+    ],
+    blueprint: `
+      * A * A A * A *
+      * * * * * * * *
+      * * * * * * * *
+      * * * * * * * *
+      * * * * * * * *
+      * * * * * * * *
+      * * * * * * * *
+      * W W W W W W *
+      * * * * * * * *
+      `,
+  },
+
+  {
+    id: 35,
+    background: aquaBackground,
+    colors: ['blue', 'pink', 'green', 'red', 'yellow'],
+    moves: 33,
+    goals: [
+      { tile: { type: DOT, color: 'pink' }, target: 24 },
+      { tile: { type: DOT, color: 'blue' }, target: 24 },
+      { tile: { type: DOT, color: 'red' }, target: 24 },
+      { tile: { type: DOT, color: 'green' }, target: 24 },
+      { tile: { type: ANCHOR }, target: 9 },
+    ],
+    blueprint: `
+      y A W * * * * *
+      A g W * * * * *
+      g A W * * * * *
+      A r W * * * * *
+      r A W * * * * *
+      A b W * * * * *
+      b p W * * * * *
+      `,
+  },
 ]

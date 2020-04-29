@@ -677,8 +677,8 @@ export default {
 }
 
 .LevelView__panel {
-  @apply flex items-center justify-center h-16 bg-white rounded-lg pb-2 z-1;
+  @apply flex items-center justify-center h-16 bg-white rounded-xl pb-2 z-1;
 
-  box-shadow: inset 0 -6px 0 0 #e3e3e3;
+  box-shadow: inset 0 -6px 0 0 theme("colors.gray.400");
 }
 </style>
