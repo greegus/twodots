@@ -1,6 +1,6 @@
 import config from 'config'
 
-import aquaBackground from 'assets/images/backgrounds/aqua.png'
+import aquaBackground from 'assets/images/backgrounds/aqua.svg'
 
 const { DOT, ANCHOR } = config.tileTypes
 

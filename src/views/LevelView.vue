@@ -246,9 +246,16 @@ export default {
     },
 
     background() {
-      console.log('this.level.background', this.level.background)
       if (!this.level.background) {
         return
+      }
+
+      if (Array.isArray(this.level.background)) {
+        return `linear-gradient(to bottom, ${this.level.background[0]}, ${this.level.background[1]})`
+      }
+
+      if (this.level.background[0] === '#') {
+        return this.level.background
       }
 
       return `url(${this.level.background}) repeat center`
