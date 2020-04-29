@@ -1,5 +1,5 @@
 <template>
-  <div class="LevelView flex flex-col items-center justify-center" :style="{ background }">
+  <div class="LevelView flex flex-col items-center justify-center" :style="{ background: level.theme.background }">
     <div class="absolute top-0 flex align-center text-gray-700 mt-12">
       <div class="LevelView__panel px-0 w-16 mr-5">
         <div class="text-center leading-none">

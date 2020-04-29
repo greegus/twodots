@@ -1,231 +1,15 @@
 import config from 'config'
 
-import aquaBackground from 'assets/images/backgrounds/aqua.svg'
-
 const { DOT, ANCHOR } = config.tileTypes
+
+const theme = {
+  background: `url(${require('assets/images/backgrounds/aqua.svg')}) repeat center`
+}
 
 export default [
   {
-    id: 0,
-    colors: ['blue', 'red', 'green', 'pink'],
-    moves: 6,
-    goals: [
-      { tile: { type: ANCHOR }, target: 99 },
-      { tile: { type: DOT, color: 'blue' }, target: 99 },
-      { tile: { type: DOT, color: 'green' }, target: 99 }
-    ],
-    // blueprint: `
-    //   b g b r
-    //   Rr . . Rl
-    //   W . y W
-    // `
-    blueprint: `
-      * * * *
-      * b * *
-      * b * *
-      * b * *
-    `
-  },
-
-  //
-
-  {
-    id: 1,
-    colors: ['blue', 'red', 'yellow'],
-    moves: 20,
-    goals: [
-      {tile: { type: DOT, color: 'red' }, target: 15},
-      {tile: { type: DOT, color: 'blue' }, target: 15},
-      {tile: { type: DOT, color: 'yellow' }, target: 15},
-    ],
-    blueprint: `
-      r r r r
-      b y b y
-      b y b y
-      b y b y
-      b y b y
-    `
-  },
-
-  {
-    id: 2,
-    colors: ['green', 'yellow', 'red', 'blue'],
-    moves: 30,
-    goals: [
-      { tile: { type: DOT, color: 'green' }, target: 15 },
-      { tile: { type: DOT, color: 'yellow' }, target: 15 },
-      { tile: { type: DOT, color: 'red' }, target: 15 },
-      { tile: { type: DOT, color: 'blue' }, target: 15 },
-    ],
-    blueprint: `
-      r r g r r
-      r y g y r
-      r y g y r
-      y y g y y
-      b b b b b
-    `,
-  },
-
-  {
-    id: 3,
-    colors: ['green', 'yellow', 'red', 'blue'],
-    moves: 20,
-    goals: [
-      { tile: { type: DOT, color: 'red' }, target: 50 },
-      { tile: { type: DOT, color: 'blue' }, target: 50 },
-      { tile: { type: DOT, color: 'yellow' }, target: 50 },
-    ],
-    blueprint: `
-      r y b r b r
-      y r y b r b
-      b y r r b r
-      r b r r y b
-      b r b y r y
-      r y r b y r
-    `,
-  },
-
-  {
-    id: 4,
-    colors: ['pink', 'red', 'green', 'yellow'],
-    moves: 20,
-    goals: [
-      { tile: { type: DOT, color: 'pink' }, target: 15 },
-      { tile: { type: DOT, color: 'red' }, target: 15 },
-      { tile: { type: DOT, color: 'green' }, target: 15 },
-      { tile: { type: DOT, color: 'yellow' }, target: 15 },
-    ],
-    blueprint: `
-      p p r p
-      g g y g
-      r y y g
-      g y r r
-      p g p y
-      p p y g
-    `,
-  },
-
-  {
-    id: 5,
-    colors: ['pink', 'blue', 'green', 'yellow'],
-    moves: 26,
-    goals: [
-      { tile: { type: DOT, color: 'pink' }, target: 20 },
-      { tile: { type: DOT, color: 'blue' }, target: 20 },
-      { tile: { type: DOT, color: 'green' }, target: 20 },
-      { tile: { type: DOT, color: 'yellow' }, target: 20 },
-    ],
-    blueprint: `
-      * * W * * W * *
-      * * W * * W * *
-      * * W * * W * *
-      * * W p * W * *
-      * * W p * W * *
-      * * W y p W * *
-      * * W y p W * *
-      * * W * * W * *
-    `,
-  },
-
-  {
-    id: 6,
-    colors: ['pink', 'blue', 'green', 'yellow', 'red'],
-    moves: 26,
-    goals: [
-      { tile: { type: DOT, color: 'red' }, target: 20 },
-      { tile: { type: DOT, color: 'yellow' }, target: 20 },
-    ],
-    blueprint: `
-      g g y p p
-      p y g g b
-      p y y g b
-      r r y r g
-      p b b r g
-    `,
-  },
-
-  {
-    id: 7,
-    colors: ['pink', 'green', 'yellow', 'red'],
-    moves: 30,
-    goals: [
-      { tile: { type: DOT, color: 'pink' }, target: 50 },
-      { tile: { type: DOT, color: 'red' }, target: 50 },
-      { tile: { type: DOT, color: 'green' }, target: 50 },
-      { tile: { type: DOT, color: 'yellow' }, target: 50 },
-    ],
-    blueprint: `
-      p r g y p p p
-      p r g y p r p
-      p r g y p p p
-      p r g y y y y
-      p r g g g g g
-      p r r r r r r
-      p p p p p p p
-    `,
-  },
-
-  {
-    id: 8,
-    colors: ['pink', 'blue', 'red', 'yellow'],
-    moves: 23,
-    goals: [
-      { tile: { type: DOT, color: 'pink' }, target: 15 },
-      { tile: { type: DOT, color: 'blue' }, target: 15 },
-      { tile: { type: DOT, color: 'red' }, target: 15 },
-      { tile: { type: DOT, color: 'yellow' }, target: 15 },
-    ],
-    blueprint: `
-      b b b y
-      y p b y
-      W W r b
-      p y y r
-      p p W W
-      y b r y
-      b y r r
-    `,
-  },
-
-  {
-    id: 9,
-    colors: ['blue', 'red'],
-    moves: 33,
-    goals: [
-      { tile: { type: DOT, color: 'blue' }, target: 80 },
-      { tile: { type: DOT, color: 'red' }, target: 80 },
-    ],
-    blueprint: `
-      r r r W r r b
-      b W r W b W b
-      b r b r r r b
-      W W r W r W W
-      r r r b r b b
-      r W b W r W b
-      b b r W b b b
-    `,
-  },
-
-  {
-    id: 10,
-    colors: ['blue', 'red', 'green', 'yellow'],
-    moves: 42,
-    goals: [
-      { tile: { type: DOT, color: 'blue' }, target: 30 },
-      { tile: { type: DOT, color: 'red' }, target: 30 },
-      { tile: { type: DOT, color: 'green' }, target: 30 },
-      { tile: { type: DOT, color: 'yellow' }, target: 30 },
-    ],
-    blueprint: `
-      r y g r g r
-      W r g r r W
-      W W g b W W
-      y y r r b b
-      r r b g y y
-    `,
-  },
-
-  {
     id: 11,
+    theme,
     colors: ['green', 'pink', 'blue'],
     moves: 20,
     maxAnchors: 2,
@@ -243,6 +27,7 @@ export default [
 
   {
     id: 12,
+    theme,
     colors: ['green', 'pink', 'blue', 'red', 'yellow'],
     moves: 18,
     maxAnchors: 0,
@@ -261,6 +46,7 @@ export default [
 
   {
     id: 13,
+    theme,
     colors: ['green', 'blue', 'red', 'yellow'],
     moves: 20,
     maxAnchors: 0,
@@ -278,6 +64,7 @@ export default [
 
   {
     id: 14,
+    theme,
     colors: ['blue', 'red', 'yellow'],
     moves: 30,
     maxAnchors: 2,
@@ -298,6 +85,7 @@ export default [
 
   {
     id: 15,
+    theme,
     colors: ['blue', 'yellow', 'green'],
     moves: 30,
     maxAnchors: 1,
@@ -317,6 +105,7 @@ export default [
 
   {
     id: 16,
+    theme,
     colors: ['blue', 'yellow', 'green', 'blue', 'pink', 'red'],
     moves: 35,
     goals: [
@@ -337,6 +126,7 @@ export default [
 
   {
     id: 17,
+    theme,
     colors: ['red', 'green', 'blue'],
     moves: 29,
     goals: [
@@ -355,6 +145,7 @@ export default [
 
   {
     id: 18,
+    theme,
     colors: ['red', 'green', 'pink', 'yellow'],
     moves: 27,
     goals: [
@@ -374,7 +165,7 @@ export default [
 
   {
     id: 19,
-    background: aquaBackground,
+    theme,
     colors: ['red', 'green', 'pink', 'yellow', 'blue'],
     moves: 31,
     goals: [
@@ -394,7 +185,7 @@ export default [
 
   {
     id: 20,
-    background: aquaBackground,
+    theme,
     colors: ['red', 'green', 'pink', 'blue'],
     moves: 39,
     goals: [
@@ -410,7 +201,7 @@ export default [
 
   {
     id: 21,
-    background: aquaBackground,
+    theme,
     colors: ['red', 'pink', 'blue'],
     moves: 40,
     goals: [
@@ -429,7 +220,7 @@ export default [
 
   {
     id: 22,
-    background: aquaBackground,
+    theme,
     colors: ['red', 'pink', 'blue', 'green'],
     moves: 17,
     goals: [
@@ -446,7 +237,7 @@ export default [
 
   {
     id: 23,
-    background: aquaBackground,
+    theme,
     colors: ['red', 'pink', 'blue', 'green'],
     moves: 30,
     goals: [
@@ -470,7 +261,7 @@ export default [
 
   {
     id: 24,
-    background: aquaBackground,
+    theme,
     colors: ['red', 'pink', 'blue', 'green'],
     moves: 33,
     goals: [
@@ -490,7 +281,7 @@ export default [
 
   {
     id: 25,
-    background: aquaBackground,
+    theme,
     colors: ['red', 'pink', 'yellow', 'green'],
     moves: 21,
     goals: [
@@ -511,7 +302,7 @@ export default [
 
   {
     id: 26,
-    background: aquaBackground,
+    theme,
     colors: ['blue', 'pink', 'yellow', 'green'],
     moves: 31,
     goals: [
@@ -534,7 +325,7 @@ export default [
 
   {
     id: 27,
-    background: aquaBackground,
+    theme,
     colors: ['blue', 'pink', 'yellow', 'green', 'red'],
     moves: 30,
     goals: [
@@ -554,7 +345,7 @@ export default [
 
   {
     id: 28,
-    background: aquaBackground,
+    theme,
     colors: ['blue', 'pink', 'yellow', 'green', 'red'],
     moves: 17,
     goals: [
@@ -574,7 +365,7 @@ export default [
 
   {
     id: 29,
-    background: aquaBackground,
+    theme,
     colors: ['blue', 'pink', 'yellow', 'green', 'red'],
     moves: 32,
     goals: [
@@ -594,7 +385,7 @@ export default [
 
   {
     id: 30,
-    background: aquaBackground,
+    theme,
     colors: ['blue', 'pink', 'yellow', 'green', 'red'],
     moves: 20,
     goals: [
@@ -612,7 +403,7 @@ export default [
 
   {
     id: 31,
-    background: aquaBackground,
+    theme,
     colors: ['blue', 'pink', 'yellow', 'red'],
     moves: 39,
     goals: [
@@ -637,7 +428,7 @@ export default [
 
   {
     id: 32,
-    background: aquaBackground,
+    theme,
     colors: ['blue', 'pink', 'green', 'red', 'yellow'],
     moves: 29,
     goals: [
@@ -657,7 +448,7 @@ export default [
 
   {
     id: 33,
-    background: aquaBackground,
+    theme,
     colors: ['blue', 'pink', 'green', 'red', 'yellow'],
     moves: 31,
     goals: [
@@ -677,7 +468,7 @@ export default [
 
   {
     id: 34,
-    background: aquaBackground,
+    theme,
     colors: ['blue', 'pink', 'green', 'red', 'yellow'],
     moves: 35,
     goals: [
@@ -698,7 +489,7 @@ export default [
 
   {
     id: 35,
-    background: aquaBackground,
+    theme,
     colors: ['blue', 'pink', 'green', 'red', 'yellow'],
     moves: 33,
     goals: [
@@ -717,5 +508,5 @@ export default [
       A b W * * * * *
       b p W * * * * *
       `,
-  },
+  }
 ]

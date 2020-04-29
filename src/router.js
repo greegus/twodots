@@ -9,6 +9,15 @@ import LevelView from 'views/LevelView'
 
 Vue.use(VueRouter)
 
+const loadLevel = (levelId) => {
+  const level = levels.find(level => level.id === levelId)
+
+  return {
+    ...level,
+    theme: level.theme ?? {}
+  }
+}
+
 const routes = [
   {
     path: '/',
@@ -32,7 +41,7 @@ const routes = [
     },
 
     props: (route) => ({
-      level: levels.find(({ id }) => id === Number(route.params.level))
+      level: loadLevel(Number(route.params.level))
     }),
   }
 ]
