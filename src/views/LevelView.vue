@@ -519,14 +519,6 @@ export default {
       this.tiles = this.tiles.map(tile => movements[tile.id]?.tile || tile)
 
       return Object.values(movements)
-
-      // this.$nextTick(() => {
-      //   Object.values(movements)
-      //     .filter(({ waypoints }) => waypoints.length > 1)
-      //     .map(({ tile, waypoints }) => {
-      //       return this.getTileComponent(tile).animateFall(waypoints)
-      //     })
-      // })
     },
 
     fillWithDots(colors) {
@@ -595,21 +587,6 @@ export default {
       })
 
       return movements
-
-      // return new Promise(resolve => {
-      //   this.$nextTick(async () => {
-      //     const animations = emptySlots.map(emptySlot => {
-      //       const waypoints = [...Array(emptySlot.initialOffset + 1)].map((_, index) => ({
-      //         x: emptySlot.newTile.x,
-      //         y: emptySlot.newTile.y - emptySlot.initialOffset + index
-      //       }))
-
-      //       return this.animateTiles(emptySlot.newTile, (ref) => ref.animateFall(waypoints), this.getTileComponent)
-      //     })
-
-      //     Promise.all(animations).then(resolve)
-      //   })
-      // })
     },
 
     convertIntoBomb(tile) {
