@@ -7,16 +7,9 @@ import levels from 'levels'
 import HomeView from 'views/HomeView'
 import LevelView from 'views/LevelView'
 
+import loadLevel from 'utils/loadLevel'
+
 Vue.use(VueRouter)
-
-const loadLevel = (levelId) => {
-  const level = levels.find(level => level.id === levelId)
-
-  return {
-    ...level,
-    theme: level.theme ?? {}
-  }
-}
 
 const routes = [
   {

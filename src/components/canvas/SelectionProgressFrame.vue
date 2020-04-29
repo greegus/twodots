@@ -23,8 +23,6 @@
 </template>
 
 <script>
-import config from 'config'
-
 import { isSelectionClosed } from 'utils/selection'
 
 export default {
@@ -36,6 +34,10 @@ export default {
 
     isActive: {
       type: Boolean
+    },
+
+    theme: {
+      type: Object
     }
   },
 
@@ -58,7 +60,7 @@ export default {
     },
 
     color() {
-      return config.colorsMap[this.selection[0]?.color]
+      return this.theme.colorMap.dots[this.selection[0]?.color]
     },
 
 

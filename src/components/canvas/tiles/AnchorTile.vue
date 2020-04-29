@@ -13,9 +13,9 @@
 </template>
 
 <script>
+import tileMixin from './tileMixin'
+
 export default {
-  props: {
-    tile: Object
-  }
+  mixins: [tileMixin]
 }
 </script>

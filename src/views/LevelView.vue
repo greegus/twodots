@@ -10,7 +10,7 @@
 
       <div class="LevelView__panel px-5">
         <div v-for="(goal, $index) in goals" :key="$index">
-          <GoalItem :goal="goal" show-current small />
+          <GoalItem :goal="goal" :theme="level.theme" show-current small />
         </div>
       </div>
 
@@ -45,13 +45,19 @@
 
       <!-- tiles -->
       <svg v-for="tile in tiles" :key="tile.id" :x="tile.x" :y="tile.y">
-        <MapTile :tile="tile" :ref="`tile.${tile.id}`" @mousedown.native="startSelection(tile, $event)" />
+        <MapTile
+          :tile="tile"
+          :ref="`tile.${tile.id}`"
+          :theme="level.theme"
+          @mousedown.native="startSelection(tile, $event)"
+        />
       </svg>
 
       <!-- selection line -->
       <SelectionLine
         :selection="selection"
         :is-active="isMakingSelection"
+        :theme="level.theme"
       />
 
       <!-- selection zones -->
@@ -69,6 +75,7 @@
     <!-- frame -->
     <SelectionProgressFrame
       :selection="isMakingSelection ? selection : []"
+      :theme="level.theme"
     />
   </div>
 </template>
@@ -123,8 +130,6 @@ async function sleep(time) {
 }
 
 export default {
-  name: 'LevelView',
-
   components: {
     GoalItem,
     Icon,

@@ -17,16 +17,12 @@
 </template>
 
 <script>
-import config from 'config'
 import anime from 'animejs'
 
+import tileMixin from './tileMixin'
+
 export default {
-  props: {
-    tile: {
-      type: Object,
-      required: true
-    }
-  },
+  mixins: [tileMixin],
 
   data() {
     return {
@@ -85,7 +81,7 @@ export default {
   },
 
   mounted() {
-    const hexColor = config.colorsMap[this.tile.originalTile.color]
+    const hexColor = this.theme.colorMap.dot[this.tile.originalTile.color]
 
     anime({
       targets: this.$refs.bomb,

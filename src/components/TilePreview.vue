@@ -1,6 +1,6 @@
 <template>
   <svg viewBox="0 0 1 1">
-    <component :is="component" :tile="tile" />
+    <component :is="component" :tile="tile" :theme="theme" />
   </svg>
 </template>
 
@@ -12,6 +12,10 @@ export default {
     tile: {
       type: Object,
       required: true
+    },
+
+    theme: {
+      type: Object
     }
   },
 

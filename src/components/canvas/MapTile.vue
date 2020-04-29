@@ -1,6 +1,11 @@
 <template>
   <g class="MapTile will-transform" transform-origin="0.5 0.5">
-    <component :is="tileToComponentMap[tile.type]" :tile="tile" ref="content" />
+    <component
+      :is="tileToComponentMap[tile.type]"
+      :tile="tile"
+      :theme="theme"
+      ref="content"
+    />
   </g>
 </template>
 
@@ -14,6 +19,10 @@ export default {
     tile: {
       type: Object,
       required: true
+    },
+
+    theme: {
+      type: Object
     }
   },
 

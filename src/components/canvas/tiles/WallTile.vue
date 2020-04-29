@@ -5,7 +5,9 @@
 </template>
 
 <script>
-export default {
+import tileMixin from './tileMixin'
 
+export default {
+  mixins: [tileMixin]
 }
 </script>

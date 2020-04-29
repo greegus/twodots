@@ -8,21 +8,15 @@
 
 <script>
 import anime from 'animejs'
-import config from 'config'
+
+import tileMixin from './tileMixin'
 
 export default {
-  name: 'DotTile',
-
-  props: {
-    tile: {
-      type: Object,
-      required: true
-    }
-  },
+  mixins: [tileMixin],
 
   computed: {
     hexColor() {
-      return config.colorsMap[this.tile.color]
+      return this.theme.colorMap.dots[this.tile.color]
     }
   },
 

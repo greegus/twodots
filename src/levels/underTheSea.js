@@ -1,6 +1,7 @@
 import config from 'config'
 
 const { DOT, ANCHOR } = config.tileTypes
+const { BLUE, RED, YELLOW, GREEN, PINK } = config.dotColors
 
 const theme = {
   background: `url(${require('assets/images/backgrounds/aqua.svg')}) repeat center`
@@ -10,7 +11,7 @@ export default [
   {
     id: 11,
     theme,
-    colors: ['green', 'pink', 'blue'],
+    colors: [GREEN, PINK, BLUE],
     moves: 20,
     goals: [
       { tile: { type: ANCHOR }, target: 4 },
@@ -30,7 +31,7 @@ export default [
   {
     id: 12,
     theme,
-    colors: ['green', 'pink', 'blue', 'red', 'yellow'],
+    colors: [GREEN, PINK, BLUE, RED, YELLOW],
     moves: 18,
     goals: [
       { tile: { type: ANCHOR }, target: 2 },
@@ -51,7 +52,7 @@ export default [
   {
     id: 13,
     theme,
-    colors: ['green', 'blue', 'red', 'yellow'],
+    colors: [GREEN, BLUE, RED, YELLOW],
     moves: 20,
     goals: [
       { tile: { type: ANCHOR }, target: 6 },
@@ -71,13 +72,13 @@ export default [
   {
     id: 14,
     theme,
-    colors: ['blue', 'red', 'yellow'],
+    colors: [BLUE, RED, YELLOW],
     moves: 30,
     goals: [
       { tile: { type: ANCHOR }, target: 10 },
-      { tile: { type: DOT, color: 'red' }, target: 40 },
-      { tile: { type: DOT, color: 'yellow' }, target: 35 },
-      { tile: { type: DOT, color: 'blue' }, target: 10 },
+      { tile: { type: DOT, color: RED }, target: 40 },
+      { tile: { type: DOT, color: YELLOW }, target: 35 },
+      { tile: { type: DOT, color: BLUE }, target: 10 },
     ],
     anchors: {
       maximum: 2
@@ -94,7 +95,7 @@ export default [
   {
     id: 15,
     theme,
-    colors: ['blue', 'yellow', 'green'],
+    colors: [BLUE, YELLOW, GREEN],
     moves: 30,
     goals: [
       { tile: { type: ANCHOR }, target: 5 },
@@ -116,12 +117,12 @@ export default [
   {
     id: 16,
     theme,
-    colors: ['blue', 'yellow', 'green', 'blue', 'pink', 'red'],
+    colors: [BLUE, YELLOW, GREEN, PINK, RED],
     moves: 35,
     goals: [
-      { tile: { type: DOT, color: 'pink' }, target: 35 },
-      { tile: { type: DOT, color: 'blue' }, target: 30 },
-      { tile: { type: DOT, color: 'yellow' }, target: 25 },
+      { tile: { type: DOT, color: PINK }, target: 35 },
+      { tile: { type: DOT, color: BLUE }, target: 30 },
+      { tile: { type: DOT, color: YELLOW }, target: 25 },
     ],
     blueprint: `
       * * * * * * *
@@ -137,13 +138,13 @@ export default [
   {
     id: 17,
     theme,
-    colors: ['red', 'green', 'blue'],
+    colors: [RED, GREEN, BLUE],
     moves: 29,
     goals: [
       { tile: { type: ANCHOR }, target: 16 },
-      { tile: { type: DOT, color: 'blue' }, target: 50 },
-      { tile: { type: DOT, color: 'red' }, target: 40 },
-      { tile: { type: DOT, color: 'green' }, target: 30 },
+      { tile: { type: DOT, color: BLUE }, target: 50 },
+      { tile: { type: DOT, color: RED }, target: 40 },
+      { tile: { type: DOT, color: GREEN }, target: 30 },
     ],
     blueprint: `
       A * * * A
@@ -156,7 +157,7 @@ export default [
   {
     id: 18,
     theme,
-    colors: ['red', 'green', 'pink', 'yellow'],
+    colors: [RED, GREEN, PINK, YELLOW],
     moves: 27,
     goals: [
       { tile: { type: ANCHOR }, target: 7 },
@@ -176,7 +177,7 @@ export default [
   {
     id: 19,
     theme,
-    colors: ['red', 'green', 'pink', 'yellow', 'blue'],
+    colors: [RED, GREEN, PINK, YELLOW, BLUE],
     moves: 31,
     goals: [
       { tile: { type: ANCHOR }, target: 8 },
@@ -196,7 +197,7 @@ export default [
   {
     id: 20,
     theme,
-    colors: ['red', 'green', 'pink', 'blue'],
+    colors: [RED, GREEN, PINK, BLUE],
     moves: 39,
     goals: [
       { tile: { type: ANCHOR }, target: 9 },
@@ -212,7 +213,7 @@ export default [
   {
     id: 21,
     theme,
-    colors: ['red', 'pink', 'blue'],
+    colors: [RED, PINK, BLUE],
     moves: 40,
     goals: [
       { tile: { type: ANCHOR }, target: 10 },
@@ -231,7 +232,7 @@ export default [
   {
     id: 22,
     theme,
-    colors: ['red', 'pink', 'blue', 'green'],
+    colors: [RED, PINK, BLUE, GREEN],
     moves: 17,
     goals: [
       { tile: { type: ANCHOR }, target: 4 },
@@ -248,13 +249,13 @@ export default [
   {
     id: 23,
     theme,
-    colors: ['red', 'pink', 'blue', 'green'],
+    colors: [RED, PINK, BLUE, GREEN],
     moves: 30,
     goals: [
-      { tile: { type: DOT, color: 'pink' }, target: 36 },
-      { tile: { type: DOT, color: 'red' }, target: 36 },
-      { tile: { type: DOT, color: 'blue' }, target: 36 },
-      { tile: { type: DOT, color: 'green' }, target: 36 },
+      { tile: { type: DOT, color: PINK }, target: 36 },
+      { tile: { type: DOT, color: RED }, target: 36 },
+      { tile: { type: DOT, color: BLUE }, target: 36 },
+      { tile: { type: DOT, color: GREEN }, target: 36 },
     ],
     blueprint: `
       * * * *
@@ -272,7 +273,7 @@ export default [
   {
     id: 24,
     theme,
-    colors: ['red', 'pink', 'blue', 'green'],
+    colors: [RED, PINK, BLUE, GREEN],
     moves: 33,
     goals: [
       { tile: { type: ANCHOR }, target: 8 },
@@ -292,13 +293,13 @@ export default [
   {
     id: 25,
     theme,
-    colors: ['red', 'pink', 'yellow', 'green'],
+    colors: [RED, PINK, YELLOW, GREEN],
     moves: 21,
     goals: [
-      { tile: { type: DOT, color: 'pink' }, target: 80 },
-      { tile: { type: DOT, color: 'red' }, target: 70 },
-      { tile: { type: DOT, color: 'green' }, target: 60 },
-      { tile: { type: DOT, color: 'yellow' }, target: 50 },
+      { tile: { type: DOT, color: PINK }, target: 80 },
+      { tile: { type: DOT, color: RED }, target: 70 },
+      { tile: { type: DOT, color: GREEN }, target: 60 },
+      { tile: { type: DOT, color: YELLOW }, target: 50 },
     ],
     blueprint: `
       * * * * * * *
@@ -313,13 +314,13 @@ export default [
   {
     id: 26,
     theme,
-    colors: ['blue', 'pink', 'yellow', 'green'],
+    colors: [BLUE, PINK, YELLOW, GREEN],
     moves: 31,
     goals: [
-      { tile: { type: DOT, color: 'pink' }, target: 44 },
-      { tile: { type: DOT, color: 'blue' }, target: 44 },
-      { tile: { type: DOT, color: 'green' }, target: 44 },
-      { tile: { type: DOT, color: 'yellow' }, target: 44 },
+      { tile: { type: DOT, color: PINK }, target: 44 },
+      { tile: { type: DOT, color: BLUE }, target: 44 },
+      { tile: { type: DOT, color: GREEN }, target: 44 },
+      { tile: { type: DOT, color: YELLOW }, target: 44 },
     ],
     blueprint: `
       g g g g g
@@ -336,7 +337,7 @@ export default [
   {
     id: 27,
     theme,
-    colors: ['blue', 'pink', 'yellow', 'green', 'red'],
+    colors: [BLUE, PINK, YELLOW, GREEN, RED],
     moves: 30,
     goals: [
       { tile: { type: ANCHOR }, target: 9 },
@@ -356,7 +357,7 @@ export default [
   {
     id: 28,
     theme,
-    colors: ['blue', 'pink', 'yellow', 'green', 'red'],
+    colors: [BLUE, PINK, YELLOW, GREEN, RED],
     moves: 17,
     goals: [
       { tile: { type: ANCHOR }, target: 4 },
@@ -376,7 +377,7 @@ export default [
   {
     id: 29,
     theme,
-    colors: ['blue', 'pink', 'yellow', 'green', 'red'],
+    colors: [BLUE, PINK, YELLOW, GREEN, RED],
     moves: 32,
     goals: [
       { tile: { type: ANCHOR }, target: 6 },
@@ -396,7 +397,7 @@ export default [
   {
     id: 30,
     theme,
-    colors: ['blue', 'pink', 'yellow', 'green', 'red'],
+    colors: [BLUE, PINK, YELLOW, GREEN, RED],
     moves: 20,
     goals: [
       { tile: { type: ANCHOR }, target: 9 },
@@ -414,13 +415,13 @@ export default [
   {
     id: 31,
     theme,
-    colors: ['blue', 'pink', 'yellow', 'red'],
+    colors: [BLUE, PINK, YELLOW, RED],
     moves: 39,
     goals: [
-      { tile: { type: DOT, color: 'pink' }, target: 28 },
-      { tile: { type: DOT, color: 'blue' }, target: 28 },
-      { tile: { type: DOT, color: 'red' }, target: 28 },
-      { tile: { type: DOT, color: 'yellow' }, target: 28 },
+      { tile: { type: DOT, color: PINK }, target: 28 },
+      { tile: { type: DOT, color: BLUE }, target: 28 },
+      { tile: { type: DOT, color: RED }, target: 28 },
+      { tile: { type: DOT, color: YELLOW }, target: 28 },
       { tile: { type: ANCHOR }, target: 7 },
     ],
     blueprint: `
@@ -439,7 +440,7 @@ export default [
   {
     id: 32,
     theme,
-    colors: ['blue', 'pink', 'green', 'red', 'yellow'],
+    colors: [BLUE, PINK, GREEN, RED, YELLOW],
     moves: 29,
     goals: [
       { tile: { type: ANCHOR }, target: 12 },
@@ -459,7 +460,7 @@ export default [
   {
     id: 33,
     theme,
-    colors: ['blue', 'pink', 'green', 'red', 'yellow'],
+    colors: [BLUE, PINK, GREEN, RED, YELLOW],
     moves: 31,
     goals: [
       { tile: { type: ANCHOR }, target: 5 },
@@ -479,7 +480,7 @@ export default [
   {
     id: 34,
     theme,
-    colors: ['blue', 'pink', 'green', 'red', 'yellow'],
+    colors: [BLUE, PINK, GREEN, RED, YELLOW],
     moves: 35,
     goals: [
       { tile: { type: ANCHOR }, target: 9 },
@@ -503,13 +504,13 @@ export default [
   {
     id: 35,
     theme,
-    colors: ['blue', 'pink', 'green', 'red', 'yellow'],
+    colors: [BLUE, PINK, GREEN, RED, YELLOW],
     moves: 33,
     goals: [
-      { tile: { type: DOT, color: 'pink' }, target: 24 },
-      { tile: { type: DOT, color: 'blue' }, target: 24 },
-      { tile: { type: DOT, color: 'red' }, target: 24 },
-      { tile: { type: DOT, color: 'green' }, target: 24 },
+      { tile: { type: DOT, color: PINK }, target: 24 },
+      { tile: { type: DOT, color: BLUE }, target: 24 },
+      { tile: { type: DOT, color: RED }, target: 24 },
+      { tile: { type: DOT, color: GREEN }, target: 24 },
       { tile: { type: ANCHOR }, target: 9 },
     ],
     anchors: {

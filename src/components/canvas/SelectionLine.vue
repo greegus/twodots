@@ -12,6 +12,10 @@ import { isSelectionClosed } from 'utils/selection'
 
 export default {
   props: {
+    theme: {
+      Object
+    },
+
     selection: {
       type: Array,
       default: () => []
@@ -58,7 +62,7 @@ export default {
     },
 
     hexColor() {
-      return config.colorsMap[this.selection[0].color]
+      return this.theme.colorMap.dots[this.selection[0].color]
     }
   },
 

@@ -6,7 +6,7 @@
 
     <div class="flex items-center justify-center">
       <div v-for="(goal, $index) in level.goals" :key="$index">
-        <GoalItem :goal="goal" />
+        <GoalItem :goal="goal" :theme="level.theme" />
       </div>
     </div>
 

@@ -1,16 +1,36 @@
 import config from 'config'
 
-const { DOT } = config.tileTypes
+const { DOT, ANCHOR } = config.tileTypes
+const { BLUE, RED, YELLOW, GREEN, PINK } = config.dotColors
 
 export default [
   {
+    id: 0,
+    colors: ['blue', 'red', 'green', 'pink'],
+    moves: 6,
+    goals: [
+      { tile: { type: ANCHOR }, target: 99 },
+      { tile: { type: DOT, color: 'blue' }, target: 99 },
+      { tile: { type: DOT, color: 'green' }, target: 99 }
+    ],
+    blueprint: `
+      * * * *
+      * b * *
+      * b * *
+      * b * *
+    `
+  },
+
+  //
+
+  {
     id: 1,
-    colors: ['blue', 'red', 'yellow'],
+    colors: [BLUE, RED, YELLOW],
     moves: 20,
     goals: [
-      {tile: { type: DOT, color: 'red' }, target: 15},
-      {tile: { type: DOT, color: 'blue' }, target: 15},
-      {tile: { type: DOT, color: 'yellow' }, target: 15},
+      {tile: { type: DOT, color: RED }, target: 15},
+      {tile: { type: DOT, color: BLUE }, target: 15},
+      {tile: { type: DOT, color: YELLOW }, target: 15},
     ],
     blueprint: `
       r r r r
@@ -23,13 +43,13 @@ export default [
 
   {
     id: 2,
-    colors: ['green', 'yellow', 'red', 'blue'],
+    colors: [GREEN, YELLOW, RED, BLUE],
     moves: 30,
     goals: [
-      { tile: { type: DOT, color: 'green' }, target: 15 },
-      { tile: { type: DOT, color: 'yellow' }, target: 15 },
-      { tile: { type: DOT, color: 'red' }, target: 15 },
-      { tile: { type: DOT, color: 'blue' }, target: 15 },
+      { tile: { type: DOT, color: GREEN }, target: 15 },
+      { tile: { type: DOT, color: YELLOW }, target: 15 },
+      { tile: { type: DOT, color: RED }, target: 15 },
+      { tile: { type: DOT, color: BLUE }, target: 15 },
     ],
     blueprint: `
       r r g r r
@@ -42,12 +62,12 @@ export default [
 
   {
     id: 3,
-    colors: ['green', 'yellow', 'red', 'blue'],
+    colors: [GREEN, YELLOW, RED, BLUE],
     moves: 20,
     goals: [
-      { tile: { type: DOT, color: 'red' }, target: 50 },
-      { tile: { type: DOT, color: 'blue' }, target: 50 },
-      { tile: { type: DOT, color: 'yellow' }, target: 50 },
+      { tile: { type: DOT, color: RED }, target: 50 },
+      { tile: { type: DOT, color: BLUE }, target: 50 },
+      { tile: { type: DOT, color: YELLOW }, target: 50 },
     ],
     blueprint: `
       r y b r b r
@@ -61,13 +81,13 @@ export default [
 
   {
     id: 4,
-    colors: ['pink', 'red', 'green', 'yellow'],
+    colors: [PINK, RED, GREEN, YELLOW],
     moves: 20,
     goals: [
-      { tile: { type: DOT, color: 'pink' }, target: 15 },
-      { tile: { type: DOT, color: 'red' }, target: 15 },
-      { tile: { type: DOT, color: 'green' }, target: 15 },
-      { tile: { type: DOT, color: 'yellow' }, target: 15 },
+      { tile: { type: DOT, color: PINK }, target: 15 },
+      { tile: { type: DOT, color: RED }, target: 15 },
+      { tile: { type: DOT, color: GREEN }, target: 15 },
+      { tile: { type: DOT, color: YELLOW }, target: 15 },
     ],
     blueprint: `
       p p r p
@@ -81,13 +101,13 @@ export default [
 
   {
     id: 5,
-    colors: ['pink', 'blue', 'green', 'yellow'],
+    colors: [PINK, BLUE, GREEN, YELLOW],
     moves: 26,
     goals: [
-      { tile: { type: DOT, color: 'pink' }, target: 20 },
-      { tile: { type: DOT, color: 'blue' }, target: 20 },
-      { tile: { type: DOT, color: 'green' }, target: 20 },
-      { tile: { type: DOT, color: 'yellow' }, target: 20 },
+      { tile: { type: DOT, color: PINK }, target: 20 },
+      { tile: { type: DOT, color: BLUE }, target: 20 },
+      { tile: { type: DOT, color: GREEN }, target: 20 },
+      { tile: { type: DOT, color: YELLOW }, target: 20 },
     ],
     blueprint: `
       * * W * * W * *
@@ -103,11 +123,11 @@ export default [
 
   {
     id: 6,
-    colors: ['pink', 'blue', 'green', 'yellow', 'red'],
+    colors: [PINK, BLUE, GREEN, YELLOW, RED],
     moves: 26,
     goals: [
-      { tile: { type: DOT, color: 'red' }, target: 20 },
-      { tile: { type: DOT, color: 'yellow' }, target: 20 },
+      { tile: { type: DOT, color: RED }, target: 20 },
+      { tile: { type: DOT, color: YELLOW }, target: 20 },
     ],
     blueprint: `
       g g y p p
@@ -120,13 +140,13 @@ export default [
 
   {
     id: 7,
-    colors: ['pink', 'green', 'yellow', 'red'],
+    colors: [PINK, GREEN, YELLOW, RED],
     moves: 30,
     goals: [
-      { tile: { type: DOT, color: 'pink' }, target: 50 },
-      { tile: { type: DOT, color: 'red' }, target: 50 },
-      { tile: { type: DOT, color: 'green' }, target: 50 },
-      { tile: { type: DOT, color: 'yellow' }, target: 50 },
+      { tile: { type: DOT, color: PINK }, target: 50 },
+      { tile: { type: DOT, color: RED }, target: 50 },
+      { tile: { type: DOT, color: GREEN }, target: 50 },
+      { tile: { type: DOT, color: YELLOW }, target: 50 },
     ],
     blueprint: `
       p r g y p p p
@@ -141,13 +161,13 @@ export default [
 
   {
     id: 8,
-    colors: ['pink', 'blue', 'red', 'yellow'],
+    colors: [PINK, BLUE, RED, YELLOW],
     moves: 23,
     goals: [
-      { tile: { type: DOT, color: 'pink' }, target: 15 },
-      { tile: { type: DOT, color: 'blue' }, target: 15 },
-      { tile: { type: DOT, color: 'red' }, target: 15 },
-      { tile: { type: DOT, color: 'yellow' }, target: 15 },
+      { tile: { type: DOT, color: PINK }, target: 15 },
+      { tile: { type: DOT, color: BLUE }, target: 15 },
+      { tile: { type: DOT, color: RED }, target: 15 },
+      { tile: { type: DOT, color: YELLOW }, target: 15 },
     ],
     blueprint: `
       b b b y
@@ -162,11 +182,11 @@ export default [
 
   {
     id: 9,
-    colors: ['blue', 'red'],
+    colors: [BLUE, RED],
     moves: 33,
     goals: [
-      { tile: { type: DOT, color: 'blue' }, target: 80 },
-      { tile: { type: DOT, color: 'red' }, target: 80 },
+      { tile: { type: DOT, color: BLUE }, target: 80 },
+      { tile: { type: DOT, color: RED }, target: 80 },
     ],
     blueprint: `
       r r r W r r b
@@ -181,13 +201,13 @@ export default [
 
   {
     id: 10,
-    colors: ['blue', 'red', 'green', 'yellow'],
+    colors: [BLUE, RED, GREEN, YELLOW],
     moves: 42,
     goals: [
-      { tile: { type: DOT, color: 'blue' }, target: 30 },
-      { tile: { type: DOT, color: 'red' }, target: 30 },
-      { tile: { type: DOT, color: 'green' }, target: 30 },
-      { tile: { type: DOT, color: 'yellow' }, target: 30 },
+      { tile: { type: DOT, color: BLUE }, target: 30 },
+      { tile: { type: DOT, color: RED }, target: 30 },
+      { tile: { type: DOT, color: GREEN }, target: 30 },
+      { tile: { type: DOT, color: YELLOW }, target: 30 },
     ],
     blueprint: `
       r y g r g r

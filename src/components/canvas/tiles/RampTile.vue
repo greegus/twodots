@@ -5,13 +5,10 @@
 </template>
 
 <script>
+import tileMixin from './tileMixin'
+
 export default {
-  props: {
-    tile: {
-      type: Object,
-      required: true
-    }
-  }
+  mixins: [tileMixin]
 }
 </script>
 
