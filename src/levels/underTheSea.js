@@ -12,10 +12,12 @@ export default [
     theme,
     colors: ['green', 'pink', 'blue'],
     moves: 20,
-    maxAnchors: 2,
     goals: [
       { tile: { type: ANCHOR }, target: 4 },
     ],
+    anchors: {
+      maximum: 2
+    },
     blueprint: `
       g p b p g
       g p b p g
@@ -30,10 +32,12 @@ export default [
     theme,
     colors: ['green', 'pink', 'blue', 'red', 'yellow'],
     moves: 18,
-    maxAnchors: 0,
     goals: [
       { tile: { type: ANCHOR }, target: 2 },
     ],
+    anchors: {
+      maximum: 0
+    },
     blueprint: `
       y A p b A r
       r y p y r g
@@ -49,10 +53,12 @@ export default [
     theme,
     colors: ['green', 'blue', 'red', 'yellow'],
     moves: 20,
-    maxAnchors: 0,
     goals: [
       { tile: { type: ANCHOR }, target: 6 },
     ],
+    anchors: {
+      maximum: 0
+    },
     blueprint: `
       b A A A A A A b
       r r g b g g b y
@@ -67,13 +73,15 @@ export default [
     theme,
     colors: ['blue', 'red', 'yellow'],
     moves: 30,
-    maxAnchors: 2,
     goals: [
       { tile: { type: ANCHOR }, target: 10 },
       { tile: { type: DOT, color: 'red' }, target: 40 },
       { tile: { type: DOT, color: 'yellow' }, target: 35 },
       { tile: { type: DOT, color: 'blue' }, target: 10 },
     ],
+    anchors: {
+      maximum: 2
+    },
     blueprint: `
       A W W A
       r r b y
@@ -88,10 +96,12 @@ export default [
     theme,
     colors: ['blue', 'yellow', 'green'],
     moves: 30,
-    maxAnchors: 1,
     goals: [
       { tile: { type: ANCHOR }, target: 5 },
     ],
+    anchors: {
+      maximum: 1
+    },
     blueprint: `
       g g p p
       b p y b
@@ -474,6 +484,9 @@ export default [
     goals: [
       { tile: { type: ANCHOR }, target: 9 },
     ],
+    anchors: {
+      maximum: 3,
+    },
     blueprint: `
       * A * A A * A *
       * * * * * * * *
@@ -499,6 +512,10 @@ export default [
       { tile: { type: DOT, color: 'green' }, target: 24 },
       { tile: { type: ANCHOR }, target: 9 },
     ],
+    anchors: {
+      maximum: 2,
+      dedicatedColumns: [0, 1]
+    },
     blueprint: `
       y A W * * * * *
       A g W * * * * *

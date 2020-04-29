@@ -534,13 +534,17 @@ export default {
 
       // anchors
 
-      if (this.goals.map(goal => goal.tile).some(isAnchor)) {
+      if (this.goals.some(goal => isAnchor(goal.tile))) {
         const numberOfCurrentAnchors = this.tiles.filter(isAnchor).length
-        const anchorsLimit = this.level.maxAnchors === undefined ? Math.ceil(this.size.width * this.size.height / 16) : this.level.maxAnchors
+        const anchorsLimit = this.level.anchors?.maximum ?? Math.ceil(this.size.width * this.size.height / 16)
         const numberOfNewAnchors = Math.floor(Math.random() * (anchorsLimit - numberOfCurrentAnchors + 1))
 
         for (let i = 0; i < numberOfNewAnchors; i++) {
-          const slot = getRandomItem(emptySlots.filter(slot => !slot.newTile && !slot.position.y));
+          const availableSlots = emptySlots
+            .filter(slot => !slot.newTile && !slot.position.y)
+            .filter(slot => this.level.anchors?.dedicatedColumns ? this.level.anchors?.dedicatedColumns.includes(slot.position.x) : true )
+
+          const slot = getRandomItem(availableSlots);
 
           if (slot) {
             slot.newTile = generateAnchorTile(slot.position)
