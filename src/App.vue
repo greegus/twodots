@@ -3,3 +3,7 @@
     <router-view class="min-h-screen" />
   </div>
 </template>
+
+<style>
+  @import url('./assets/styles/styles.css');
+</style>

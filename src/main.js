@@ -1,14 +1,14 @@
 import Vue from 'vue'
-import App from './App.vue'
 
 import store from 'store'
 import router from 'router'
 
+// Last Modal
 import VueLastModal from 'vue-last-modal'
 Vue.use(VueLastModal)
 
-import './assets/styles/styles.css'
-import './registerServiceWorker'
+// App
+import App from './App.vue'
 
 Vue.config.productionTip = false
 
