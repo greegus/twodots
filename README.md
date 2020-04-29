@@ -4,6 +4,8 @@ A simple remake of a popular [TwoDots](https://play.google.com/store/apps/detail
 
 ![](http://g.recordit.co/w1P91Zt7c9.gif)
 
+Give it a shot at https://greegus.github.io/twodots/
+
 ## Running locally
 ```shell script
 yarn install
