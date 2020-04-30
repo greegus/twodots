@@ -6,6 +6,10 @@ module.exports = {
     },
 
     extend: {
+      spacing: {
+        '9': '2.25rem'
+      },
+
       zIndex: {
         '1': 1
       },

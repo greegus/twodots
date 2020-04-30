@@ -1,26 +1,26 @@
 <template>
   <div class="LevelView flex flex-col items-center justify-center px-5" :style="{ background: level.theme.background }">
-    <div class="absolute top-0 flex align-center text-gray-700 mt-12">
-      <div class="LevelView__panel px-0 w-16 mr-5">
+    <div class="absolute top-0 flex w-full md:w-auto align-center text-gray-700 lg:mt-10 space-x-3 lg:space-x-5 pt-5 px-5">
+      <div class="LevelView__panel px-0 w-16">
         <div class="text-center leading-none">
           <div class="text-2xl mb-1" :class="{'text-red-500': isLowOnMovesLeft}">{{ movesLeft }}</div>
           <div class="uppercase text-xs font-normal">Moves</div>
         </div>
       </div>
 
-      <div class="LevelView__panel px-5">
+      <div class="LevelView__panel flex-auto lg:flex-none px-2 lg:px-5">
         <div v-for="(goal, $index) in goals" :key="$index">
           <GoalItem :goal="goal" :theme="level.theme" show-current small />
         </div>
       </div>
 
-      <div class="LevelView__panel px-0 w-16 ml-5 cursor-pointer" @click="quitLevel()">
+      <div class="LevelView__panel px-0 w-16 cursor-pointer hover:bg-gray-200" @click="quitLevel()">
         <Icon name="map" size="lg" />
       </div>
     </div>
 
-    <div class="absolute bottom-0 text-gray-700 mb-12">
-      <div class="LevelView__panel w-32">
+    <div class="absolute bottom-0 flex w-full md:w-auto text-gray-700 lg:mb-10 px-5 pb-5">
+      <div class="LevelView__panel w-32 mx-auto">
         <div class="text-center leading-none">
           <div class="uppercase text-xs font-normal mb-1">Score</div>
           <div class="text-2xl">{{ score }}</div>
@@ -665,6 +665,10 @@ export default {
 </script>
 
 <style lang="postcss">
+.LevelView {
+  touch-action: none;
+}
+
 .LevelView svg {
   overflow: visible;
 }

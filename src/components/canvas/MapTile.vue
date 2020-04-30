@@ -1,5 +1,5 @@
 <template>
-  <g class="MapTile will-transform" style="touch-action: manipulation;" transform-origin="0.5 0.5">
+  <g class="MapTile will-transform" transform-origin="0.5 0.5">
     <component
       :is="tileToComponentMap[tile.type]"
       :tile="tile"

@@ -1,9 +1,9 @@
 <template>
-  <div class="GoalItem relative text-center text-center w-16" :class="{isCompleted}">
+  <div class="GoalItem relative text-center w-12 lg:w-16" :class="{isCompleted}">
     <div class="GoalItem__counter pt-2">
-      <TilePreview class="mx-auto -mt-2" :class="small ? 'w-10 h-10' : 'w-14 h-14'" :tile="goal.tile" :theme="theme" />
+      <TilePreview class="mx-auto -mt-2" :class="small ? 'w-9 lg:w-10 h-9 lg:h-10' : 'w-14 h-14'" :tile="goal.tile" :theme="theme" />
 
-      <div class="-mt-2 mb-2 font-normal pt-px" :class="small ? 'text-xs' : ''">
+      <div class="-mt-2 lg:mb-1 font-normal pt-px" :class="small ? 'text-xs' : ''">
         <span v-if="showCurrent">{{ goal.current || 0 }} /</span> {{ goal.target }}
         </div>
     </div>
