@@ -34,11 +34,12 @@ export default {
 
   methods: {
     updateMousePosition(e) {
+      const { clientX, clientY } = e instanceof TouchEvent ? e.touches[0] : e
       const { top, left } = this.$el.getBoundingClientRect()
 
       const relativePosition = {
-        x: (e.clientX - left) / config.tileSize,
-        y: (e.clientY - top) / config.tileSize
+        x: (clientX - left) / config.tileSize,
+        y: (clientY - top) / config.tileSize
       };
 
       this.relativeMousePosition = relativePosition;
@@ -47,7 +48,7 @@ export default {
 
   computed: {
     points() {
-      if (!this.selection.length) {
+      if (!this.selection.length || !this.relativeMousePosition) {
         return
       }
 
@@ -68,10 +69,12 @@ export default {
 
   mounted() {
     window.addEventListener('mousemove', this.updateMousePosition);
+    window.addEventListener('touchmove', this.updateMousePosition);
   },
 
   beforeDestroy() {
     window.removeEventListener('mousemove', this.updateMousePosition);
+    window.removeEventListener('touchmove', this.updateMousePosition);
   }
 }
 </script>

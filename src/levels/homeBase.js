@@ -16,8 +16,8 @@ export default [
     blueprint: `
       * * * *
       * b * *
-      * b * *
-      * b * *
+      * b b *
+      * b b *
     `
   },
 

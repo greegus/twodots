@@ -50,6 +50,7 @@
           :ref="`tile.${tile.id}`"
           :theme="level.theme"
           @mousedown.native="startSelection(tile, $event)"
+          @touchstart.native="startSelection(tile, $event)"
         />
       </svg>
 
@@ -63,11 +64,23 @@
       <!-- selection zones -->
       <g v-if="isMakingSelection" class="relative z-1 opacity-0">
         <svg v-for="tile in nextPossibleTiles" :key="tile.id" :x="tile.x" :y="tile.y">
-          <rect width="1" height="1" @mouseenter="addToSelection(tile)" />
+          <g transform="scale(.9)">
+            <rect
+              width="1"
+              height="1"
+              @mousemove="addToSelection(tile, $event)"
+              @touchmove="addToSelection(tile, $event)"
+            />
+          </g>
         </svg>
 
         <svg v-if="secondLastSelected" :x="secondLastSelected.x" :y="secondLastSelected.y">
-          <rect width="1" height="1" @mouseenter="removeLastFromSelection()" />
+          <rect
+            width="1"
+            height="1"
+            @mousemove="removeLastFromSelection($event)"
+            @touchmove="removeLastFromSelection($event)"
+          />
         </svg>
       </g>
     </svg>
@@ -100,7 +113,6 @@ import WallsLayer from 'components/canvas/WallsLayer'
 
 import SuccessModal from 'modals/SuccessModal';
 import OutOfMovesModal from 'modals/OutOfMovesModal';
-import { Promise } from 'q'; // todo: ?
 
 function getInitialState(level) {
   return {
@@ -269,7 +281,9 @@ export default {
       this.squaresHighlightingInterval && clearInterval(this.squaresHighlightingInterval)
     },
 
-    startSelection(tile) {
+    startSelection(tile, e) {
+      e.preventDefault();
+
       if (!this.isSelectionAllowed || !isDot(tile)) {
         return
       }
@@ -278,12 +292,15 @@ export default {
       this.selection = []
 
       this.cancelSquaresHighlighting()
-      this.addToSelection(tile)
+      this.addToSelection(tile, e)
 
       window.addEventListener('mouseup', this.endSelection);
+      window.addEventListener('touchend', this.endSelection);
     },
 
-    addToSelection(tile) {
+    addToSelection(tile, e) {
+      e.preventDefault();
+
       this.selection.push(tile);
 
       this.getTileContentComponent(tile).animateBeacon()
@@ -313,8 +330,14 @@ export default {
       this.nextPossibleTiles = nextPossibleTiles;
     },
 
-    removeLastFromSelection() {
-      this.selection.pop();
+    removeLastFromSelection(e) {
+      e.preventDefault();
+
+      this.selection.pop()
+
+      const leadingTile = this.selection.slice(-1).pop()
+
+      this.getTileContentComponent(leadingTile).animateBeacon()
 
       this.nextPossibleTiles = getNextPossibleTiles(
         this.lastSelected,
@@ -323,8 +346,11 @@ export default {
       );
     },
 
-    async endSelection() {
+    async endSelection(e) {
+      e.preventDefault();
+
       window.removeEventListener('mouseup', this.endSelection);
+      window.removeEventListener('touchend', this.endSelection);
 
       this.isMakingSelection = false;
       this.isSelectionAllowed = false;
@@ -537,7 +563,7 @@ export default {
         emptySlots = emptySlots.concat(emptySlotsInColumn)
       }
 
-      // anchors
+      // Anchors
 
       if (this.goals.some(goal => isAnchor(goal.tile))) {
         const numberOfCurrentAnchors = this.tiles.filter(isAnchor).length
@@ -557,7 +583,7 @@ export default {
         }
       }
 
-      // dots
+      // Dots
 
       emptySlots.forEach(slot => {
         slot.newTile = slot.newTile || generateDotTile(slot.position, colors)
@@ -566,6 +592,8 @@ export default {
       const newTiles = emptySlots.map(({ newTile }) => newTile)
 
       this.tiles = this.tiles.concat(newTiles)
+
+      // Compute movements
 
       const movements = emptySlots.map(emptySlot => {
         const waypoints = [...Array(emptySlot.initialOffset + 1)].map((_, index) => ({
