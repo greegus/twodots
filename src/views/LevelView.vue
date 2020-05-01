@@ -91,6 +91,8 @@ import { getRandomItem } from 'utils/array'
 import { generateMap } from 'utils/map'
 import { createMatrix, getMatrixCell, getMatrixRow, setMatrixCell } from 'utils/matrix'
 
+import AudioService from 'services/AudioService'
+
 import GoalItem from 'components/GoalItem'
 import Icon from 'components/Icon'
 
@@ -290,18 +292,16 @@ export default {
     addToSelection(tile) {
       this.selection.push(tile)
 
-      this.getTileContentComponent(tile).animateBeacon()
-
-      const selectedWithoutLast = this.selection.slice(
-        0,
-        this.selection.length - 2
-      )
+      const selectedWithoutLast = this.selection.slice(0, this.selection.length - 2)
 
       if (this.isSelectionClosed) {
         this.getAllDotTilesOfColor(this.selectionColor)
           .map(this.getTileContentComponent)
           .forEach(c => c.animateBeacon())
       }
+
+      this.getTileContentComponent(tile).animateBeacon()
+      this.playSelectionThumb()
 
       if (selectedWithoutLast.some(({ id }) => id === this.lastSelected.id)) {
         this.nextPossibleTiles = []
@@ -325,12 +325,21 @@ export default {
       const leadingTile = this.selection.slice(-1).pop()
 
       this.getTileContentComponent(leadingTile).animateBeacon()
+      this.playSelectionThumb()
 
       this.nextPossibleTiles = getNextPossibleTiles(
         this.lastSelected,
         this.tiles,
         this.secondLastSelected
       )
+    },
+
+    playSelectionThumb() {
+      if (this.isSelectionClosed) {
+        AudioService.play(`key8`)
+      } else if (this.selection.length > 1) {
+        AudioService.play(`key${this.selection.length - 1}`)
+      }
     },
 
     async endSelection(e) {
