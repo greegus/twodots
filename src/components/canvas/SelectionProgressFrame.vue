@@ -1,6 +1,16 @@
 <template>
   <div class="fixed inset-0 pointer-events-none z-10">
-    <svg v-for="(corner, $index) in corners" :key="$index" class="absolute w-1/2 h-1/2 will-transform" :style="corner" viewBox="0 0 1 1" preserveAspectRatio="none">
+    <svg v-for="(corner, $index) in corners" :key="$index" class="absolute will-transform" :style="corner" viewBox="0 0 1 1" preserveAspectRatio="none">
+      <polyline
+        stroke-width="20"
+        class="transition-all duration-200"
+        points="1,0 0,0 0,1" height="100" fill="none" :stroke="color"
+        vector-effect="non-scaling-stroke"
+        :style="style"
+      />
+    </svg>
+
+    <svg class="absolute w-full h-full will-transform" viewBox="0 0 1 1" preserveAspectRatio="none">
       <rect
         x="0"
         y="0"
@@ -9,14 +19,6 @@
         :fill="color"
         class="tranform transition-opacity duration-200"
         :style="{ opacity: selection.length && isSelectionClosed ? .15 : 0 }"
-      />
-
-      <polyline
-        stroke-width="20"
-        class="transition-all duration-200"
-        points="1,0 0,0 0,1" height="100" fill="none" :stroke="color"
-        vector-effect="non-scaling-stroke"
-        :style="style"
       />
     </svg>
   </div>
@@ -42,14 +44,16 @@ export default {
   },
 
   data() {
+    const size = 'width: calc(50% + 1px); height: calc(50% + 1px);'
+
     return {
       points: '',
       style: '',
       corners: [
-        'top: 0; left: 0;',
-        'top: 0; right: 0; transform: rotateY(180deg)',
-        'bottom: 0; right: 0; transform: rotateX(180deg) rotateY(180deg)',
-        'bottom: 0; left: 0; transform: rotateX(180deg)'
+        `${size} top: 0; left: 0;`,
+        `${size} top: 0; right: 0; transform: rotateY(180deg)`,
+        `${size} bottom: 0; right: 0; transform: rotateX(180deg) rotateY(180deg)`,
+        `${size} bottom: 0; left: 0; transform: rotateX(180deg)`
       ]
     }
   },
@@ -69,7 +73,7 @@ export default {
   methods: {
     render() {
       const selectionLength = Math.max(0, this.selection.length - 1)
-      const fullLength = (this.$el.clientWidth + this.$el.clientHeight) / 2
+      const fullLength = (this.$el.clientWidth + this.$el.clientHeight + 2) / 2
       const progress = selectionLength && this.isSelectionClosed ? 1 : Math.min(.95, selectionLength / 10)
 
       this.style = {
