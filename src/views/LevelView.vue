@@ -91,7 +91,7 @@ import { getRandomItem } from 'utils/array'
 import { generateMap } from 'utils/map'
 import { createMatrix, getMatrixCell, getMatrixRow, setMatrixCell } from 'utils/matrix'
 
-import AudioService from 'services/AudioService'
+import * as AudioService from 'services/AudioService'
 
 import GoalItem from 'components/GoalItem'
 import Icon from 'components/Icon'
@@ -336,9 +336,9 @@ export default {
 
     playSelectionThumb() {
       if (this.isSelectionClosed) {
-        AudioService.play(`key8`)
-      } else if (this.selection.length > 1) {
-        AudioService.play(`key${this.selection.length - 1}`)
+        AudioService.playClosedSelectionThumb(this.selection.length)
+      } else if (this.selection.length) {
+        AudioService.playSelectionThumb(this.selection.length)
       }
     },
 
@@ -670,6 +670,8 @@ export default {
 
       this.$modal(OutOfMovesModal)
         .then(() => this.$router.push({ name: 'home' }))
+
+      AudioService.playNoMoreMoves()
     },
 
     quitLevel() {
