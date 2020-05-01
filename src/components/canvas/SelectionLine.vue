@@ -1,7 +1,7 @@
 <template>
   <svg x="0" y="0" width="100%" height="100%">
-    <rect x="0" y="0" width="100%" height="100%" fill="transparent" class="pointer-events-none" />
-    <polyline :points="points" :stroke="hexColor" stroke-width=".12" fill="none" stroke-linecap="round" v-if="isActive" />
+    <rect x="0" y="0" width="100%" height="100%" fill="transparent" class="pointer-events-none" ref="placeholder" />
+    <polyline :points="points" :stroke="hexColor" stroke-width=".12" fill="none" stroke-linecap="round" />
   </svg>
 </template>
 
@@ -19,30 +19,26 @@ export default {
     selection: {
       type: Array,
       default: () => []
-    },
-
-    isActive: {
-      type: Boolean
     }
   },
 
   data() {
     return {
-      relativeMousePosition: undefined
+      relativeMousePosition: undefined,
+      boundingBox: undefined
     }
   },
 
   methods: {
-    updateMousePosition(e) {
-      const { clientX, clientY } = e instanceof TouchEvent ? e.touches[0] : e
-      const { top, left } = this.$el.getBoundingClientRect()
+    updateMousePosition({ clientX, clientY }) {
+      const { top, left } = this.boundingBox
 
       const relativePosition = {
         x: (clientX - left) / config.tileSize,
         y: (clientY - top) / config.tileSize
-      };
+      }
 
-      this.relativeMousePosition = relativePosition;
+      this.relativeMousePosition = relativePosition
     },
   },
 
@@ -59,7 +55,7 @@ export default {
         points.push(`${this.relativeMousePosition.x},${this.relativeMousePosition.y}`)
       }
 
-      return points.join(' ');
+      return points.join(' ')
     },
 
     hexColor() {
@@ -68,13 +64,12 @@ export default {
   },
 
   mounted() {
-    window.addEventListener('mousemove', this.updateMousePosition);
-    window.addEventListener('touchmove', this.updateMousePosition);
+    this.boundingBox = this.$refs.placeholder.getBoundingClientRect()
+    window.addEventListener('pointermove', this.updateMousePosition)
   },
 
   beforeDestroy() {
-    window.removeEventListener('mousemove', this.updateMousePosition);
-    window.removeEventListener('touchmove', this.updateMousePosition);
+    window.removeEventListener('pointermove', this.updateMousePosition)
   }
 }
 </script>

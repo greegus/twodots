@@ -49,38 +49,26 @@
           :tile="tile"
           :ref="`tile.${tile.id}`"
           :theme="level.theme"
-          @mousedown.native="startSelection(tile, $event)"
-          @touchstart.native="startSelection(tile, $event)"
+          @pointerdown.native="startSelection(tile)"
+          @gotpointercapture.native="releasePointerCapture"
         />
       </svg>
 
       <!-- selection line -->
       <SelectionLine
         :selection="selection"
-        :is-active="isMakingSelection"
         :theme="level.theme"
+        v-if="isMakingSelection"
       />
 
       <!-- selection zones -->
       <g v-if="isMakingSelection" class="relative z-1 opacity-0">
         <svg v-for="tile in nextPossibleTiles" :key="tile.id" :x="tile.x" :y="tile.y">
-          <g transform="scale(.9)">
-            <rect
-              width="1"
-              height="1"
-              @mousemove="addToSelection(tile, $event)"
-              @touchmove="addToSelection(tile, $event)"
-            />
-          </g>
+          <rect width="1" height="1" @pointerenter="addToSelection(tile, $event)" />
         </svg>
 
         <svg v-if="secondLastSelected" :x="secondLastSelected.x" :y="secondLastSelected.y">
-          <rect
-            width="1"
-            height="1"
-            @mousemove="removeLastFromSelection($event)"
-            @touchmove="removeLastFromSelection($event)"
-          />
+          <rect width="1" height="1" @pointerenter="removeLastFromSelection($event)" />
         </svg>
       </g>
     </svg>
@@ -111,8 +99,8 @@ import SelectionLine from 'components/canvas/SelectionLine'
 import SelectionProgressFrame from 'components/canvas/SelectionProgressFrame'
 import WallsLayer from 'components/canvas/WallsLayer'
 
-import SuccessModal from 'modals/SuccessModal';
-import OutOfMovesModal from 'modals/OutOfMovesModal';
+import SuccessModal from 'modals/SuccessModal'
+import OutOfMovesModal from 'modals/OutOfMovesModal'
 
 function getInitialState(level) {
   return {
@@ -128,7 +116,7 @@ function getNextPossibleTiles(tile, tiles, lastSelected = undefined) {
   return getNeighbourTiles(tile, tiles)
     .filter(isDot)
     .filter(({ color }) => tile.color === color)
-    .filter(({ id }) => (lastSelected ? lastSelected.id !== id : true));
+    .filter(({ id }) => (lastSelected ? lastSelected.id !== id : true))
 }
 
 function sumTilesScorePoinst(tiles) {
@@ -171,7 +159,7 @@ export default {
       selection: [],
       isMakingSelection: false,
       nextPossibleTiles: [],
-    };
+    }
   },
 
   computed: {
@@ -179,7 +167,7 @@ export default {
       return {
         width: this.size.width * config.tileSize,
         height: this.size.height * config.tileSize
-      };
+      }
     },
 
     tilesMatrix() {
@@ -195,7 +183,7 @@ export default {
     },
 
     selectionColor() {
-      return this.selection.length && this.selection[0].color || undefined;
+      return this.selection.length && this.selection[0].color || undefined
     },
 
     isSelectionClosed() {
@@ -203,11 +191,11 @@ export default {
     },
 
     lastSelected() {
-      return this.selection[this.selection.length - 1];
+      return this.selection[this.selection.length - 1]
     },
 
     secondLastSelected() {
-      return this.selection[this.selection.length - 2];
+      return this.selection[this.selection.length - 2]
     },
 
     availableDotSquares() {
@@ -228,24 +216,24 @@ export default {
     hasAnyHorizontalMove() {
       return this.tilesMatrix.some(row => {
         return row.some((tile, index, tiles) => {
-          const nextTile = tiles[index + 1];
-          return nextTile?.color === tile.color;
-        });
-      });
+          const nextTile = tiles[index + 1]
+          return nextTile?.color === tile.color
+        })
+      })
     },
 
     hasAnyVerticalMove() {
       return this.tilesMatrix.some((row, rowIndex, rows) => {
         return row.some((tile, index) => {
-          const nextRow = rows[rowIndex + 1];
-          const nextTile = nextRow && nextRow[index];
-          return nextTile?.color === tile.color;
-        });
-      });
+          const nextRow = rows[rowIndex + 1]
+          const nextTile = nextRow && nextRow[index]
+          return nextTile?.color === tile.color
+        })
+      })
     },
 
     hasAnyMoveAvailable() {
-      return this.hasAnyHorizontalMove || this.hasAnyVerticalMove;
+      return this.hasAnyHorizontalMove || this.hasAnyVerticalMove
     },
 
     hasMetGoals() {
@@ -281,34 +269,33 @@ export default {
       this.squaresHighlightingInterval && clearInterval(this.squaresHighlightingInterval)
     },
 
-    startSelection(tile, e) {
-      e.preventDefault();
+    releasePointerCapture(e) {
+      e.target.releasePointerCapture(e.pointerId)
+    },
 
+    startSelection(tile) {
       if (!this.isSelectionAllowed || !isDot(tile)) {
         return
       }
 
-      this.isMakingSelection = true;
+      this.isMakingSelection = true
       this.selection = []
 
       this.cancelSquaresHighlighting()
-      this.addToSelection(tile, e)
+      this.addToSelection(tile)
 
-      window.addEventListener('mouseup', this.endSelection);
-      window.addEventListener('touchend', this.endSelection);
+      window.addEventListener('pointerup', this.endSelection)
     },
 
-    addToSelection(tile, e) {
-      e.preventDefault();
-
-      this.selection.push(tile);
+    addToSelection(tile) {
+      this.selection.push(tile)
 
       this.getTileContentComponent(tile).animateBeacon()
 
       const selectedWithoutLast = this.selection.slice(
         0,
         this.selection.length - 2
-      );
+      )
 
       if (this.isSelectionClosed) {
         this.getAllDotTilesOfColor(this.selectionColor)
@@ -317,21 +304,21 @@ export default {
       }
 
       if (selectedWithoutLast.some(({ id }) => id === this.lastSelected.id)) {
-        this.nextPossibleTiles = [];
-        return;
+        this.nextPossibleTiles = []
+        return
       }
 
       const nextPossibleTiles = getNextPossibleTiles(
         tile,
         this.tiles,
         this.lastSelected
-      );
+      )
 
-      this.nextPossibleTiles = nextPossibleTiles;
+      this.nextPossibleTiles = nextPossibleTiles
     },
 
     removeLastFromSelection(e) {
-      e.preventDefault();
+      e.preventDefault()
 
       this.selection.pop()
 
@@ -343,18 +330,17 @@ export default {
         this.lastSelected,
         this.tiles,
         this.secondLastSelected
-      );
+      )
     },
 
     async endSelection(e) {
-      e.preventDefault();
+      e.preventDefault()
 
-      window.removeEventListener('mouseup', this.endSelection);
-      window.removeEventListener('touchend', this.endSelection);
+      window.removeEventListener('pointerup', this.endSelection)
 
-      this.isMakingSelection = false;
-      this.isSelectionAllowed = false;
-      this.nextPossibleTiles = [];
+      this.isMakingSelection = false
+      this.isSelectionAllowed = false
+      this.nextPossibleTiles = []
 
       if (this.selection.length > 1) {
         this.movesLeft = this.movesLeft - 1
@@ -367,7 +353,7 @@ export default {
 
         const tilesToPop = this.isSelectionClosed
           ? this.getAllDotTilesOfColor(this.selectionColor)
-          : this.selection;
+          : this.selection
 
         await this.poppingRoutine(tilesToPop, this.isSelectionClosed && this.selectionColor)
       }
@@ -456,7 +442,7 @@ export default {
 
       await this.animateTiles(tiles, c => c.animateDestruction(), this.getTileComponent)
 
-      this.tiles = this.tiles.filter(tile => !tiles.some(({ id }) => id === tile.id));
+      this.tiles = this.tiles.filter(tile => !tiles.some(({ id }) => id === tile.id))
     },
 
     fallDown() {
@@ -537,9 +523,9 @@ export default {
     },
 
     fillWithDots(colors) {
-      const { width, height } = this.size;
+      const { width, height } = this.size
 
-      let emptySlots = [];
+      let emptySlots = []
 
       for (let x = 0; x < width; x++) {
         let emptySlotsInColumn = []
@@ -575,7 +561,7 @@ export default {
             .filter(slot => !slot.newTile && !slot.position.y)
             .filter(slot => this.level.anchors?.dedicatedColumns ? this.level.anchors?.dedicatedColumns.includes(slot.position.x) : true )
 
-          const slot = getRandomItem(availableSlots);
+          const slot = getRandomItem(availableSlots)
 
           if (slot) {
             slot.newTile = generateAnchorTile(slot.position)
@@ -689,7 +675,7 @@ export default {
   beforeDestroy() {
     this.cancelSquaresHighlighting()
   }
-};
+}
 </script>
 
 <style lang="postcss">
