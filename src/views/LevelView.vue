@@ -30,7 +30,7 @@
 
     <!-- canvas -->
     <svg
-      :width="realSize.width"
+      width="100%"
       :height="realSize.height"
       :viewBox="`0 0 ${size.width} ${size.height}`"
       class="mx-auto"
@@ -58,6 +58,7 @@
       <SelectionLine
         :selection="selection"
         :theme="level.theme"
+        :size="size"
         v-if="isMakingSelection"
       />
 

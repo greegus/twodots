@@ -1,19 +1,21 @@
 <template>
-  <svg x="0" y="0" width="100%" height="100%">
+  <g>
     <rect x="0" y="0" width="100%" height="100%" fill="transparent" class="pointer-events-none" ref="placeholder" />
     <polyline :points="points" :stroke="hexColor" stroke-width=".12" fill="none" stroke-linecap="round" />
-  </svg>
+  </g>
 </template>
 
 <script>
-import config from 'config'
-
 import { isSelectionClosed } from 'utils/selection'
 
 export default {
   props: {
     theme: {
-      Object
+      type: Object
+    },
+
+    size: {
+      type: Object
     },
 
     selection: {
@@ -31,11 +33,11 @@ export default {
 
   methods: {
     updateMousePosition({ clientX, clientY }) {
-      const { top, left } = this.boundingBox
+      const { top, left, width, height } = this.boundingBox
 
       const relativePosition = {
-        x: (clientX - left) / config.tileSize,
-        y: (clientY - top) / config.tileSize
+        x: (clientX - left) / width * this.size.width,
+        y: (clientY - top) / height * this.size.height
       }
 
       this.relativeMousePosition = relativePosition
