@@ -1,6 +1,6 @@
 <template>
   <div class="LevelInterface">
-    <div class="absolute top-0 inset-x-0 flex w-full align-center justify-center text-gray-700 lg:mt-10 space-x-2 lg:space-x-5 pt-5 px-3">
+    <div class="LevelInterface__header absolute top-0 inset-x-0 flex w-full align-center justify-center text-gray-700 lg:mt-10 space-x-2 lg:space-x-5 pt-5 px-3">
       <div class="LevelInterface__panel flex-none px-0 w-12 lg:w-16">
         <div class="text-center leading-none">
           <div class="text-2xl lg:text-3xl mb-px -mb-px lg:mb-px" :class="{'text-red-500': isLowOnMovesLeft}">{{ movesLeft }}</div>
@@ -75,8 +75,8 @@ export default {
 </script>
 
 <style lang="postcss">
-.LevelInterface {
-  background: linear-gradient(to bottom, rgba(black, .5), rgba(black, .0) 2rem);
+.LevelInterface__header {
+  background: linear-gradient(to bottom, rgba(#000, .15), rgba(#000, .0) 1rem);
 }
 
 .LevelInterface__panel {
