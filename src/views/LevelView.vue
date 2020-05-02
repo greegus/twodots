@@ -1,5 +1,5 @@
 <template>
-  <div class="LevelView flex flex-col items-center justify-center px-0 lg:px-5" :style="{ background: level.theme.background }">
+  <div class="LevelView flex flex-col items-center justify-center px-3 lg:px-5" :style="{ background: level.theme.background }">
     <LevelInterface
       :moves-left="movesLeft"
       :goals="goals"
