@@ -7,8 +7,21 @@ module.exports = {
 
     extend: {
       spacing: {
-        '9': '2.25rem'
+        '9': '2.25rem',
+        '72': '18rem',
+        '84': '21rem',
+        '96': '24rem',
+        '128': '42rem',
+        '160': '72rem',
       },
+
+      minWidth: theme => theme('spacing'),
+
+      maxWidth: theme => theme('spacing'),
+
+      minHeight: theme => theme('spacing'),
+
+      maxHeight: theme => theme('spacing'),
 
       zIndex: {
         '1': 1
@@ -19,58 +32,27 @@ module.exports = {
       },
 
       borderRadius: {
-        'xl': '1.25rem'
-      }
+        'xl': '1.5rem'
+      },
+
+      transitionProperty: {
+        'visibility': 'visibility, opacity'
+      },
+
+      boxShadow: theme => ({
+        'inset': 'inset 0 0 0 1px rgba(#000, .1)',
+        'outline-error': `0 0 0 3px rgba(${theme('colors.red.500')}, .5)`
+      })
     },
   },
 
   variants: {},
 
   plugins: [
-    function({ addUtilities, addComponents, theme}) {
-      // utilities
-
+    function({ addUtilities}) {
       addUtilities({
         '.grayscale': {
           filter: 'grayscale(100)'
-        }
-      })
-
-      // buttons
-
-      addComponents({
-        '.btn': {
-          color: 'white',
-          backgroundColor: theme('colors.green.500'),
-          padding: '.5rem 1rem .65rem',
-          borderRadius: '999px',
-          boxShadow: `0 0.35rem 0 0 ${theme('colors.green.600')}`,
-          fontWeight: '300',
-          transition: 'filter .15s',
-          outline: 'none',
-          transform: 'translateY(-.15rem)',
-
-          '&.btn-lg': {
-            padding: '.5rem 2rem',
-            fontSize: theme('fontSize.2xl'),
-
-            '&:active': {
-              // padding: '.5rem 2rem .5rem',
-            }
-          },
-
-          '&:hover': {
-            filter: 'brightness(110%)'
-          },
-
-          '&:focus': {
-            outline: 'none',
-          },
-
-          '&:active': {
-            boxShadow: `0 0.2rem 0 0 ${theme('colors.green.600')}`,
-            transform: 'translateY(0)',
-          }
         }
       })
     }

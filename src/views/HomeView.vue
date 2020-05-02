@@ -30,15 +30,9 @@ import levels from 'levels'
 
 import loadLevel from 'utils/loadLevel'
 
-import Icon from 'components/Icon'
-
 import LevelPreviewModal from 'modals/LevelPreviewModal';
 
 export default {
-  components: {
-    Icon
-  },
-
   data() {
     return {
       levels

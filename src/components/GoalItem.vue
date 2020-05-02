@@ -1,5 +1,5 @@
 <template>
-  <div class="GoalItem relative text-center w-12 lg:w-16" :class="{isCompleted}">
+  <div class="GoalItem relative text-center w-12 lg:w-16" :class="{ isCompleted }">
     <div class="GoalItem__counter pt-2">
       <TilePreview class="mx-auto -mt-2" :class="small ? 'w-9 lg:w-10 h-9 lg:h-10' : 'w-14 h-14'" :tile="goal.tile" :theme="theme" />
 
@@ -19,14 +19,12 @@
 </template>
 
 <script>
-import Icon from 'components/Icon'
+import * as AudioService from 'services/AudioService'
 
 import TilePreview from 'components/TilePreview'
 
 export default {
   components: {
-    Icon,
-
     TilePreview
   },
 
@@ -51,6 +49,14 @@ export default {
   computed: {
     isCompleted() {
       return this.goal.current >= this.goal.target
+    }
+  },
+
+  watch: {
+    isCompleted(newValue, oldValue) {
+      if (newValue && newValue !== oldValue) {
+        AudioService.playGoalReachedThumb()
+      }
     }
   }
 }

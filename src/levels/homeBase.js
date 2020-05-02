@@ -9,14 +9,11 @@ export default [
     colors: ['blue', 'red', 'green', 'pink'],
     moves: 6,
     goals: [
-      { tile: { type: ANCHOR }, target: 99 },
-      { tile: { type: DOT, color: 'blue' }, target: 99 },
-      { tile: { type: DOT, color: 'green' }, target: 99 }
+      // { tile: { type: ANCHOR }, target: 99 },
+      { tile: { type: DOT, color: 'blue' }, target: 1 },
+      // { tile: { type: DOT, color: 'green' }, target: 99 }
     ],
     blueprint: `
-      b b b b
-      b b b b
-      b b b b
       b b b b
       b b b b
       b b b b

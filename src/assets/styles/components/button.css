@@ -1,0 +1,40 @@
+.button{
+  @apply appearance-none inline-block px-2 pt-4 pb-3 bg-green-500 rounded-full
+    font-semibold text-white text-lg text-center;
+
+  box-shadow: 0 0.35rem 0 0 theme('colors.green.600');
+  transform: translateY(-.15rem);
+
+  @screen md {
+    @apply px-12;
+  }
+
+  &:focus {
+    @apply outline-none;
+  }
+
+  &:hover {
+    filter: 'brightness(110%)';
+  }
+
+  &:active {
+    box-shadow: 0 0.2rem 0 0 theme('colors.green.600');
+    transform: translateY(0)
+  }
+
+  &:disabled {
+    @apply opacity-50 pointer-events-none;
+
+    &:focus {
+      @apply shadow-none;
+    }
+  }
+
+  &.&-primary {
+    @apply text-white bg-green-700;
+  }
+
+  &.&-small {
+    @apply text-base py-2 px-6;
+  }
+}

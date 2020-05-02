@@ -15,9 +15,9 @@
     </div>
 
     <div class="pt-5 mt-5">
-      <button class="btn btn-lg block w-full" @click="$emit('close', true)">
+      <Button class="w-full" @click="$emit('close', true)">
         Let's go
-      </button>
+      </Button>
     </div>
   </modal-layout>
 </template>

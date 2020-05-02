@@ -94,7 +94,6 @@ import { createMatrix, getMatrixCell, getMatrixRow, setMatrixCell } from 'utils/
 import * as AudioService from 'services/AudioService'
 
 import GoalItem from 'components/GoalItem'
-import Icon from 'components/Icon'
 
 import MapTile from 'components/canvas/MapTile'
 import SelectionLine from 'components/canvas/SelectionLine'
@@ -134,7 +133,6 @@ async function sleep(time) {
 export default {
   components: {
     GoalItem,
-    Icon,
 
     MapTile,
     WallsLayer,
@@ -447,6 +445,8 @@ export default {
     },
 
     async popTiles(tiles) {
+      await sleep(150)
+
       this.accountTiles(tiles)
 
       await this.animateTiles(tiles, c => c.animateDestruction(), this.getTileComponent)
@@ -610,7 +610,7 @@ export default {
 
       const { x, y } = tile
 
-      this.tiles.push(generateBombTile({ x,y }, tile))
+      this.tiles.push(generateBombTile({ x, y }, tile))
     },
 
     highlightRandomSquare() {
@@ -663,6 +663,8 @@ export default {
 
       this.$modal(SuccessModal)
         .then(() => this.$router.push({ name: 'home' }))
+
+      AudioService.playVictoryThumb()
     },
 
     async outOfMoves() {
@@ -671,7 +673,7 @@ export default {
       this.$modal(OutOfMovesModal)
         .then(() => this.$router.push({ name: 'home' }))
 
-      AudioService.playNoMoreMoves()
+      AudioService.playNoMoreMovesThumb()
     },
 
     quitLevel() {

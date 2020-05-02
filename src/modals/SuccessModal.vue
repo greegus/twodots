@@ -11,19 +11,9 @@
     </div>
 
     <div class="pt-2">
-      <button class="btn btn-lg block w-full" @click="$emit('close')">
+      <Button class="w-full" @click="$emit('close')">
         Continue
-      </button>
+      </Button>
     </div>
   </modal-layout>
 </template>
-
-<script>
-import Icon from 'components/Icon'
-
-export default {
-  components: {
-    Icon
-  }
-}
-</script>
