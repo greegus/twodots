@@ -11,7 +11,7 @@ export default [
     goals: [
       // { tile: { type: ANCHOR }, target: 99 },
       { tile: { type: DOT, color: 'blue' }, target: 1 },
-      // { tile: { type: DOT, color: 'green' }, target: 99 }
+      { tile: { type: DOT, color: 'green' }, target: 99 }
     ],
     blueprint: `
       b b b b

@@ -1,28 +1,28 @@
 <template>
   <div class="LevelInterface">
-    <div class="absolute top-0 flex w-full md:w-auto align-center text-gray-700 lg:mt-10 space-x-3 lg:space-x-5 pt-5 px-5">
-      <div class="LevelView__panel px-0 w-16">
+    <div class="absolute top-0 inset-x-0 flex w-full align-center justify-center text-gray-700 lg:mt-10 space-x-2 lg:space-x-5 pt-5 px-3">
+      <div class="LevelInterface__panel flex-none px-0 w-12 lg:w-16">
         <div class="text-center leading-none">
-          <div class="text-2xl mb-1" :class="{'text-red-500': isLowOnMovesLeft}">{{ movesLeft }}</div>
-          <div class="uppercase text-xs font-normal">Moves</div>
+          <div class="text-2xl lg:text-3xl mb-px -mb-px lg:mb-px" :class="{'text-red-500': isLowOnMovesLeft}">{{ movesLeft }}</div>
+          <div class="uppercase text-2xs lg:text-xs font-normal">Moves</div>
         </div>
       </div>
 
-      <div class="LevelView__panel flex-auto lg:flex-none px-2 lg:px-5">
-        <div v-for="(goal, $index) in level.goals" :key="$index">
-          <GoalItem :goal="goal" :theme="level.theme" show-current small />
+      <div class="LevelInterface__panel flex-auto flex justify-center lg:flex-none px-1 px-3 lg:px-5">
+        <div v-for="(goal, $index) in goals" :key="$index" style="flex-basis: 33.333%;">
+          <GoalItem :goal="goal" :theme="theme" show-current small class="mx-auto" />
         </div>
       </div>
 
-      <div class="LevelView__panel px-0 w-16 cursor-pointer hover:bg-gray-200" @click="quitLevel()">
+      <div class="LevelInterface__panel flex-none px-0 w-12 lg:w-16 cursor-pointer hover:bg-gray-200" @click="quitLevel()">
         <Icon name="map" size="lg" />
       </div>
     </div>
 
-    <div class="absolute bottom-0 flex w-full md:w-auto text-gray-700 lg:mb-10 px-5 pb-5">
-      <div class="LevelView__panel w-32 mx-auto">
+    <div class="absolute bottom-0 inset-x-0 flex align-center justify-center w-full text-gray-700 lg:mb-10 px-5 pb-5">
+      <div class="LevelInterface__panel w-32 mx-auto">
         <div class="text-center leading-none">
-          <div class="uppercase text-xs font-normal mb-1">Score</div>
+          <div class="uppercase text-2xs lg:text-xs font-normal mb-1">Score</div>
           <div class="text-2xl">{{ score }}</div>
         </div>
       </div>
@@ -39,13 +39,18 @@ export default {
   },
 
   props: {
-    level: {
-      type: Object,
+    movesLeft: {
+      type: Number,
       required: true
     },
 
-    lives: {
-      type: Number,
+    goals: {
+      type: Array,
+      required: true
+    },
+
+    theme: {
+      type: Object,
       required: true
     },
 
@@ -68,3 +73,19 @@ export default {
   }
 }
 </script>
+
+<style lang="postcss">
+.LevelInterface {
+  background: linear-gradient(to bottom, rgba(black, .5), rgba(black, .0) 2rem);
+}
+
+.LevelInterface__panel {
+  @apply flex items-center justify-center h-12 bg-gray-100 rounded-xl pb-1 z-1;
+  box-shadow: inset 0 -4px 0 0 theme("colors.gray.400");
+
+  @screen md {
+    @apply h-16 rounded-2xl;
+    box-shadow: inset 0 -6px 0 0 theme("colors.gray.400");
+  }
+}
+</style>

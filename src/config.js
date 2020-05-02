@@ -7,8 +7,15 @@ const dotColors = {
   TEAL: 'teal'
 }
 
+const tileSize = 54
+
 export default {
-  tileSize: 54,
+  tileSize,
+
+  gameboardSize: {
+    width: 8,
+    height: 8
+  },
 
   dotColors,
 

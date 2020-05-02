@@ -1,41 +1,21 @@
 <template>
-  <div class="LevelView flex flex-col items-center justify-center px-5" :style="{ background: level.theme.background }">
-    <div class="absolute top-0 flex w-full md:w-auto align-center text-gray-700 lg:mt-10 space-x-3 lg:space-x-5 pt-5 px-5">
-      <div class="LevelView__panel px-0 w-16">
-        <div class="text-center leading-none">
-          <div class="text-2xl mb-1" :class="{'text-red-500': isLowOnMovesLeft}">{{ movesLeft }}</div>
-          <div class="uppercase text-xs font-normal">Moves</div>
-        </div>
-      </div>
-
-      <div class="LevelView__panel flex-auto lg:flex-none px-2 lg:px-5">
-        <div v-for="(goal, $index) in goals" :key="$index">
-          <GoalItem :goal="goal" :theme="level.theme" show-current small />
-        </div>
-      </div>
-
-      <div class="LevelView__panel px-0 w-16 cursor-pointer hover:bg-gray-200" @click="quitLevel()">
-        <Icon name="map" size="lg" />
-      </div>
-    </div>
-
-    <div class="absolute bottom-0 flex w-full md:w-auto text-gray-700 lg:mb-10 px-5 pb-5">
-      <div class="LevelView__panel w-32 mx-auto">
-        <div class="text-center leading-none">
-          <div class="uppercase text-xs font-normal mb-1">Score</div>
-          <div class="text-2xl">{{ score }}</div>
-        </div>
-      </div>
-    </div>
+  <div class="LevelView flex flex-col items-center justify-center px-0 lg:px-5" :style="{ background: level.theme.background }">
+    <LevelInterface
+      :moves-left="movesLeft"
+      :goals="goals"
+      :theme="level.theme"
+      :score="score"
+    />
 
     <!-- canvas -->
     <svg
-      width="100%"
-      :height="realSize.height"
+      :width="canvasSize.width"
+      :height="canvasSize.height"
       :viewBox="`0 0 ${size.width} ${size.height}`"
       class="mx-auto"
       ref="tileCanvas"
     >
+
 
       <!-- walls -->
       <WallsLayer
@@ -94,7 +74,7 @@ import { createMatrix, getMatrixCell, getMatrixRow, setMatrixCell } from 'utils/
 
 import * as AudioService from 'services/AudioService'
 
-import GoalItem from 'components/GoalItem'
+import LevelInterface from 'components/LevelInterface'
 
 import MapTile from 'components/canvas/MapTile'
 import SelectionLine from 'components/canvas/SelectionLine'
@@ -133,8 +113,7 @@ async function sleep(time) {
 
 export default {
   components: {
-    GoalItem,
-
+    LevelInterface,
     MapTile,
     WallsLayer,
     SelectionLine,
@@ -164,10 +143,10 @@ export default {
   },
 
   computed: {
-    realSize() {
+    canvasSize() {
       return {
-        width: this.size.width * config.tileSize,
-        height: this.size.height * config.tileSize
+        width: `${this.size.width / config.gameboardSize.width * 100}%`,
+        height: `${this.size.height * config.tileSize}px`
       }
     },
 
@@ -699,11 +678,5 @@ export default {
 
 .LevelView svg {
   overflow: visible;
-}
-
-.LevelView__panel {
-  @apply flex items-center justify-center h-16 bg-gray-100 rounded-xl pb-2 z-1;
-
-  box-shadow: inset 0 -6px 0 0 theme("colors.gray.400");
 }
 </style>

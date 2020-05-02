@@ -6,8 +6,13 @@ module.exports = {
     },
 
     extend: {
+      fontSize: {
+        '2xs': '.575rem'
+      },
+
       spacing: {
         '9': '2.25rem',
+        '14': '3.5rem',
         '72': '18rem',
         '84': '21rem',
         '96': '24rem',
@@ -32,7 +37,8 @@ module.exports = {
       },
 
       borderRadius: {
-        'xl': '1.5rem'
+        'xl': '.85rem',
+        '2xl': '1.15rem'
       },
 
       transitionProperty: {
