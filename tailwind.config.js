@@ -1,5 +1,22 @@
 module.exports = {
   important: true,
+
+  purge: {
+    mode: 'all',
+
+    content: [
+      './src/**/*.html',
+      './src/**/*.vue'
+    ],
+
+    options: {
+      whitelistPatternsChildren: [
+        /^ModalStack/,
+        /^ModalLayout/
+      ]
+    }
+  },
+
   theme: {
     fontFamily: {
       'sans': ['Montserrat', 'Open Sans']
