@@ -1,5 +1,5 @@
 <template>
-  <div class="HomeView py-16">
+  <div class="HomeView py-5 lg:py-10">
     <div class="mb-16 text-center">
       <div class="text-5xl">
         DOTS
