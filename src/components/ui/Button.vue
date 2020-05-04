@@ -1,5 +1,5 @@
 <template>
-  <component :is="tagName" class="Button button" :class="{ 'button-primary': primary, 'button-mall': small }" @pointerdown="playClick(); $emit('pointerdown', $event)" v-on="$listeners" v-bind="$attrs">
+  <component :is="tagName" class="Button button" :class="{ 'button-primary': primary, 'button-mall': small }" v-on="listeners" v-bind="$attrs">
     <slot />
   </component>
 </template>
@@ -21,11 +21,22 @@ export default {
   computed: {
     tagName() {
       return this.$attrs.href ? 'a' : 'button'
-    }
-  },
+    },
 
-  methods: {
-    playClick
+    listeners() {
+      return {
+        ...this.$listeners,
+
+        pointerdown: (e) => {
+          playClick()
+          this.$emit('pointerdown', e)
+        },
+
+        click: (e) => {
+          setTimeout(() => this.$emit('click', e), 100)
+        }
+      }
+    }
   }
 }
 </script>

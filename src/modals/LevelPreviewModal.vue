@@ -16,7 +16,7 @@
     </div>
 
     <div class="mt-5 lg:mt-10">
-      <Button class="w-full" @click="$emit('close', true)">
+      <Button class="w-full" primary @click="$emit('close', true)">
         Let's go
       </Button>
     </div>
