@@ -1,9 +1,7 @@
 <template>
   <div class="HomeView py-5 lg:py-10">
     <div class="mb-16 text-center">
-      <div class="text-5xl">
-        DOTS
-      </div>
+      <Logo class="text-4xl" />
 
       <div>
         <div>{{ user.name }}</div>
@@ -30,9 +28,15 @@ import levels from 'levels'
 
 import loadLevel from 'utils/loadLevel'
 
+import Logo from 'components/Logo';
+
 import LevelPreviewModal from 'modals/LevelPreviewModal';
 
 export default {
+  components: {
+    Logo
+  },
+
   data() {
     return {
       levels

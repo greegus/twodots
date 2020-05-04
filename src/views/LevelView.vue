@@ -5,6 +5,8 @@
       :goals="goals"
       :theme="level.theme"
       :score="score"
+      @restart-level="restartLevel()"
+      @exit-to-map="exitToMap()"
     />
 
     <!-- canvas -->
@@ -15,7 +17,6 @@
       class="mx-auto"
       ref="tileCanvas"
     >
-
 
       <!-- walls -->
       <WallsLayer
@@ -117,7 +118,7 @@ export default {
     MapTile,
     WallsLayer,
     SelectionLine,
-    SelectionProgressFrame
+    SelectionProgressFrame,
   },
 
   props: {
@@ -656,7 +657,17 @@ export default {
       AudioService.playNoMoreMovesThumb()
     },
 
-    quitLevel() {
+    async restartLevel() {
+      await sleep(300)
+
+      this.restart()
+    },
+
+    async exitToMap() {
+      await sleep(150)
+      await this.animateTiles(this.tiles, c => c.animateDestruction(), this.getTileComponent)
+      await sleep(150)
+
       this.$router.push({ name: 'home' })
     }
   },

@@ -1,8 +1,12 @@
 .button{
-  @apply appearance-none inline-block px-2 pt-4 pb-3 bg-green-500 rounded-full
-    font-semibold text-white text-lg text-center;
+  @apply
+    appearance-none
+    inline-block px-2 pt-4 pb-3 mb-1
+    bg-gray-300 rounded-full
+    text-gray-600 font-semibold text-lg text-center
+    transition-all duration-100;
 
-  box-shadow: 0 0.35rem 0 0 theme('colors.green.600');
+  box-shadow: 0 0.35rem 0 0 theme('colors.gray.400');
   transform: translateY(-.15rem);
 
   @screen md {
@@ -18,7 +22,7 @@
   }
 
   &:active {
-    box-shadow: 0 0.2rem 0 0 theme('colors.green.600');
+    box-shadow: 0 0.2rem 0 0 theme('colors.gray.400');
     transform: translateY(0)
   }
 
@@ -30,11 +34,18 @@
     }
   }
 
-  &.&-primary {
-    @apply text-white bg-green-700;
+  &&-primary {
+    @apply text-white bg-green-500;
+
+    box-shadow: 0 0.35rem 0 0 theme('colors.green.600');
+
+    &:active {
+      box-shadow: 0 0.2rem 0 0 theme('colors.green.600');
+      transform: translateY(0)
+    }
   }
 
-  &.&-small {
+  &&-small {
     @apply text-base py-2 px-6;
   }
 }

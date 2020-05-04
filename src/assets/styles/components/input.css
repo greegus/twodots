@@ -9,11 +9,11 @@
     @apply outline-none shadow-outline border-blue-500;
   }
 
-  &:disabled, &.&-disabled {
+  &:disabled, &&-disabled {
     @apply opacity-50 bg-gray-200 pointer-events-none border-gray-400;
   }
 
-  &.&-valid {
+  &&-valid {
     @apply text-green-700;
 
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath fill='%2356B981' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3E%3C/svg%3E");
@@ -22,7 +22,7 @@
     background-size: calc(.83em + .5rem) calc(.83em + .5rem);
   }
 
-  &.&-invalid {
+  &&-invalid {
     @apply text-red-700 border-red-600;
 
     /* padding-right: calc(1.66em + 1rem); */
