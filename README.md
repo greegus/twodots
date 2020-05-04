@@ -6,8 +6,11 @@ A simple remake of a popular [TwoDots](https://play.google.com/store/apps/detail
 
 Give it a shot at https://greegus.github.io/twodots/
 
+## Demo
+http://greegus.github.io/twodots
+
 ## Running locally
 ```shell script
 yarn install
-yarn run serve
+yarn serve
 ```
