@@ -4,7 +4,7 @@ import VueRouter from 'vue-router'
 import store from 'store'
 import { levels } from 'regions'
 
-import HomeView from 'views/HomeView'
+import MapView from 'views/MapView'
 import LevelView from 'views/LevelView'
 
 import loadLevel from 'utils/loadLevel'
@@ -14,8 +14,8 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    name: 'home',
-    component: HomeView
+    name: 'map',
+    component: MapView
   },
 
   {
@@ -30,7 +30,7 @@ const routes = [
 
       levelExists && userCanAccessLevel
         ? next()
-        : next({ name: 'home' })
+        : next({ name: 'map' })
     },
 
     props: (route) => ({

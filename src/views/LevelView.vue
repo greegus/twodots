@@ -643,7 +643,7 @@ export default {
       })
 
       this.$modal(SuccessModal)
-        .then(() => this.$router.push({ name: 'home' }))
+        .then(() => this.$router.push({ name: 'map' }))
 
       AudioService.playVictoryThumb()
     },
@@ -652,7 +652,7 @@ export default {
       await sleep(150)
 
       this.$modal(OutOfMovesModal)
-        .then(() => this.$router.push({ name: 'home' }))
+        .then(() => this.$router.push({ name: 'map' }))
 
       AudioService.playNoMoreMovesThumb()
     },
@@ -668,7 +668,7 @@ export default {
       await this.animateTiles(this.tiles, c => c.animateDestruction(), this.getTileComponent)
       await sleep(150)
 
-      this.$router.push({ name: 'home' })
+      this.$router.push({ name: 'map' })
     }
   },
 
