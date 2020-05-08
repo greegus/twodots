@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 
 import store from 'store'
-import levels from 'levels'
+import { levels } from 'regions'
 
 import HomeView from 'views/HomeView'
 import LevelView from 'views/LevelView'

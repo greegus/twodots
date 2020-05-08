@@ -15,7 +15,7 @@
       </div>
 
       <button class="panel flex-none px-0 w-12 lg:w-16" @click="openMenu()">
-        <Icon name="cog" size="lg text-gray-600" />
+        <Icon name="cog" class="text-2xl text-gray-600" />
       </button>
     </div>
 

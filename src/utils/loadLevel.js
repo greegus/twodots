@@ -1,5 +1,5 @@
 import config from 'config'
-import levels from 'levels'
+import { levels } from 'regions'
 
 export default function loadLevel(levelId) {
   const level = levels.find(level => level.id === levelId)

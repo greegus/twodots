@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import levels from 'levels'
+import { levels } from 'regions'
 
 import loadLevel from 'utils/loadLevel'
 
