@@ -1,6 +1,6 @@
 import tileGenerator from 'utils/tileGenerator'
 
-export function generateMap(blueprint, colors) {
+export function generateGameboard(blueprint, colors) {
   const symbolToTileMap = {
     '.': undefined,
     '*': position => tileGenerator.generateDotTile(position, colors),

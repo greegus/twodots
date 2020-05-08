@@ -26,7 +26,7 @@
 
       <!-- tiles -->
       <svg v-for="tile in tiles" :key="tile.id" :x="tile.x" :y="tile.y">
-        <MapTile
+        <GameboardTile
           :tile="tile"
           :ref="`tile.${tile.id}`"
           :theme="level.theme"
@@ -70,14 +70,14 @@ import { isSelectionClosed, getTilesEnclosedBySelection } from 'utils/selection'
 import { generateBombTile, generateDotTile, generateAnchorTile, isDot, isBomb, isWall, isRamp, isAnchor } from 'utils/tileGenerator'
 import { getNeighbourTiles, PATTERN_DOWN_SQUARE, PATTERN_SQUARE } from 'utils/tilesFinder'
 import { getRandomItem } from 'utils/array'
-import { generateMap } from 'utils/map'
+import { generateGameboard } from 'utils/gameboard'
 import { createMatrix, getMatrixCell, getMatrixRow, setMatrixCell } from 'utils/matrix'
 
 import * as AudioService from 'services/AudioService'
 
 import LevelInterface from 'components/LevelInterface'
 
-import MapTile from 'components/canvas/MapTile'
+import GameboardTile from 'components/canvas/GameboardTile'
 import SelectionLine from 'components/canvas/SelectionLine'
 import SelectionProgressFrame from 'components/canvas/SelectionProgressFrame'
 import WallsLayer from 'components/canvas/WallsLayer'
@@ -87,7 +87,7 @@ import OutOfMovesModal from 'modals/OutOfMovesModal'
 
 function getInitialState(level) {
   return {
-    ...generateMap(level.blueprint, level.colors),
+    ...generateGameboard(level.blueprint, level.colors),
     movesLeft: level.moves,
     goals: level.goals.map(goal => ({ ...goal, current: 0 })),
     score: 0,
@@ -115,7 +115,7 @@ async function sleep(time) {
 export default {
   components: {
     LevelInterface,
-    MapTile,
+    GameboardTile,
     WallsLayer,
     SelectionLine,
     SelectionProgressFrame,
