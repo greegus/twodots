@@ -10,6 +10,8 @@ const theme = {
 export default {
   name: 'Under the Sea',
 
+  background: '#232d62',
+
   levels: [
     {
       id: 11,

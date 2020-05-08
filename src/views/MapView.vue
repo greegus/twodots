@@ -1,6 +1,6 @@
 <template>
-  <div class="HomeView py-5 lg:py-10">
-    <div class="mb-16 text-center">
+  <div class="MapView">
+    <div class="mt-10 mb-5 text-center">
       <Logo class="text-4xl" />
 
       <div>
@@ -10,13 +10,17 @@
     </div>
 
     <div class="">
-      <div v-for="level in levels" :key="level.id" class="my-3">
-        <div class="mx-auto flex items-center justify-center w-16 h-16 rounded-full bg-white text-gray-500 border-4 text-lg relative cursor-pointer" :class="{'border-red-500 text-gray-700': user.level >= level.id, 'pointer-events-none': user.level < level.id}" @click="selectLevel(level.id)">
-          <div class="absolute top-0 inset-x-0 text-center leading-none text-sm pt-px" v-if="user.level > level.id">
-            <Icon name="star" size="xs" />
-          </div>
+      <div v-for="(region, $index) in regions" :key="$index" class="py-10" :style="{ background: region.background }">
+        <div class="max-w-sm mx-auto">
+          <div v-for="level in region.levels" :key="level.id" class="my-3">
+            <div class="mx-auto flex items-center justify-center w-16 h-16 rounded-full bg-white text-gray-500 border-4 text-lg relative cursor-pointer" :class="{'border-red-500 text-gray-700': user.level >= level.id, 'pointer-events-none': user.level < level.id}" @click="selectLevel(level.id)">
+              <div class="absolute top-0 inset-x-0 text-center leading-none text-sm pt-px" v-if="user.level > level.id">
+                <Icon name="star" size="xs" />
+              </div>
 
-          {{ level.id }}
+              {{ level.id }}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -24,7 +28,7 @@
 </template>
 
 <script>
-import { levels } from 'regions'
+import regions from 'regions'
 
 import loadLevel from 'utils/loadLevel'
 
@@ -39,7 +43,7 @@ export default {
 
   data() {
     return {
-      levels
+      regions
     }
   },
 

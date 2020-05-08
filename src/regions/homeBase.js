@@ -6,6 +6,8 @@ const { BLUE, RED, YELLOW, GREEN, PINK } = config.dotColors
 export default {
   name: 'Homebase',
 
+  background: '#DF8E58',
+
   levels: [
     {
       id: 1,
