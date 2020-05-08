@@ -1,6 +1,6 @@
 <template>
   <div class="w-screen h-screen overflow-hidden bg-gray-100 select-none font-sans font-light">
-    <FadeTransition :duration="300">
+    <FadeTransition :duration="500">
       <router-view class="h-screen w-screen overflow-y-auto" />
     </FadeTransition>
   </div>

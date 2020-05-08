@@ -9,7 +9,7 @@
     </div>
 
     <div class="pt-2">
-      <Button class="w-full" @click="$emit('close')">
+      <Button class="w-full" @click="$emit('close')" primary>
         Continue
       </Button>
     </div>
