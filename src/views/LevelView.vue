@@ -335,7 +335,7 @@ export default {
 
         if (this.isSelectionClosed) {
           getTilesEnclosedBySelection(this.tiles, this.selection)
-            .filter(tile => !tile.fixed)
+            .filter(tile => !tile.static)
             .forEach(this.convertIntoBomb)
         }
 
@@ -381,7 +381,7 @@ export default {
         if (bombs.length) {
           const tilesToPopByBomb = bombs.reduce((acc, bomb) => {
             const tiles = getNeighbourTiles(bomb, this.tiles, PATTERN_SQUARE)
-              .filter(tile => !tile.fixed)
+              .filter(tile => !tile.static)
 
             return acc.concat({ bomb, tiles })
           }, [])

@@ -81,7 +81,7 @@ export default {
   },
 
   mounted() {
-    const hexColor = this.theme.colorMap.dot[this.tile.originalTile.color]
+    const hexColor = this.theme.colorMap.dots[this.tile.originalTile.color]
 
     anime({
       targets: this.$refs.bomb,
