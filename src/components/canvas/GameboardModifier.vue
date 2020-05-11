@@ -3,6 +3,7 @@
     :is="modifierToComponentMap[modifier.type]"
     :modifier="modifier"
     :theme="theme"
+    ref="content"
   />
 </template>
 

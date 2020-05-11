@@ -28,7 +28,7 @@
       <svg v-for="tile in tiles" :key="tile.id" :x="tile.x" :y="tile.y">
         <GameboardTile
           :tile="tile"
-          :ref="`tile.${tile.id}`"
+          :ref="tile.id"
           :theme="level.theme"
           @pointerdown.native="startSelection(tile)"
           @gotpointercapture.native="releasePointerCapture"
@@ -38,6 +38,7 @@
       <!-- Modifiers -->
       <GameboardModifier
         v-for="modifier in modifiersWithTile"
+        :ref="modifier.id"
         :key="modifier.id"
         :modifier="modifier"
         :theme="level.theme"
@@ -388,9 +389,13 @@ export default {
     async poppingRoutine(tilesToPop, restrictedColor = undefined) {
         // pop tiles
 
-        const availableColors = restrictedColor
+        let availableColors = restrictedColor
           ? this.level.colors.filter(color => color !== restrictedColor)
           : this.level.colors
+
+        if (!availableColors.length) {
+          availableColors = this.level.colors
+        }
 
         const movements = []
 
@@ -466,6 +471,10 @@ export default {
       const icesToCrack = tilesToPop
         .map(tile => this.modifiers.find(hasPosition(tile)))
         .filter(Boolean)
+
+      icesToCrack
+        .map(this.getModifierContentComponent)
+        .forEach(ref => ref.animateCrack())
 
       this.modifiers = this.modifiers
         .map(modifier => icesToCrack.some(hasId(modifier.id))
@@ -688,11 +697,19 @@ export default {
     },
 
     getTileComponent(tile) {
-      return this.$refs[`tile.${tile.id}`][0]
+      return this.$refs[tile.id][0]
+    },
+
+    getModifierComponent(modifier) {
+      return this.$refs[modifier.id][0]
     },
 
     getTileContentComponent(tile) {
       return this.getTileComponent(tile).$refs.content
+    },
+
+    getModifierContentComponent(modifier) {
+      return this.getModifierComponent(modifier).$refs.content
     },
 
     async completeLevel() {
