@@ -1,18 +1,16 @@
 <template>
-  <div class="GoalItem relative text-center w-9 lg:w-16" :class="{ isCompleted }">
+  <div class="GoalItem relative text-center w-9 lg:w-16">
     <div class="GoalItem__counter">
-      <TilePreview class="mx-auto -mt-2 w-9 h-9 transform scale-105" :tile="goal.tile" :theme="theme" />
+      <div class="relative w-6 h-6 mx-auto mt-1">
+        <GoalPreview class="w-full h-full transition-all duration-150" :style="isCompleted ? 'filter: brightness(75%);' : ''" :goal="goal" :theme="theme" />
 
-      <div class="-mt-2 lg:-mt-1 pt-px text-2xs lg:text-xs">
-        {{ goal.current || 0 }} / {{ goal.target }}
+        <div class="absolute inset-0 flex text-white transform transition-transform duration-200" :class="{ 'opacity-0 scale-0': !isCompleted }">
+          <Icon name="check" class="m-auto" />
+        </div>
       </div>
-    </div>
 
-    <div class="GoalItem__check absolute inset-0 flex items-center justify-center">
-      <TilePreview class="w-10 h-10 mx-auto transform scale-105" :tile="goal.tile" :theme="theme" />
-
-      <div class="absolute inset-0 flex items-center justify-center text-white">
-        <Icon name="check" />
+      <div class="-mt-px pt-px text-2xs lg:text-xs transition-opacity duration-150" :class="{ 'opacity-0': isCompleted }">
+        {{ goal.current || 0 }} / {{ goal.target }}
       </div>
     </div>
   </div>
@@ -21,11 +19,11 @@
 <script>
 import * as AudioService from 'services/AudioService'
 
-import TilePreview from 'components/TilePreview'
+import GoalPreview from 'components/GoalPreview'
 
 export default {
   components: {
-    TilePreview
+    GoalPreview
   },
 
   props: {
@@ -53,22 +51,3 @@ export default {
   }
 }
 </script>
-
-<style lang="postcss">
-.GoalItem__counter {
-  transition: transform .25s;
-
-  .GoalItem.isCompleted & {
-    transform: scale(0);
-  }
-}
-
-.GoalItem__check {
-  transform: scale(0);
-  transition: transform .25s;
-
-  .GoalItem.isCompleted & {
-    transform: scale(1);
-  }
-}
-</style>

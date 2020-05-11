@@ -6,7 +6,7 @@
 
     <div class="flex items-center justify-center">
       <div v-for="(goal, $index) in level.goals" :key="$index" class="text-center">
-        <TilePreview :tile="goal.tile" :theme="level.theme" class="w-12 h-12 transform scale-110" />
+        <GoalPreview :goal="goal" :theme="level.theme" class="w-8 h-8 m-2" />
         {{ goal.target }}
       </div>
     </div>
@@ -24,11 +24,11 @@
 </template>
 
 <script>
-import TilePreview from 'components/TilePreview'
+import GoalPreview from 'components/GoalPreview'
 
 export default {
   components: {
-    TilePreview
+    GoalPreview
   },
 
   props: {
