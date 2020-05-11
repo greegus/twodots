@@ -5,7 +5,7 @@ let modifierId = 1;
 function generateModifier(position, type, config = {}) {
   return {
     ...config,
-    id: modifierId++,
+    id: `modifier.${modifierId++}`,
     position,
     type
   }

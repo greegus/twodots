@@ -35,10 +35,14 @@
         />
       </svg>
 
-      <!-- ice modifiers -->
-      <IceModifiersLayer
-        :modifiers="iceModifiers"
+      <!-- Modifiers -->
+      <GameboardModifier
+        v-for="modifier in modifiersWithTile"
+        :key="modifier.id"
+        :modifier="modifier"
         :theme="level.theme"
+        :x="modifier.position.x"
+        :y="modifier.position.y"
       />
 
       <!-- selection line -->
@@ -85,10 +89,10 @@ import * as AudioService from 'services/AudioService'
 import LevelInterface from 'components/LevelInterface'
 
 import GameboardTile from 'components/canvas/GameboardTile'
+import GameboardModifier from 'components/canvas/GameboardModifier'
 import SelectionLine from 'components/canvas/SelectionLine'
 import SelectionProgressFrame from 'components/canvas/SelectionProgressFrame'
 import WallsLayer from 'components/canvas/WallsLayer'
-import IceModifiersLayer from 'components/canvas/IceModifiersLayer'
 
 import SuccessModal from 'modals/SuccessModal'
 import OutOfMovesModal from 'modals/OutOfMovesModal'
@@ -128,8 +132,8 @@ export default {
   components: {
     LevelInterface,
     GameboardTile,
+    GameboardModifier,
     WallsLayer,
-    IceModifiersLayer,
     SelectionLine,
     SelectionProgressFrame,
   },
@@ -177,8 +181,8 @@ export default {
       return this.tiles.filter(isWall)
     },
 
-    iceModifiers() {
-      return this.modifiers.filter(isIce).map(modifier => ({
+    modifiersWithTile() {
+      return this.modifiers.map(modifier => ({
         ...modifier, tile: getMatrixCell(this.tilesMatrix, modifier.position)
       }))
     },

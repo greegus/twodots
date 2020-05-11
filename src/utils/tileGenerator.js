@@ -6,10 +6,10 @@ let tileId = 1;
 
 function generateTile(position, type, config = {}) {
   return {
-    ...position,
     ...config,
-    type,
-    id: tileId++
+    ...position,
+    id: `tile.${tileId++}`,
+    type
   }
 }
 

@@ -1,5 +1,5 @@
 <template>
-  <svg width="1" height="1" viewBox="0 0 1 1">
+  <svg width="1" height="1" viewBox="0 0 1 1" class="pointer-events-none">
     <defs>
       <filter id="blur">
         <feGaussianBlur in="SourceGraphic" stdDeviation=".2" />
@@ -46,6 +46,12 @@ export default {
       return isDot(this.modifier.tile)
         ? this.theme.colorMap.dots[this.modifier.tile.color]
         : 'rgba(255,255,255,.5)'
+    }
+  },
+
+  methods: {
+    animateCrack() {
+
     }
   }
 }
