@@ -15,7 +15,7 @@
       :height="canvasSize.height"
       :viewBox="`0 0 ${size.width} ${size.height}`"
       class="mx-auto"
-      ref="tileCanvas"
+      ref="canvas"
     >
 
       <!-- walls -->
@@ -84,6 +84,7 @@ import { getNeighbourTiles, PATTERN_DOWN_SQUARE, PATTERN_SQUARE } from 'utils/ti
 import { getRandomItem } from 'utils/array'
 import { generateGameboard } from 'utils/gameboard'
 import { createMatrix, getMatrixCell, getMatrixRow, setMatrixCell } from 'utils/matrix'
+import { animateSparks } from 'utils/effects'
 
 import * as AudioService from 'services/AudioService'
 
@@ -473,8 +474,7 @@ export default {
         .filter(Boolean)
 
       icesToCrack
-        .map(this.getModifierContentComponent)
-        .forEach(ref => ref.animateCrack())
+        .forEach(ice => animateSparks(this.$refs.canvas, ice.position))
 
       this.modifiers = this.modifiers
         .map(modifier => icesToCrack.some(hasId(modifier.id))

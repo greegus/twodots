@@ -34,26 +34,9 @@
 </template>
 
 <script>
-import anime from 'animejs'
-
 import { isDot } from 'utils/tileGenerator'
 
 import mixin from 'components/canvas/modifiers/mixin'
-
-const createSvgElement = (tag, attrs = {}) => {
-  const element = document.createElementNS('http://www.w3.org/2000/svg', tag)
-
-  Object.entries(attrs).forEach(([name, value]) => {
-    element.setAttribute(name, value)
-  })
-
-  return element
-}
-
-const randomColor = () => {
-  const colors = ['#FC8181', '#FBD38D', '#9AE6B4', '#90CDF4', '#D6BCFA']
-  return colors[Math.floor(Math.random() * colors.length)]
-}
 
 export default {
   mixins: [mixin],
@@ -63,27 +46,6 @@ export default {
       return isDot(this.modifier.tile)
         ? this.theme.colorMap.dots[this.modifier.tile.color]
         : 'rgba(255,255,255,.5)'
-    }
-  },
-
-  methods: {
-    animateCrack() {
-      const targets = [...Array(8)].map(() => {
-        return createSvgElement('circle', { cx: 0.5, cy: 0.5, r: 0.15, fill: randomColor() })
-      })
-
-      targets.forEach(element => this.$el.appendChild(element))
-
-      anime({
-        targets: targets,
-        translateX: () => anime.random(-1, 2),
-        translateY: () => anime.random(-1, 2),
-        scale: 0,
-        opacity: 0,
-        easing: 'easeOutSine',
-        duration: () => anime.random(500, 700),
-        complete: () => targets.forEach(element => this.$el.removeChild(element))
-      });
     }
   }
 }
