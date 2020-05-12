@@ -19,10 +19,10 @@
 <script>
 import anime from 'animejs'
 
-import tileMixin from './tileMixin'
+import mixin from 'components/canvas/tiles/mixin'
 
 export default {
-  mixins: [tileMixin],
+  mixins: [mixin],
 
   data() {
     return {
@@ -81,7 +81,7 @@ export default {
   },
 
   mounted() {
-    const hexColor = this.theme.colorMap.dot[this.tile.originalTile.color]
+    const hexColor = this.theme.colorMap.dots[this.tile.originalTile.color]
 
     anime({
       targets: this.$refs.bomb,

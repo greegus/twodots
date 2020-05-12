@@ -15,7 +15,7 @@
       :height="canvasSize.height"
       :viewBox="`0 0 ${size.width} ${size.height}`"
       class="mx-auto"
-      ref="tileCanvas"
+      ref="canvas"
     >
 
       <!-- walls -->
@@ -28,12 +28,23 @@
       <svg v-for="tile in tiles" :key="tile.id" :x="tile.x" :y="tile.y">
         <GameboardTile
           :tile="tile"
-          :ref="`tile.${tile.id}`"
+          :ref="tile.id"
           :theme="level.theme"
           @pointerdown.native="startSelection(tile)"
           @gotpointercapture.native="releasePointerCapture"
         />
       </svg>
+
+      <!-- Modifiers -->
+      <GameboardModifier
+        v-for="modifier in modifiersWithTile"
+        :ref="modifier.id"
+        :key="modifier.id"
+        :modifier="modifier"
+        :theme="level.theme"
+        :x="modifier.position.x"
+        :y="modifier.position.y"
+      />
 
       <!-- selection line -->
       <SelectionLine
@@ -68,22 +79,29 @@ import config from 'config'
 
 import { isSelectionClosed, getTilesEnclosedBySelection } from 'utils/selection'
 import { generateBombTile, generateDotTile, generateAnchorTile, isDot, isBomb, isWall, isRamp, isAnchor } from 'utils/tileGenerator'
+import { isIce } from 'utils/modifierGenerator'
 import { getNeighbourTiles, PATTERN_DOWN_SQUARE, PATTERN_SQUARE } from 'utils/tilesFinder'
 import { getRandomItem } from 'utils/array'
 import { generateGameboard } from 'utils/gameboard'
 import { createMatrix, getMatrixCell, getMatrixRow, setMatrixCell } from 'utils/matrix'
+import { animateSparks } from 'utils/effects'
 
 import * as AudioService from 'services/AudioService'
 
 import LevelInterface from 'components/LevelInterface'
 
 import GameboardTile from 'components/canvas/GameboardTile'
+import GameboardModifier from 'components/canvas/GameboardModifier'
 import SelectionLine from 'components/canvas/SelectionLine'
 import SelectionProgressFrame from 'components/canvas/SelectionProgressFrame'
 import WallsLayer from 'components/canvas/WallsLayer'
 
 import SuccessModal from 'modals/SuccessModal'
 import OutOfMovesModal from 'modals/OutOfMovesModal'
+
+const isSamePosition = (a, b) => a.x === b.x && a.y === b.y
+const hasId = id => item => item.id === id
+const hasPosition = position => item => isSamePosition(item.position, position)
 
 function getInitialState(level) {
   return {
@@ -116,6 +134,7 @@ export default {
   components: {
     LevelInterface,
     GameboardTile,
+    GameboardModifier,
     WallsLayer,
     SelectionLine,
     SelectionProgressFrame,
@@ -132,6 +151,7 @@ export default {
     return {
       size: { width: 0, height: 0 },
       tiles: [],
+      modifiers: [],
       movesLeft: 0,
       goals: [],
       score: 0,
@@ -161,6 +181,12 @@ export default {
 
     wallTiles() {
       return this.tiles.filter(isWall)
+    },
+
+    modifiersWithTile() {
+      return this.modifiers.map(modifier => ({
+        ...modifier, tile: getMatrixCell(this.tilesMatrix, modifier.position)
+      }))
     },
 
     selectionColor() {
@@ -282,7 +308,7 @@ export default {
       this.getTileContentComponent(tile).animateBeacon()
       this.playSelectionThumb()
 
-      if (selectedWithoutLast.some(({ id }) => id === this.lastSelected.id)) {
+      if (selectedWithoutLast.some(hasId(this.lastSelected.id))) {
         this.nextPossibleTiles = []
         return
       }
@@ -335,7 +361,7 @@ export default {
 
         if (this.isSelectionClosed) {
           getTilesEnclosedBySelection(this.tiles, this.selection)
-            .filter(tile => !tile.fixed)
+            .filter(tile => !tile.static)
             .forEach(this.convertIntoBomb)
         }
 
@@ -362,9 +388,15 @@ export default {
     },
 
     async poppingRoutine(tilesToPop, restrictedColor = undefined) {
-        const availableColors = restrictedColor
+        // pop tiles
+
+        let availableColors = restrictedColor
           ? this.level.colors.filter(color => color !== restrictedColor)
           : this.level.colors
+
+        if (!availableColors.length) {
+          availableColors = this.level.colors
+        }
 
         const movements = []
 
@@ -381,7 +413,7 @@ export default {
         if (bombs.length) {
           const tilesToPopByBomb = bombs.reduce((acc, bomb) => {
             const tiles = getNeighbourTiles(bomb, this.tiles, PATTERN_SQUARE)
-              .filter(tile => !tile.fixed)
+              .filter(tile => !tile.static)
 
             return acc.concat({ bomb, tiles })
           }, [])
@@ -425,14 +457,38 @@ export default {
       return Promise.all([].concat(tiles).map(tile => animationMapper(refMapper(tile))))
     },
 
-    async popTiles(tiles) {
+    async popTiles(tilesToPop) {
       await sleep(150)
 
-      this.accountTiles(tiles)
+      this.crackTheIce(tilesToPop)
+      this.accountTiles(tilesToPop)
 
-      await this.animateTiles(tiles, c => c.animateDestruction(), this.getTileComponent)
+      await this.animateTiles(tilesToPop, c => c.animateDestruction(), this.getTileComponent)
 
-      this.tiles = this.tiles.filter(tile => !tiles.some(({ id }) => id === tile.id))
+      this.tiles = this.tiles.filter(tile => !tilesToPop.some(hasId(tile.id)))
+    },
+
+    async crackTheIce(tilesToPop) {
+      const icesToCrack = tilesToPop
+        .map(tile => this.modifiers.find(hasPosition(tile)))
+        .filter(Boolean)
+
+      icesToCrack
+        .forEach(ice => animateSparks(this.$refs.canvas, ice.position))
+
+      this.modifiers = this.modifiers
+        .map(modifier => icesToCrack.some(hasId(modifier.id))
+          ? { ...modifier, cracks: (modifier.cracks || 0) + 1 }
+          : modifier
+        )
+
+      const icesToBreak = this.modifiers
+        .filter(isIce).filter(ice => ice.cracks > 2)
+
+      this.modifiers = this.modifiers
+        .filter(modifier => !icesToBreak.some(hasId(modifier.id)))
+
+      this.accountBrokenIceModifiers(icesToBreak)
     },
 
     fallDown() {
@@ -604,15 +660,29 @@ export default {
       this.gainScore(sumTilesScorePoinst(tiles))
 
       this.goals = this.goals.map(goal => {
-        const numberOfTiles = tiles.filter(tile => {
-          if (isDot(goal.tile)) {
-            return goal.tile.color === tile.color
-          }
+        if (goal.tile) {
+          const numberOfTiles = tiles.filter(tile => {
+            if (isDot(goal?.tile)) {
+              return goal.tile.color === tile.color
+            }
 
-          return goal.tile.type === tile.type
-        }).length
+            return goal?.tile.type === tile.type
+          }).length
 
-        return { ...goal, current: Math.min(goal.target, goal.current + numberOfTiles) }
+          return { ...goal, current: Math.min(goal.target, goal.current + numberOfTiles) }
+        }
+
+        return goal
+      })
+    },
+
+    accountBrokenIceModifiers(iceModifiers) {
+      this.goals = this.goals.map(goal => {
+        if (isIce(goal.modifier)) {
+          return { ...goal, current: Math.min(goal.target, goal.current + iceModifiers.length) }
+        }
+
+        return goal
       })
     },
 
@@ -627,11 +697,19 @@ export default {
     },
 
     getTileComponent(tile) {
-      return this.$refs[`tile.${tile.id}`][0]
+      return this.$refs[tile.id][0]
+    },
+
+    getModifierComponent(modifier) {
+      return this.$refs[modifier.id][0]
     },
 
     getTileContentComponent(tile) {
       return this.getTileComponent(tile).$refs.content
+    },
+
+    getModifierContentComponent(modifier) {
+      return this.getModifierComponent(modifier).$refs.content
     },
 
     async completeLevel() {

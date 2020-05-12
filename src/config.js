@@ -39,5 +39,9 @@ export default {
     BOMB: 'bomb',
     ANCHOR: 'anchor',
     RAMP: 'ramp'
+  },
+
+  modifierTypes: {
+    ICE: 'ice'
   }
 }

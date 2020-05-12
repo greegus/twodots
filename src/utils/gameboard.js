@@ -1,4 +1,5 @@
 import tileGenerator from 'utils/tileGenerator'
+import modifierGenerator from 'utils/modifierGenerator'
 
 export function generateGameboard(blueprint, colors) {
   const symbolToTileMap = {
@@ -16,20 +17,46 @@ export function generateGameboard(blueprint, colors) {
     'Rl': position => tileGenerator.generateRampTile(position, 'left')
   };
 
-  const tilesMatrix = blueprint
-    .trim().split("\n").map((row, y) => {
-      return row.trim().split(/\s+/).map((symbol, x) => {
-          return symbolToTileMap[symbol] && symbolToTileMap[symbol]({ x, y });
-        });
+  const symbolToModifierMap = {
+    'i': position => modifierGenerator.ice(position)
+  }
+
+  let width = 0, height = 0
+
+  const modifiers = []
+  const tiles = []
+
+  blueprint.trim().split("\n").forEach((row, y) => {
+    height = y + 1
+
+    row.trim().split(/\s+/).map((symbol, x) => {
+      width = Math.max(width, x + 1)
+
+      const position = { x, y }
+      const [tileSymbol, modifierSymbol] = symbol.split(',')
+
+      const tile = symbolToTileMap[tileSymbol] && symbolToTileMap[tileSymbol](position);
+
+      if (tile) {
+        tiles.push(tile)
+      }
+
+      const modifier = symbolToModifierMap[modifierSymbol] && symbolToModifierMap[modifierSymbol](position)
+
+      if (modifier) {
+        modifiers.push(modifier)
+      }
     });
+  });
 
   const size = {
-    height: tilesMatrix.length,
-    width: tilesMatrix[0].length
+    height,
+    width
   };
 
   return {
-    tiles: tilesMatrix.flatMap(row => row).filter(Boolean),
-    size
+    size,
+    tiles,
+    modifiers,
   };
 }

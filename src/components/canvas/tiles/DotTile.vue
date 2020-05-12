@@ -9,10 +9,10 @@
 <script>
 import anime from 'animejs'
 
-import tileMixin from './tileMixin'
+import mixin from 'components/canvas/tiles/mixin'
 
 export default {
-  mixins: [tileMixin],
+  mixins: [mixin],
 
   computed: {
     hexColor() {
