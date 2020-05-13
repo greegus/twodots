@@ -1,6 +1,6 @@
 <template>
   <svg viewBox="0 0 1 1">
-    <image class="object-contain overflow-hidden" href="~/assets/images/tiles/anchor.svg" x=".225" y=".225" width=".55" height=".55" preserveAspectRatio="none" />
+    <image class="object-contain overflow-hidden" href="~/assets/images/tiles/anchor.svg" width="1" height="1" preserveAspectRatio="none" />
   </svg>
 </template>
 
