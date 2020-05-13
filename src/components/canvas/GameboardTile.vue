@@ -1,18 +1,13 @@
 <template>
   <g class="MapTile will-transform" transform-origin="0.5 0.5">
-    <component
-      :is="tileToComponentMap[tile.type]"
-      :tile="tile"
-      :theme="theme"
-      ref="content"
-    />
+    <component :is="component" :tile="tile" :theme="theme" ref="content" />
   </g>
 </template>
 
 <script>
 import anime from 'animejs'
 
-import tileToComponentMap from 'utils/tileToComponentMap'
+import { getTileComponent } from 'utils/tiles'
 
 export default {
   props: {
@@ -26,9 +21,9 @@ export default {
     }
   },
 
-  data() {
-    return {
-      tileToComponentMap
+  computed: {
+    component() {
+      return getTileComponent(this.tile.type)
     }
   },
 

@@ -6,7 +6,7 @@
       </filter>
     </defs>
 
-    <g class="transform scale-90 origin-center">
+    <g class="transform scale-90 origin-center" transform-origin="0.5 0.5">
       <rect x="0" y="0" width="1" height="1" fill="rgba(100,100,100,.2)" style="position:relative; z-index: -1;" />
       <circle cx="0.5" cy="0.5" r="0.4" :fill="color" filter="url(#blur)" style="opacity: .75; transition: fill .5s"  />
 
@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import { isDot } from 'utils/tileGenerator'
+import { isDot } from 'utils/tiles'
 
 import mixin from 'components/canvas/modifiers/mixin'
 

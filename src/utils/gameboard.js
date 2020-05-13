@@ -1,20 +1,20 @@
-import tileGenerator from 'utils/tileGenerator'
+import { createWallTile, createDotTile, createAnchorTile, createRampTile } from 'utils/tiles'
 import { createIceModifier } from 'utils/modifiers'
 
 export function generateGameboard(blueprint, colors) {
   const symbolToTileMap = {
     '.': undefined,
-    '*': position => tileGenerator.generateDotTile(position, colors),
-    'r': position => tileGenerator.generateDotTile(position, 'red'),
-    'b': position => tileGenerator.generateDotTile(position, 'blue'),
-    'y': position => tileGenerator.generateDotTile(position, 'yellow'),
-    'g': position => tileGenerator.generateDotTile(position, 'green'),
-    'p': position => tileGenerator.generateDotTile(position, 'pink'),
-    't': position => tileGenerator.generateDotTile(position, 'teal'),
-    'W': position => tileGenerator.generateWallTile(position),
-    'A': position => tileGenerator.generateAnchorTile(position),
-    'Rr': position => tileGenerator.generateRampTile(position, 'right'),
-    'Rl': position => tileGenerator.generateRampTile(position, 'left')
+    '*': position => createDotTile(position, colors),
+    'r': position => createDotTile(position, 'red'),
+    'b': position => createDotTile(position, 'blue'),
+    'y': position => createDotTile(position, 'yellow'),
+    'g': position => createDotTile(position, 'green'),
+    'p': position => createDotTile(position, 'pink'),
+    't': position => createDotTile(position, 'teal'),
+    'W': position => createWallTile(position),
+    'A': position => createAnchorTile(position),
+    'Rr': position => createRampTile(position, 'right'),
+    'Rl': position => createRampTile(position, 'left')
   };
 
   const symbolToModifierMap = {

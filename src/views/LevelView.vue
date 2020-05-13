@@ -78,7 +78,7 @@
 import config from 'config'
 
 import { isSelectionClosed, getTilesEnclosedBySelection } from 'utils/selection'
-import { generateBombTile, generateDotTile, generateAnchorTile, isDot, isBomb, isWall, isRamp, isAnchor } from 'utils/tileGenerator'
+import { createBombTile, createDotTile, createAnchorTile, isDot, isBomb, isWall, isRamp, isAnchor } from 'utils/tiles'
 import { isIce } from 'utils/modifiers'
 import { getNeighbourTiles, PATTERN_DOWN_SQUARE, PATTERN_SQUARE } from 'utils/tilesFinder'
 import { getRandomItem } from 'utils/array'
@@ -610,7 +610,7 @@ export default {
           const slot = getRandomItem(availableSlots)
 
           if (slot) {
-            slot.newTile = generateAnchorTile(slot.position)
+            slot.newTile = createAnchorTile(slot.position)
           }
         }
       }
@@ -618,7 +618,7 @@ export default {
       // Dots
 
       emptySlots.forEach(slot => {
-        slot.newTile = slot.newTile || generateDotTile(slot.position, colors)
+        slot.newTile = slot.newTile || createDotTile(slot.position, colors)
       })
 
       const newTiles = emptySlots.map(({ newTile }) => newTile)
@@ -647,7 +647,7 @@ export default {
 
       const { x, y } = tile
 
-      this.tiles.push(generateBombTile({ x, y }, tile))
+      this.tiles.push(createBombTile({ x, y }, tile))
     },
 
     highlightRandomSquare() {

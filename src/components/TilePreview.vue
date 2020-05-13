@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import tilePreviewToComponentMap from 'utils/tilePreviewToComponentMap'
+import { getTilePreviewComponent } from 'utils/tiles'
 
 export default {
   props: {
@@ -21,7 +21,7 @@ export default {
 
   computed: {
     component() {
-      return tilePreviewToComponentMap[this.tile.type]
+      return getTilePreviewComponent(this.tile.type)
     }
   }
 }
