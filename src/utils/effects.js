@@ -16,7 +16,7 @@ export function animateSparks(canvas, { x, y }) {
       cx: x + 0.5,
       cy: y +0.5,
       r: 0.15,
-      'transform-origin': `${x} ${y}`
+      'transform-origin': `${x + .5} ${y + .5}`
     })
   })
 
@@ -29,7 +29,7 @@ export function animateSparks(canvas, { x, y }) {
     scale: 0,
     opacity: 0,
     easing: 'easeOutSine',
-    duration: () => anime.random(400, 600),
+    duration: 500,
     complete: () => targets.forEach(element => canvas?.removeChild(element))
   });
 }
