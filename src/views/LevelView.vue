@@ -80,10 +80,9 @@ import config from 'config'
 import { isSelectionClosed, getTilesEnclosedBySelection } from 'utils/selection'
 import { createBombTile, createDotTile, createAnchorTile, isDot, isBomb, isWall, isRamp, isAnchor } from 'utils/tiles'
 import { isIce } from 'utils/modifiers'
-import { getNeighbourTiles, PATTERN_DOWN_SQUARE, PATTERN_SQUARE } from 'utils/tilesFinder'
 import { getRandomItem } from 'utils/array'
 import { generateGameboard } from 'utils/gameboard'
-import { createMatrix, getMatrixCell, getMatrixRow, setMatrixCell } from 'utils/matrix'
+import { createMatrix, getMatrixCell, getMatrixRow, setMatrixCell, getNeighbourCells, patterns } from 'utils/matrix'
 import { animateSparks } from 'utils/effects'
 
 import * as AudioService from 'services/AudioService'
@@ -100,7 +99,10 @@ import SuccessModal from 'modals/SuccessModal'
 import OutOfMovesModal from 'modals/OutOfMovesModal'
 
 const isSamePosition = (a, b) => a.x === b.x && a.y === b.y
-const hasId = id => item => item.id === id
+const hasValue = (key, value) => item => item[key] === value
+const doesNotHaveValue = (key, value) => item => item[key] !== value
+const hasId = id => hasValue('id', id)
+const doesNotHaveId = id => doesNotHaveValue('id', id)
 const hasPosition = position => item => isSamePosition(item.position, position)
 
 function getInitialState(level) {
@@ -113,11 +115,16 @@ function getInitialState(level) {
   }
 }
 
-function getNextPossibleTiles(tile, tiles, lastSelected = undefined) {
-  return getNeighbourTiles(tile, tiles)
+function getNextPossibleTiles(tilesMatrix, tile, lastSelected = undefined) {
+  let tiles = getNeighbourCells(tilesMatrix, tile.position)
     .filter(isDot)
-    .filter(({ color }) => tile.color === color)
-    .filter(({ id }) => (lastSelected ? lastSelected.id !== id : true))
+    .filter(hasValue('color', tile.color))
+
+  if (lastSelected) {
+    tiles = tiles.filter(doesNotHaveId(lastSelected.id))
+  }
+
+  return tiles
 }
 
 function sumTilesScorePoinst(tiles) {
@@ -209,7 +216,7 @@ export default {
       return this.tiles
         .filter(isDot)
         .reduce((squares, tile) => {
-          const squareTiles = getNeighbourTiles(tile, this.tiles, PATTERN_DOWN_SQUARE)
+          const squareTiles = getNeighbourCells(this.tilesMatrix, tile.position, patterns.DOWN_SQUARE)
           const hasSameColor = squareTiles.every(tileInSquare => tileInSquare?.color === tile.color)
 
           if (hasSameColor && squareTiles.length === 4) {
@@ -314,8 +321,8 @@ export default {
       }
 
       const nextPossibleTiles = getNextPossibleTiles(
+        this.tilesMatrix,
         tile,
-        this.tiles,
         this.lastSelected
       )
 
@@ -333,8 +340,8 @@ export default {
       this.playSelectionThumb()
 
       this.nextPossibleTiles = getNextPossibleTiles(
+        this.tilesMatrix,
         this.lastSelected,
-        this.tiles,
         this.secondLastSelected
       )
     },
@@ -412,7 +419,7 @@ export default {
 
         if (bombs.length) {
           const tilesToPopByBomb = bombs.reduce((acc, bomb) => {
-            const tiles = getNeighbourTiles(bomb, this.tiles, PATTERN_SQUARE)
+            const tiles = getNeighbourCells(this.tilesMatrix, bomb.position, patterns.SQUARE)
               .filter(tile => !tile.static)
 
             return acc.concat({ bomb, tiles })
