@@ -51,7 +51,7 @@ export default {
       }
 
       const points = this.selection
-        .map(tile => `${tile.x + 0.5},${tile.y + 0.5}`)
+        .map(tile => `${tile.position.x + 0.5},${tile.position.y + 0.5}`)
 
       if (!isSelectionClosed(this.selection)) {
         points.push(`${this.relativeMousePosition.x},${this.relativeMousePosition.y}`)

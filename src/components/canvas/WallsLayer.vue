@@ -9,11 +9,11 @@
 
         <mask id="mask">
           <rect x="0" y="0" width="100%" height="100%" fill="white" />
-          <rect v-for="tile in walls" :key="tile.id" width="1" height="1" :x="tile.x + 1" :y="tile.y + 1" fill="black" />
+          <rect v-for="tile in walls" :key="tile.id" width="1" height="1" :x="tile.position.x + 1" :y="tile.position.y + 1" fill="black" />
         </mask>
 
         <clipPath id="clipPath">
-          <rect v-for="tile in walls" :key="tile.id" width="1" height="1" :x="tile.x + 1" :y="tile.y + 1" fill="black" />
+          <rect v-for="tile in walls" :key="tile.id" width="1" height="1" :x="tile.position.x + 1" :y="tile.position.y + 1" fill="black" />
         </clipPath>
       </defs>
 

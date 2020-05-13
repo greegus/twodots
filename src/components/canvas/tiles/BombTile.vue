@@ -34,8 +34,8 @@ export default {
     animateDetonation(neighbourTiles) {
       this.beams = neighbourTiles.map(tile => {
         const flashPosition = {
-          x: tile.x - this.tile.x,
-          y: tile.y - this.tile.y
+          x: tile.position.x - this.tile.position.x,
+          y: tile.position.y - this.tile.position.y
         }
 
         const beamAngle = Math.atan2(flashPosition.y, flashPosition.x) * 180 / Math.PI + 90
