@@ -41,8 +41,8 @@ export default {
       const keyframes = waypoints
         // Relativize waypoints
         .map(({ x, y }) => ({
-          translateX: x - this.tile.x,
-          translateY: y - this.tile.y
+          translateX: x - this.tile.position.x,
+          translateY: y - this.tile.position.y
         }))
 
       // Force starting position without animaition

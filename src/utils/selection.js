@@ -9,17 +9,17 @@ export function getTilesEnclosedBySelection(tiles, selection) {
   const coreSelection = selection.slice(indexOfCoreStart)
 
   const boundaries = {
-    left: Math.min.apply(Math, coreSelection.map(tile => tile.x)),
-    right: Math.max.apply(Math, coreSelection.map(tile => tile.x)),
-    top: Math.min.apply(Math, coreSelection.map(tile => tile.y)),
-    bottom: Math.max.apply(Math, coreSelection.map(tile => tile.y))
+    left: Math.min.apply(Math, coreSelection.map(tile => tile.position.x)),
+    right: Math.max.apply(Math, coreSelection.map(tile => tile.position.x)),
+    top: Math.min.apply(Math, coreSelection.map(tile => tile.position.y)),
+    bottom: Math.max.apply(Math, coreSelection.map(tile => tile.position.y))
   }
 
   return tiles.filter(tile => (
     !selection.some(({ id }) => tile.id === id) &&
-    tile.x > boundaries.left &&
-    tile.x < boundaries.right &&
-    tile.y > boundaries.top &&
-    tile.y < boundaries.bottom
+    tile.position.x > boundaries.left &&
+    tile.position.x < boundaries.right &&
+    tile.position.y > boundaries.top &&
+    tile.position.y < boundaries.bottom
   ))
 }

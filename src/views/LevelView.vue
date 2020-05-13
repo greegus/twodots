@@ -25,7 +25,7 @@
       />
 
       <!-- tiles -->
-      <svg v-for="tile in tiles" :key="tile.id" :x="tile.x" :y="tile.y">
+      <svg v-for="tile in tiles" :key="tile.id" :x="tile.position.x" :y="tile.position.y">
         <GameboardTile
           :tile="tile"
           :ref="tile.id"
@@ -56,11 +56,11 @@
 
       <!-- selection zones -->
       <g v-if="isMakingSelection" class="relative z-1 opacity-0">
-        <svg v-for="tile in nextPossibleTiles" :key="tile.id" :x="tile.x" :y="tile.y">
+        <svg v-for="tile in nextPossibleTiles" :key="tile.id" :x="tile.position.x" :y="tile.position.y">
           <rect width="1" height="1" @pointerenter="addToSelection(tile, $event)" />
         </svg>
 
-        <svg v-if="secondLastSelected" :x="secondLastSelected.x" :y="secondLastSelected.y">
+        <svg v-if="secondLastSelected" :x="secondLastSelected.position.x" :y="secondLastSelected.position.y">
           <rect width="1" height="1" @pointerenter="removeLastFromSelection($event)" />
         </svg>
       </g>
@@ -174,7 +174,7 @@ export default {
     tilesMatrix() {
       const matrix = createMatrix(this.size)
 
-      this.tiles.forEach(tile => setMatrixCell(matrix, tile, tile))
+      this.tiles.forEach(tile => setMatrixCell(matrix, tile.position, tile))
 
       return matrix
     },
@@ -470,7 +470,7 @@ export default {
 
     async crackTheIce(tilesToPop) {
       const icesToCrack = tilesToPop
-        .map(tile => this.modifiers.find(hasPosition(tile)))
+        .map(tile => this.modifiers.find(hasPosition(tile.position)))
         .filter(Boolean)
 
       icesToCrack
@@ -531,7 +531,7 @@ export default {
       const matrix = createMatrix(this.size)
 
       this.tiles.filter(tile => tile.static).forEach(tile => {
-        setMatrixCell(matrix, tile, tile)
+        setMatrixCell(matrix, tile.position, tile)
       })
 
       const movements = {}
@@ -544,15 +544,15 @@ export default {
 
         // Prioritize tiles over ramps
         tilesInRow.sort((a, b) => {
-          const tileUnder = tile => getMatrixCell(this.tilesMatrix, {x: tile.x, y: tile.y + 1})
+          const tileUnder = tile => getMatrixCell(this.tilesMatrix, { x: tile.position.x, y: tile.position.y + 1 })
           return isRamp(tileUnder(b)) - isRamp(tileUnder(a))
         })
 
         tilesInRow.forEach(tile => {
-          const currentPosition = { x: tile.x, y: tile.y }
-          const waypoints = [currentPosition, ...computeFalldownPath(tile, matrix)]
+          const currentPosition = { ...tile.position }
+          const waypoints = [currentPosition, ...computeFalldownPath(tile.position, matrix)]
           const newPosition = waypoints.slice(-1).pop()
-          const updatedTile = { ...tile, ...newPosition }
+          const updatedTile = { ...tile, position: newPosition }
 
           setMatrixCell(matrix, newPosition, updatedTile)
 
@@ -577,7 +577,7 @@ export default {
         let emptySlotsInColumn = []
 
         for (let y = 0; y < height; y++) {
-          const tile = this.tilesMatrix[y][x]
+          const tile = getMatrixCell(this.tilesMatrix, { x, y })
 
           if (!tile) {
             emptySlotsInColumn.push({
@@ -629,8 +629,8 @@ export default {
 
       const movements = emptySlots.map(emptySlot => {
         const waypoints = [...Array(emptySlot.initialOffset + 1)].map((_, index) => ({
-          x: emptySlot.newTile.x,
-          y: emptySlot.newTile.y - emptySlot.initialOffset + index
+          x: emptySlot.newTile.position.x,
+          y: emptySlot.newTile.position.y - emptySlot.initialOffset + index
         }))
 
         return {
@@ -643,11 +643,10 @@ export default {
     },
 
     convertIntoBomb(tile) {
+      const bomb = createBombTile(tile.position, tile)
+
       this.popTiles([tile])
-
-      const { x, y } = tile
-
-      this.tiles.push(createBombTile({ x, y }, tile))
+      this.tiles.push(bomb)
     },
 
     highlightRandomSquare() {

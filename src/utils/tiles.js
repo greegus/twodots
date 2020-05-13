@@ -16,8 +16,8 @@ let tileId = 1;
 function createTile(position, type, config = {}) {
   return {
     ...config,
-    ...position,
     id: `tile.${tileId++}`,
+    position,
     type
   }
 }

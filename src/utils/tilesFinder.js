@@ -28,7 +28,7 @@ export function getNeighbourTiles(tiles, mapTiles, pattern = PATTERN_CROSS) {
   return tiles.reduce((acc, tile) => {
     return acc.concat(coordinatesMatrix
       .filter((_, index) => pattern[index])
-      .map(([x, y]) => mapTiles.find(item => tile.x + x === item.x && tile.y + y === item.y))
+      .map(([x, y]) => mapTiles.find(item => tile.position.x + x === item.position.x && tile.position.y + y === item.position.y))
       .filter(tile => tile && !acc.some(({ id }) => id === tile.id))
     )
   }, [])
