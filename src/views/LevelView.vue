@@ -79,7 +79,7 @@ import config from 'config'
 
 import { isSelectionClosed, getTilesEnclosedBySelection } from 'utils/selection'
 import { generateBombTile, generateDotTile, generateAnchorTile, isDot, isBomb, isWall, isRamp, isAnchor } from 'utils/tileGenerator'
-import { isIce } from 'utils/modifierGenerator'
+import { isIce } from 'utils/modifiers'
 import { getNeighbourTiles, PATTERN_DOWN_SQUARE, PATTERN_SQUARE } from 'utils/tilesFinder'
 import { getRandomItem } from 'utils/array'
 import { generateGameboard } from 'utils/gameboard'

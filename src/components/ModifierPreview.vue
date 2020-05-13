@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import modifierPreviewToComponentMap from 'utils/modifierPreviewToComponentMap'
+import { getModifierPreviewComponent } from 'utils/modifiers'
 
 export default {
   props: {
@@ -19,7 +19,7 @@ export default {
 
   computed: {
     component() {
-      return modifierPreviewToComponentMap[this.modifier.type]
+      return getModifierPreviewComponent(this.modifier.type)
     }
   }
 }

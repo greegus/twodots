@@ -1,14 +1,9 @@
 <template>
-  <component
-    :is="modifierToComponentMap[modifier.type]"
-    :modifier="modifier"
-    :theme="theme"
-    ref="content"
-  />
+  <component :is="component" :modifier="modifier" :theme="theme" ref="content" />
 </template>
 
 <script>
-import modifierToComponentMap from 'utils/modifierToComponentMap'
+import { getModifierComponent } from 'utils/modifiers'
 
 export default {
   props: {
@@ -22,9 +17,9 @@ export default {
     }
   },
 
-  data() {
-    return {
-      modifierToComponentMap
+  computed: {
+    component() {
+      return getModifierComponent(this.modifier.type)
     }
   }
 }

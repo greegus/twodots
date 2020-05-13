@@ -1,5 +1,5 @@
 import tileGenerator from 'utils/tileGenerator'
-import modifierGenerator from 'utils/modifierGenerator'
+import { createIceModifier } from 'utils/modifiers'
 
 export function generateGameboard(blueprint, colors) {
   const symbolToTileMap = {
@@ -18,7 +18,7 @@ export function generateGameboard(blueprint, colors) {
   };
 
   const symbolToModifierMap = {
-    'i': position => modifierGenerator.ice(position)
+    'i': position => createIceModifier(position)
   }
 
   let width = 0, height = 0
