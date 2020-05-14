@@ -48,4 +48,5 @@ export function getNeighbourCells(matrix, position, pattern = patterns.CROSS) {
   return offsetMatrix
     .filter((_, index) => pattern[index])
     .map(([x, y]) => getMatrixCell(matrix, { x: position.x + x, y: position.y + y }))
+    .filter(Boolean)
 }
