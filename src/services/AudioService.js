@@ -55,14 +55,14 @@ const selectionTones = [
 
 // a h c d e f g a
 
-export function playSelectionThumb(length) {
+export function playSelectionThumb(length, enclosed = false) {
   length = Math.min(length - 1, selectionTones.length - 1)
-  synth.triggerAttackRelease(selectionTones[length], '10n')
-}
 
-export function playClosedSelectionThumb(length) {
-  length = Math.min(length - 1, selectionTones.length - 4)
-  polySynth.triggerAttackRelease([selectionTones[length], selectionTones[length + 3]], '10n')
+  if (enclosed) {
+    polySynth.triggerAttackRelease([selectionTones[length], selectionTones[length + 3]], '10n')
+  } else {
+    synth.triggerAttackRelease(selectionTones[length], '10n')
+  }
 }
 
 export function playNoMoreMovesThumb() {

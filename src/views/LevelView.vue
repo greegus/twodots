@@ -30,8 +30,6 @@
           :tile="tile"
           :ref="tile.id"
           :theme="level.theme"
-          @pointerdown.native="startSelection(tile)"
-          @gotpointercapture.native="releasePointerCapture"
         />
       </svg>
 
@@ -46,24 +44,15 @@
         :y="modifier.position.y"
       />
 
-      <!-- selection line -->
-      <SelectionLine
-        :selection="selection"
+      <Selection
+        :tiles-matrix="tilesMatrix"
+        :disabled="isSelectionDisabled"
         :theme="level.theme"
         :size="size"
-        v-if="isMakingSelection"
+        @start="startSelection"
+        @change="changeSelection"
+        @end="endSelection"
       />
-
-      <!-- selection zones -->
-      <g v-if="isMakingSelection" class="relative z-1 opacity-0">
-        <svg v-for="tile in nextPossibleTiles" :key="tile.id" :x="tile.position.x" :y="tile.position.y">
-          <rect width="1" height="1" @pointerenter="addToSelection(tile, $event)" />
-        </svg>
-
-        <svg v-if="secondLastSelected" :x="secondLastSelected.position.x" :y="secondLastSelected.position.y">
-          <rect width="1" height="1" @pointerenter="removeLastFromSelection($event)" />
-        </svg>
-      </g>
     </svg>
 
     <!-- frame -->
@@ -77,13 +66,13 @@
 <script>
 import config from 'config'
 
-import { isSelectionClosed, getTilesEnclosedBySelection } from 'utils/selection'
 import { createBombTile, createDotTile, createAnchorTile, isDot, isBomb, isWall, isRamp, isAnchor } from 'utils/tiles'
 import { isIce } from 'utils/modifiers'
 import { getRandomItem } from 'utils/array'
 import { generateGameboard } from 'utils/gameboard'
 import { createMatrix, getMatrixCell, getMatrixRow, setMatrixCell, getNeighbourCells, patterns } from 'utils/matrix'
 import { animateSparks } from 'utils/effects'
+import { hasId, hasPosition } from 'utils/helpers'
 
 import * as AudioService from 'services/AudioService'
 
@@ -91,19 +80,12 @@ import LevelInterface from 'components/LevelInterface'
 
 import GameboardTile from 'components/canvas/GameboardTile'
 import GameboardModifier from 'components/canvas/GameboardModifier'
-import SelectionLine from 'components/canvas/SelectionLine'
 import SelectionProgressFrame from 'components/canvas/SelectionProgressFrame'
 import WallsLayer from 'components/canvas/WallsLayer'
+import Selection from 'components/canvas/Selection'
 
 import SuccessModal from 'modals/SuccessModal'
 import OutOfMovesModal from 'modals/OutOfMovesModal'
-
-const isSamePosition = (a, b) => a.x === b.x && a.y === b.y
-const hasValue = (key, value) => item => item[key] === value
-const doesNotHaveValue = (key, value) => item => item[key] !== value
-const hasId = id => hasValue('id', id)
-const doesNotHaveId = id => doesNotHaveValue('id', id)
-const hasPosition = position => item => isSamePosition(item.position, position)
 
 function getInitialState(level) {
   return {
@@ -111,20 +93,8 @@ function getInitialState(level) {
     movesLeft: level.moves,
     goals: level.goals.map(goal => ({ ...goal, current: 0 })),
     score: 0,
-    isSelectionAllowed: true
+    isSelectionDisabled: false
   }
-}
-
-function getNextPossibleTiles(tilesMatrix, tile, lastSelected = undefined) {
-  let tiles = getNeighbourCells(tilesMatrix, tile.position)
-    .filter(isDot)
-    .filter(hasValue('color', tile.color))
-
-  if (lastSelected) {
-    tiles = tiles.filter(doesNotHaveId(lastSelected.id))
-  }
-
-  return tiles
 }
 
 function sumTilesScorePoinst(tiles) {
@@ -143,7 +113,7 @@ export default {
     GameboardTile,
     GameboardModifier,
     WallsLayer,
-    SelectionLine,
+    Selection,
     SelectionProgressFrame,
   },
 
@@ -162,11 +132,10 @@ export default {
       movesLeft: 0,
       goals: [],
       score: 0,
-      isSelectionAllowed: true,
 
       selection: [],
       isMakingSelection: false,
-      nextPossibleTiles: [],
+      isSelectionDisabled: false
     }
   },
 
@@ -194,22 +163,6 @@ export default {
       return this.modifiers.map(modifier => ({
         ...modifier, tile: getMatrixCell(this.tilesMatrix, modifier.position)
       }))
-    },
-
-    selectionColor() {
-      return this.selection.length && this.selection[0].color || undefined
-    },
-
-    isSelectionClosed() {
-      return isSelectionClosed(this.selection)
-    },
-
-    lastSelected() {
-      return this.selection[this.selection.length - 1]
-    },
-
-    secondLastSelected() {
-      return this.selection[this.selection.length - 2]
     },
 
     availableDotSquares() {
@@ -283,103 +236,41 @@ export default {
       this.squaresHighlightingInterval && clearInterval(this.squaresHighlightingInterval)
     },
 
-    releasePointerCapture(e) {
-      e.target.releasePointerCapture(e.pointerId)
-    },
-
-    startSelection(tile) {
-      if (!this.isSelectionAllowed || !isDot(tile)) {
-        return
-      }
-
+    startSelection() {
       this.isMakingSelection = true
-      this.selection = []
-
       this.cancelSquaresHighlighting()
-      this.addToSelection(tile)
-
-      window.addEventListener('pointerup', this.endSelection)
     },
 
-    addToSelection(tile) {
-      this.selection.push(tile)
+    changeSelection({ selection, isSelectionClosed, selectionColor, lastSelected }) {
+      this.selection = selection
 
-      const selectedWithoutLast = this.selection.slice(0, this.selection.length - 2)
-
-      if (this.isSelectionClosed) {
-        this.getAllDotTilesOfColor(this.selectionColor)
+      if (isSelectionClosed) {
+        this.getAllDotTilesOfColor(selectionColor)
           .map(this.getTileContentComponent)
           .forEach(c => c.animateBeacon())
       }
 
-      this.getTileContentComponent(tile).animateBeacon()
-      this.playSelectionThumb()
-
-      if (selectedWithoutLast.some(hasId(this.lastSelected.id))) {
-        this.nextPossibleTiles = []
-        return
-      }
-
-      const nextPossibleTiles = getNextPossibleTiles(
-        this.tilesMatrix,
-        tile,
-        this.lastSelected
-      )
-
-      this.nextPossibleTiles = nextPossibleTiles
-    },
-
-    removeLastFromSelection(e) {
-      e.preventDefault()
-
-      this.selection.pop()
-
-      const leadingTile = this.selection.slice(-1).pop()
-
-      this.getTileContentComponent(leadingTile).animateBeacon()
-      this.playSelectionThumb()
-
-      this.nextPossibleTiles = getNextPossibleTiles(
-        this.tilesMatrix,
-        this.lastSelected,
-        this.secondLastSelected
-      )
-    },
-
-    playSelectionThumb() {
-      if (this.isSelectionClosed) {
-        AudioService.playClosedSelectionThumb(this.selection.length)
-      } else if (this.selection.length) {
-        AudioService.playSelectionThumb(this.selection.length)
+      if (lastSelected) {
+        this.getTileContentComponent(lastSelected).animateBeacon()
       }
     },
 
-    async endSelection(e) {
-      e.preventDefault()
+    async endSelection({ selection, enclosedTiles, isSelectionClosed, selectionColor }) {
+      this.selection = []
 
-      window.removeEventListener('pointerup', this.endSelection)
-
-      this.isMakingSelection = false
-      this.isSelectionAllowed = false
-      this.nextPossibleTiles = []
-
-      if (this.selection.length > 1) {
+      if (selection.length > 1) {
         this.movesLeft = this.movesLeft - 1
 
-        if (this.isSelectionClosed) {
-          getTilesEnclosedBySelection(this.tiles, this.selection)
-            .filter(tile => !tile.static)
-            .forEach(this.convertIntoBomb)
+        if (isSelectionClosed) {
+          enclosedTiles.filter(tile => !tile.static).forEach(this.convertIntoBomb)
         }
 
-        const tilesToPop = this.isSelectionClosed
-          ? this.getAllDotTilesOfColor(this.selectionColor)
-          : this.selection
+        const tilesToPop = isSelectionClosed
+          ? this.getAllDotTilesOfColor(selectionColor)
+          : selection
 
-        await this.poppingRoutine(tilesToPop, this.isSelectionClosed && this.selectionColor)
+        await this.poppingRoutine(tilesToPop, isSelectionClosed && selectionColor)
       }
-
-      this.selection = []
 
       if (this.hasMetGoals) {
         return this.completeLevel()
@@ -391,61 +282,61 @@ export default {
 
       this.initSquaresHighlighting()
 
-      this.isSelectionAllowed = true
+      this.isSelectionDisabled = false
     },
 
     async poppingRoutine(tilesToPop, restrictedColor = undefined) {
-        // pop tiles
+      // pop tiles
 
-        let availableColors = restrictedColor
-          ? this.level.colors.filter(color => color !== restrictedColor)
-          : this.level.colors
+      let availableColors = restrictedColor
+        ? this.level.colors.filter(color => color !== restrictedColor)
+        : this.level.colors
 
-        if (!availableColors.length) {
-          availableColors = this.level.colors
-        }
+      if (!availableColors.length) {
+        availableColors = this.level.colors
+      }
 
-        const movements = []
+      const movements = []
 
-        await this.popTiles(tilesToPop)
+      await this.popTiles(tilesToPop)
 
-        movements.push(...this.fallDown())
-        movements.push(...this.fillWithDots(availableColors))
+      movements.push(...this.fallDown())
+      movements.push(...this.fillWithDots(availableColors))
 
-        await this.animateMovements(movements)
+      await this.animateMovements(movements)
 
-        // bombs
-        const bombs = this.tiles.filter(isBomb)
+      // bombs
+      const bombs = this.tiles.filter(isBomb)
 
-        if (bombs.length) {
-          const tilesToPopByBomb = bombs.reduce((acc, bomb) => {
-            const tiles = getNeighbourCells(this.tilesMatrix, bomb.position, patterns.SQUARE)
-              .filter(tile => !tile.static)
+      if (bombs.length) {
+        const tilesToPopByBomb = bombs.reduce((acc, bomb) => {
+          const tiles = getNeighbourCells(this.tilesMatrix, bomb.position, patterns.SQUARE)
+            .filter(tile => !tile.static)
 
-            return acc.concat({ bomb, tiles })
-          }, [])
+          return acc.concat({ bomb, tiles })
+        }, [])
 
-          const tilesToPop = tilesToPopByBomb.flatMap(({ tiles }) => tiles)
+        const tilesToPop = tilesToPopByBomb.flatMap(({ tiles }) => tiles)
 
-          this.animateTiles(tilesToPop, ref => ref.animateBurn())
+        this.animateTiles(tilesToPop, ref => ref.animateBurn())
 
-          const detonationAnimations = tilesToPopByBomb.map(
-            ({ bomb, tiles }) => this.animateTiles(bomb, ref => ref.animateDetonation(tiles))
-          )
+        const detonationAnimations = tilesToPopByBomb.map(
+          ({ bomb, tiles }) => this.animateTiles(bomb, ref => ref.animateDetonation(tiles))
+        )
 
-          await Promise.all(detonationAnimations)
+        await Promise.all(detonationAnimations)
 
-          return this.poppingRoutine(tilesToPop.concat(bombs))
-        }
+        return this.poppingRoutine(tilesToPop.concat(bombs))
+      }
 
-        // anchors
-        const sunkenAnchors = this.tiles
-          .filter(isAnchor)
-          .filter(tile => tile.y + 1 === this.size.height)
+      // anchors
+      const sunkenAnchors = this.tiles
+        .filter(isAnchor)
+        .filter(tile => tile.y + 1 === this.size.height)
 
-        if (sunkenAnchors.length) {
-          return this.poppingRoutine(sunkenAnchors)
-        }
+      if (sunkenAnchors.length) {
+        return this.poppingRoutine(sunkenAnchors)
+      }
     },
 
     async animateMovements(movements) {
