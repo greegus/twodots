@@ -11,9 +11,9 @@
     <!-- zones -->
     <g v-if="isMakingSelection" class="opacity-0">
       <rect
-        v-for="tile in nextPossibleTiles" :key="tile.id"
-        :x="tile.position.x"
-        :y="tile.position.y"
+        v-for="tile in nextPossibleTiles"
+        v-bind="tile.position"
+        :key="tile.id"
         width="1"
         height="1"
         @pointerenter="addToSelection(tile, $event)"
@@ -21,8 +21,7 @@
 
       <rect
         v-if="secondLastSelected"
-        :x="secondLastSelected.position.x"
-        :y="secondLastSelected.position.y"
+        v-bind="secondLastSelected.position"
         width="1"
         height="1"
         @pointerenter="removeLastFromSelection($event)"
@@ -32,9 +31,8 @@
     <g v-else-if="!disabled" class="opacity-0">
       <rect
         v-for="tile in selectableTiles"
+        v-bind="tile.position"
         :key="`selectable.${tile.id}`"
-        :x="tile.position.x"
-        :y="tile.position.y"
         width="1"
         height="1"
         @pointerdown="startSelection(tile)"

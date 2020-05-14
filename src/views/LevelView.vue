@@ -25,7 +25,7 @@
       />
 
       <!-- tiles -->
-      <svg v-for="tile in tiles" :key="tile.id" :x="tile.position.x" :y="tile.position.y">
+      <svg v-for="tile in tiles" v-bind="tile.position" :key="tile.id">
         <GameboardTile
           :tile="tile"
           :ref="tile.id"
@@ -36,12 +36,11 @@
       <!-- Modifiers -->
       <GameboardModifier
         v-for="modifier in modifiersWithTile"
+        v-bind="modifier.position"
         :ref="modifier.id"
         :key="modifier.id"
         :modifier="modifier"
         :theme="level.theme"
-        :x="modifier.position.x"
-        :y="modifier.position.y"
       />
 
       <Selection
