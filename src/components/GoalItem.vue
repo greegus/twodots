@@ -1,3 +1,26 @@
+<script setup lang="ts">
+import * as AudioService from '@/services/AudioService'
+
+import GoalPreview from '@/components/GoalPreview.vue'
+import type { Goal, Theme } from '@/types.d';
+import { computed, watch } from 'vue';
+import { Icon } from 'vuiii';
+
+const props = defineProps<{
+  goal: Goal,
+  theme: Theme
+}>()
+
+const isCompleted = computed(() => props.goal.current >= props.goal.target)
+
+watch(isCompleted, (newValue, oldValue) => {
+  if (newValue && newValue !== oldValue) {
+    AudioService.playGoalReachedThumb()
+  }
+})
+</script>
+
+
 <template>
   <div class="GoalItem relative text-center w-9 lg:w-16">
     <div class="GoalItem__counter">
@@ -16,38 +39,3 @@
   </div>
 </template>
 
-<script>
-import * as AudioService from 'services/AudioService'
-
-import GoalPreview from 'components/GoalPreview'
-
-export default {
-  components: {
-    GoalPreview
-  },
-
-  props: {
-    goal: {
-      type: Object
-    },
-
-    theme: {
-      type: Object
-    }
-  },
-
-  computed: {
-    isCompleted() {
-      return this.goal.current >= this.goal.target
-    }
-  },
-
-  watch: {
-    isCompleted(newValue, oldValue) {
-      if (newValue && newValue !== oldValue) {
-        AudioService.playGoalReachedThumb()
-      }
-    }
-  }
-}
-</script>

@@ -1,59 +1,17 @@
-<template>
-  <g>
-    <!-- line -->
-    <SelectionLine
-      :selection="selection"
-      :theme="theme"
-      :size="size"
-      v-if="isMakingSelection"
-    />
+<script lang="ts" setup>
+import { isDot } from '@/utils/tiles'
+import { isSelectionClosed, getTilesEnclosedBySelection, getSelectionColor } from '@/utils/selection'
+import { getNeighbourCells } from '@/utils/matrix'
+import { hasValue, doesNotHaveId } from '@/utils/helpers'
 
-    <!-- zones -->
-    <g v-if="isMakingSelection" class="opacity-0">
-      <rect
-        v-for="tile in nextPossibleTiles"
-        v-bind="tile.position"
-        :key="tile.id"
-        width="1"
-        height="1"
-        @pointerenter="addToSelection(tile, $event)"
-      />
+import * as AudioService from '@/services/AudioService'
 
-      <rect
-        v-if="secondLastSelected"
-        v-bind="secondLastSelected.position"
-        width="1"
-        height="1"
-        @pointerenter="removeLastFromSelection($event)"
-      />
-    </g>
+import SelectionLine from '@/components/canvas/SelectionLine.vue'
+import type { Matrix, Size, Theme, Tile } from '@/types.d'
+import { computed, ref } from 'vue'
 
-    <g v-else-if="!disabled" class="opacity-0">
-      <rect
-        v-for="tile in selectableTiles"
-        v-bind="tile.position"
-        :key="`selectable.${tile.id}`"
-        width="1"
-        height="1"
-        @pointerdown="startSelection(tile)"
-        @gotpointercapture="releasePointerCapture"
-      />
-    </g>
-  </g>
-</template>
-
-<script>
-import { isDot } from 'utils/tiles'
-import { isSelectionClosed, getTilesEnclosedBySelection } from 'utils/selection'
-import { getNeighbourCells } from 'utils/matrix'
-import { hasValue, doesNotHaveId } from 'utils/helpers'
-
-import * as AudioService from 'services/AudioService'
-
-import SelectionLine from 'components/canvas/SelectionLine'
-
-function getNextPossibleTiles(tilesMatrix, tile, lastSelected = undefined) {
-  let tiles = getNeighbourCells(tilesMatrix, tile.position)
+function getNextPossibleTiles(tilesMatrix: Matrix<Tile>, tile: Tile, lastSelected?: Tile) {
+  let tiles = getNeighbourCells<Tile>(tilesMatrix, tile.position)
     .filter(isDot)
     .filter(hasValue('color', tile.color))
 
@@ -64,140 +22,140 @@ function getNextPossibleTiles(tilesMatrix, tile, lastSelected = undefined) {
   return tiles
 }
 
-export default {
-  components: {
-    SelectionLine
-  },
+const props = defineProps<{
+  tilesMatrix: Matrix<Tile>
+  size: Size
+  theme: Theme
+  disabled?: boolean
+}>()
 
-  props: {
-    tilesMatrix: {
-      type: Array,
-      required: true
-    },
+const emit = defineEmits<{
+  (e: 'start'): void
+  (e: 'change', payload: {
+    selection: Tile[]
+    isSelectionClosed: boolean
+    selectionColor: string
+    lastSelected?: Tile
+  }): void
+  (e: 'end', payload: {
+    selection: Tile[]
+    enclosedTiles: Tile[]
+    isSelectionClosed: boolean
+    selectionColor: string
+  }): void
+}>()
 
-    size: {
-      type: Object,
-      required: true
-    },
+const selection = ref<Tile[]>([])
 
-    theme: {
-      type: Object,
-      required: true
-    },
+const isMakingSelection = ref(false)
 
-    disabled: {
-      tyoe: Boolean
-    }
-  },
+const nextPossibleTiles = ref<Tile[]>([])
 
-  data() {
-    return {
-      selection: [],
-      isMakingSelection: false,
-      nextPossibleTiles: []
-    }
-  },
+const tiles = computed(() => props.tilesMatrix.flat())
 
-  computed: {
-    tiles() {
-      return this.tilesMatrix.flat()
-    },
+const selectableTiles = computed(() => tiles.value.filter(isDot))
 
-    selectableTiles() {
-      return this.tiles.filter(isDot)
-    },
+const isClosed = computed(() => isSelectionClosed(selection.value))
 
-    isSelectionClosed() {
-      return isSelectionClosed(this.selection)
-    },
+const enclosedTiles = computed(() => getTilesEnclosedBySelection(tiles.value, selection.value))
 
-    enclosedTiles() {
-      return getTilesEnclosedBySelection(this.tiles, this.selection)
-    },
+const color = computed(() => getSelectionColor(selection.value, props.theme))
 
-    selectionColor() {
-      return this.selection.length && this.selection[0].color || undefined
-    },
+const lastSelected = computed(() => selection.value[selection.value.length - 1])
 
-    lastSelected() {
-      return this.selection[this.selection.length - 1]
-    },
+const secondLastSelected = computed(() => selection.value[selection.value.length - 2])
 
-    secondLastSelected() {
-      return this.selection[this.selection.length - 2]
-    },
-  },
+const playSelectionThumb = () => {
+  AudioService.playSelectionThumb(selection.value.length, isClosed.value)
+}
 
-  methods: {
-    startSelection(tile) {
-      this.isMakingSelection = true
-      this.selection = []
+const handleSelectionChange = () => {
+  nextPossibleTiles.value = isClosed.value
+    ? []
+    : getNextPossibleTiles(
+      props.tilesMatrix,
+      lastSelected.value,
+      lastSelected.value
+    )
 
-      this.$emit('start')
+  playSelectionThumb()
 
-      this.addToSelection(tile)
+  emit('change', {
+    selection: selection.value,
+    isSelectionClosed: isClosed.value,
+    selectionColor: color.value,
+    lastSelected: lastSelected.value
+  })
+}
 
-      window.addEventListener('pointerup', this.endSelection)
-    },
+const addToSelection = (e: Event, tile: Tile) => {
+  e.preventDefault()
 
-    addToSelection(tile) {
-      this.selection.push(tile)
+  selection.value.push(tile)
 
-      this.handleSelectionChange()
-    },
+  handleSelectionChange()
+}
 
-    removeLastFromSelection(e) {
-      e.preventDefault()
+const removeLastFromSelection = (e: Event) => {
+  e.preventDefault()
 
-      this.selection.pop()
+  selection.value.pop()
 
-      this.handleSelectionChange()
-    },
+  handleSelectionChange()
+}
 
-    handleSelectionChange() {
-      this.nextPossibleTiles = this.isSelectionClosed
-        ? []
-        : getNextPossibleTiles(
-            this.tilesMatrix,
-            this.lastSelected,
-            this.lastSelected
-          )
+const startSelection = (e: Event, tile: Tile) => {
+  isMakingSelection.value = true
+  selection.value = []
 
-      this.playSelectionThumb()
+  emit('start')
 
-      this.$emit('change', {
-        selection: this.selection,
-        isSelectionClosed: this.isSelectionClosed,
-        selectionColor: this.selectionColor,
-        lastSelected: this.lastSelected
-      })
-    },
+  addToSelection(e, tile)
 
-    async endSelection(e) {
-      e.preventDefault()
+  window.addEventListener('pointerup', endSelection)
+}
 
-      window.removeEventListener('pointerup', this.endSelection)
 
-      this.isMakingSelection = false
-      this.nextPossibleTiles = []
+const endSelection = (e: Event) => {
+  e.preventDefault()
 
-      this.$emit('end', {
-        selection: this.selection,
-        enclosedTiles: this.enclosedTiles,
-        isSelectionClosed: this.isSelectionClosed,
-        selectionColor: this.selectionColor
-      })
+  window.removeEventListener('pointerup', endSelection)
 
-      this.selection = []
-    },
+  isMakingSelection.value = false
+  nextPossibleTiles.value = []
 
-    releasePointerCapture(e) {
-      e.target.releasePointerCapture(e.pointerId)
-    },
+  emit('end', {
+    selection: selection.value,
+    enclosedTiles: enclosedTiles.value,
+    isSelectionClosed: isClosed.value,
+    selectionColor: color.value
+  })
 
-    playSelectionThumb() {
-      AudioService.playSelectionThumb(this.selection.length, this.isSelectionClosed)
-    }
-  }
+  selection.value = []
+}
+
+const releasePointerCapture = (e: PointerEvent) => {
+  (e.target as HTMLElement).releasePointerCapture(e.pointerId)
 }
 </script>
+
+<template>
+  <g>
+    <!-- line -->
+    <SelectionLine :selection="selection" :theme="theme" :size="size" v-if="isMakingSelection" />
+
+    <!-- zones -->
+    <g v-if="isMakingSelection" class="opacity-0">
+      <rect v-for="tile in nextPossibleTiles" v-bind="tile.position" :key="tile.id" width="1" height="1"
+        @pointerenter.prevent="addToSelection($event, tile)" />
+
+      <rect v-if="secondLastSelected" v-bind="secondLastSelected.position" width="1" height="1"
+        @pointerenter="removeLastFromSelection($event)" />
+    </g>
+
+    <g v-else-if="!disabled" class="opacity-0">
+      <rect v-for="tile in selectableTiles" v-bind="tile.position" :key="`selectable.${tile.id}`" width="1" height="1"
+        @pointerdown="startSelection($event, tile)" @gotpointercapture="releasePointerCapture" />
+    </g>
+  </g>
+</template>

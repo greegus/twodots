@@ -1,5 +1,18 @@
+<script lang="ts" setup>
+import { Button, ModalLayout, useCloseModal } from 'vuiii'
+
+import type { Level } from '@/types.d';
+import GoalPreview from '@/components/GoalPreview.vue'
+
+defineProps<{
+  level: Level
+}>()
+
+const close = useCloseModal()
+</script>
+
 <template>
-  <modal-layout class="select-none font-sans font-light" width="420" hide-closer>
+  <ModalLayout class="select-none font-sans font-light" width="420" hide-close-button>
     <div class="font-light text-2xl text-center lg:mt-3 mb-3 lg:mb-5">
       Level {{ level.id }}
     </div>
@@ -16,26 +29,7 @@
     </div>
 
     <div class="mt-5 lg:mt-10">
-      <Button class="w-full" primary @click="$emit('close', true)">
-        Let's go
-      </Button>
+      <Button class="w-full" varaint="primary" @click="close(true)" label="Let's go" /> 
     </div>
-  </modal-layout>
+  </ModalLayout>
 </template>
-
-<script>
-import GoalPreview from 'components/GoalPreview'
-
-export default {
-  components: {
-    GoalPreview
-  },
-
-  props: {
-    level: {
-      type: Object,
-      required: true
-    }
-  }
-}
-</script>

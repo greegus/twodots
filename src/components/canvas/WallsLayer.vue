@@ -1,6 +1,15 @@
+<script lang="ts" setup>
+import type { Size, WallTile } from '@/types.d';
+
+defineProps<{
+  walls: WallTile[],
+  size: Size
+}>()
+</script>
+
 <template>
   <g>
-    <svg :width="size.width + 2" :height="size.height + 2" x="-1" y="-1">
+    <svg :width="$props.size.width + 2" :height="$props.size.height + 2" x="-1" y="-1">
       <defs>
         <filter id="shadow">
           <feOffset in="SourceGraphic" dy=".1" />
@@ -9,11 +18,11 @@
 
         <mask id="mask">
           <rect x="0" y="0" width="100%" height="100%" fill="white" />
-          <rect v-for="tile in walls" :key="tile.id" width="1" height="1" :x="tile.position.x + 1" :y="tile.position.y + 1" fill="black" />
+          <rect v-for="tile in $props.walls" :key="tile.id" width="1" height="1" :x="tile.position.x + 1" :y="tile.position.y + 1" fill="black" />
         </mask>
 
         <clipPath id="clipPath">
-          <rect v-for="tile in walls" :key="tile.id" width="1" height="1" :x="tile.position.x + 1" :y="tile.position.y + 1" fill="black" />
+          <rect v-for="tile in $props.walls" :key="tile.id" width="1" height="1" :x="tile.position.x + 1" :y="tile.position.y + 1" fill="black" />
         </clipPath>
       </defs>
 
@@ -24,19 +33,3 @@
     </svg>
   </g>
 </template>
-
-<script>
-export default {
-  props: {
-    walls: {
-      type: Array,
-      default: () => []
-    },
-
-    size: {
-      type: Object,
-      required: true
-    }
-  }
-}
-</script>

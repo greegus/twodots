@@ -4,14 +4,11 @@
     inline-block px-2 pt-4 pb-3 mb-1
     bg-gray-300 rounded-full
     text-gray-600 font-semibold text-lg text-center
-    transition-all duration-100;
+    transition-all duration-100
+    md:px-12;
 
   box-shadow: 0 0.35rem 0 0 theme('colors.gray.400');
   transform: translateY(-.15rem);
-
-  @screen md {
-    @apply px-12;
-  }
 
   &:focus {
     @apply outline-none;

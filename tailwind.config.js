@@ -1,84 +1,13 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
-  important: true,
-
-  purge: {
-    content: [
-      './src/**/*.html',
-      './src/**/*.vue'
-    ]
-  },
+  content: [
+    './src/**/*.vue',
+  ],
 
   theme: {
-    fontFamily: {
-      'sans': ['Montserrat', 'Open Sans']
-    },
-
-    extend: {
-      fontSize: {
-        '2xs': '.575rem'
-      },
-
-      colors: {
-        'spaceblue': {
-          '100': '#dbdce0',
-          '700': '#526271',
-          '800': '#465767',
-          '900': '#2e3648'
-        }
-      },
-
-      spacing: {
-        '9': '2.25rem',
-        '11': '2.75rem',
-        '14': '3.5rem',
-        '72': '18rem',
-        '84': '21rem',
-        '96': '24rem',
-        '128': '42rem',
-        '160': '72rem',
-      },
-
-      minWidth: theme => theme('spacing'),
-
-      maxWidth: theme => theme('spacing'),
-
-      minHeight: theme => theme('spacing'),
-
-      maxHeight: theme => theme('spacing'),
-
-      zIndex: {
-        '1': 1
-      },
-
-      height: {
-        '1/2': '50%'
-      },
-
-      borderRadius: {
-        'xl': '.85rem',
-        '2xl': '1.15rem'
-      },
-
-      transitionProperty: {
-        'visibility': 'visibility, opacity'
-      },
-
-      boxShadow: theme => ({
-        'inset': 'inset 0 0 0 1px rgba(#000, .1)',
-        'outline-error': `0 0 0 3px rgba(${theme('colors.red.500')}, .5)`
-      })
-    },
+    extend: {},
   },
-
-  variants: {},
-
-  plugins: [
-    function({ addUtilities}) {
-      addUtilities({
-        '.grayscale': {
-          filter: 'grayscale(100)'
-        }
-      })
-    }
-  ]
+  
+  plugins: [],
 }
+

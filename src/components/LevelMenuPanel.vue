@@ -5,17 +5,18 @@
     </FadeTransition>
 
     <SlideFromSide>
-      <div class="fixed inset-y-0 right-0 z-10 flex flex-col max-w-md bg-spaceblue-700 rounded-l-2xl" style="width: calc(100% - 3rem)" v-if="isOpen">
+      <div class="fixed inset-y-0 right-0 z-10 flex flex-col max-w-md bg-spaceblue-700 rounded-l-2xl"
+        style="width: calc(100% - 3rem)" v-if="isOpen">
         <div class="rounded-tl-2xl bg-spaceblue-800 p-5 text-white">
           <Logo />
         </div>
 
         <div class="p-5">
-          <Button class="w-full mb-5" primary @click="close(); $emit('restart-level')">
+          <Button class="w-full mb-5" variant="primary" @click="close(); $emit('restart-level')">
             Restart
           </Button>
 
-          <Button class="w-full mb-5" @click="close(); $emit('exit-to-map')">
+          <Button class="w-full mb-5" variant="secondary" @click="close(); $emit('exit-to-map')">
             Exit to map
           </Button>
         </div>
@@ -24,39 +25,29 @@
   </div>
 </template>
 
-<script>
-import Logo from 'components/Logo'
+<script lang="ts" setup>
+import { ref } from 'vue';
+import { Button, useOnKeyPress } from 'vuiii'
 
-import SlideFromSide from 'transitions/SlideFromSide'
-import FadeTransition from 'transitions/Fade'
+import Logo from '@/components/Logo.vue'
 
-export default {
-  components: {
-    Logo,
-    SlideFromSide,
-    FadeTransition
-  },
+import SlideFromSide from '@/transitions/SlideFromSideTransition.vue'
+import FadeTransition from '@/transitions/FadeTransition.vue'
 
-  data() {
-    return {
-      isOpen: false
-    }
-  },
+const isOpen = ref(false)
 
-  methods: {
-    open() {
-      this.isOpen = true
-      window.addEventListener('keydown', this.close)
-    },
-
-    close() {
-      this.isOpen = false
-      window.removeEventListener('keydown', this.close)
-    },
-
-    closeByEsc(e) {
-      e.key === 'Escape' && this.close()
-    }
-  }
+const open = () => {
+  isOpen.value = true
 }
+
+const close = () => {
+  isOpen.value = false
+}
+
+useOnKeyPress('Escape', () => close())
+
+defineExpose({
+  open, 
+  close
+})
 </script>

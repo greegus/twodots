@@ -1,36 +1,19 @@
+<script lang="ts" setup>
+import TilePreview from '@/components/TilePreview.vue'
+import ModifierPreview from '@/components/ModifierPreview.vue'
+import type { Goal, Theme } from '@/types.d';
+import { computed } from 'vue';
+
+const props = defineProps<{
+  goal: Goal,
+  theme: Theme
+}>()
+
+const isModifier = computed(() => 'modifier' in props.goal)
+</script>
+
 <template>
-  <component :is="component" :theme="theme" v-bind="attrs" />
+  <component :is="isModifier ? ModifierPreview : TilePreview" :theme="theme"
+    v-bind="isModifier ? { modifier: goal.modifier } : { tile: goal.tile }" />
 </template>
 
-<script>
-import TilePreview from 'components/TilePreview'
-import ModifierPreview from 'components/ModifierPreview'
-
-export default {
-  components: {
-    TilePreview,
-    ModifierPreview
-  },
-
-  props: {
-    goal: {
-      type: Object
-    },
-
-    theme: {
-      type: Object
-    }
-  },
-
-  computed: {
-    component() {
-      return this.goal.modifier ? ModifierPreview : TilePreview
-    },
-
-    attrs() {
-      const { modifier, tile } = this.goal
-      return modifier ? { modifier } : { tile }
-    }
-  },
-}
-</script>

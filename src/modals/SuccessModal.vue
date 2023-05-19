@@ -1,5 +1,12 @@
+
+<script lang="ts" setup>
+import { Button, Icon, ModalLayout, useCloseModal } from 'vuiii';
+
+const close = useCloseModal()
+</script>
+
 <template>
-  <modal-layout class="select-none font-sans font-light" width="480" hide-closer>
+  <ModalLayout class="select-none font-sans font-light" width="480" hide-close-button>
     <div class="absolute w-full inset-x-0 t-0 flex items-end justify-center text-yellow-500" style="transform: translateY(-4.5rem)">
       <Icon name="star" size="3x" style="transform: rotate(-25deg)" />
       <Icon name="star" size="5x" class="-mx-2 text-yellow-400" />
@@ -11,9 +18,7 @@
     </div>
 
     <div class="pt-2">
-      <Button class="w-full" @click="$emit('close')" primary>
-        Continue
-      </Button>
+      <Button class="w-full" @click="close()" variant="primary" label="Continue" />
     </div>
-  </modal-layout>
+  </ModalLayout>
 </template>
